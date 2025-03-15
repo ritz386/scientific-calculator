@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Mathematical Calculator with Ten Variables</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 9px; /* Reduced font size by half */
+        }
+        input, output, textarea {
+            display: block;
+            margin: 0 px 0; /* Adjusted margin for smaller fields */
+            padding: 5px; /* Reduced padding by half */
+            width: 300px; /* Reduced width by half */
+            font-size: 12px; /* Reduced font size by half */
+        }
+        output {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            width: 300 px;
+            height: 15px;         
+        }
+        .notes-field {
+            width: 300px; /* Wider for notes */
+            height: 100px; /* Taller for notes */
+            border: 1px solid #ccc;
+            padding: 5px;
+            font-size: 10px;
+            resize: vertical; /* Allow vertical resizing */
+            overflow: auto; /* Add scrollbar if content overflows */
+        }
+        .variable-input {
+            display: flex;
+            gap: 3px; /* Reduced gap between inputs */
+            margin-bottom: 1px; /* Reduced margin for smaller fields */
+        }
+        .variable-input input {
+            width: 143px; /* Reduced width by half */
+        }
+        .calculation-group {
+            margin-bottom: 20px; /* Space between calculation groups */
+        }
+    </style>
+</head>
+<body>
+    <img src="title.jpg" alt="Math Tool Box">
+<br>
+    <font size="1"><i>for scientific, engineering, and day-to-day calculations</i></font><br><br>
+
+    <font size="2"><b><i>Enter variable names <font color="#FFFFFF">..........</font>Enter values</i></b></font>
+
+    <!-- Variable Input Fields -->
+    <div class="variable-input">
+        <input type="text" id="variableName1" placeholder="V"><font size="4">:</font>
+        <input type="text" id="variableValue1" placeholder="Value (e.g., 10)">
+        <font color="#0000A0">The 7 SI units: Second (s, time), metre (m, length), kilogram (kg, mass),<br>
+            ampere (A, electric current), kelvin (K, thermodynamic temperature),<br> 
+            mole (mol, amount of substance), and candela (cd, luminous intensity).</font>
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName2" placeholder="n"><font size="4">:</font>
+        <input type="text" id="variableValue2" placeholder="Value (e.g., 2)">
+        1 mile = 1760 yards (1.6093 km) <br>
+        1 yard = 3 feet <br>
+        1 furlong = 220 yard (201.168 meter)
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName3" placeholder="R"><font size="4">:</font>
+        <input type="text" id="variableValue3" placeholder="Value (e.g., 8.314)">
+        1 foot (feet) = 12 inch <br>
+        1 inch = 2.54 cm <br>
+        1 foot (feet) = 30.48 cm
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName4" placeholder="T"><font size="4">:</font>
+        <input type="text" id="variableValue4" placeholder="Value (e.g., 300)">
+        1 hector = 10000 m2 = 107639.147 sqft <br>
+        1 m2 = 10,7639 sqft. <br>
+        1 hector = 2.471 acre, 1 acre = 43,560 sqft
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName5" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue5" placeholder="">
+        1 metric ton = 1000 kg <br>
+        1 ton (US) = 2000 pound (907.18 kg) <br>
+        1 pound = 16 ounce
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName6" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue6" placeholder="">
+        1 pound = 453.592 gm = 0.4536 kg <br>
+        1 ounce = 28.3495 gm <br>
+        1 kg = 2.2046 pound
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName7" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue7" placeholder="">
+        1 decimeter = 10 centimeter<br>
+        1 decameter = 10 meter<br>
+        1 decigram = 0.1 gram
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName8" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue8" placeholder="">
+        1 decagram = 10 gram <br>
+        1 deciliter = 100 milliliter <br>
+        1 decaliter = 10 liter
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName9" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue9" placeholder="">
+        Avogadro’s number (Na): 6.022*10^23 mol-1 <br>
+        Boltzmann constant (k): 1.380649*10^(-23) m2 kg s-2 K-1 <br>
+        Planck's constant (h):  6.62607015*10^(-34) m2 kg / s
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName10" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue10" placeholder="">
+        Elementary charge (c): 1.60217663*10^(-19) coulombs <br>
+        Faraday constant (F): 96 485.3321  sA / mol <br>
+        The gas constant (R): is 8.314 J / mol·K., to all constants (to be updated)
+    </div>
+
+    <br> <font size="2" color="#0000FF">Example equations: <b>PV = nRT</b> (ideal gas law), <b>Net present value = Rt/(1+i)^t</b>, etc.</font>
+    <br> <font size="2" color="#0000FF"> List of equations: chemistry, physics, statistics, engineering, economics. (to be updated) </font>
+    <br>
+    <br>
+   
+ <!-- First Calculation Group -->
+    <div class="calculation-group">
+        <label for="inputField1"><font size="2"><b><i>Enter Mathematical Expression:</i></b></font></label>         
+        <input type="text" id="inputField1" placeholder="e.g., nRT/V" style="height: 30px;"> 
+        <font color="#800080">syntax: for log use logx(y) where x is the base, pi returns the value of pi, e returns the value of exponential constant
+        <br>
+        sin-1(x) returns sin inverse of x, provide angles in degrees in trigonometric calculations</font>
+        <br>
+        <label for="outputField1"><font size="2"><i>Result 1:</i></font></label>
+        <output id="outputField1">0</output>   
+    </div>
+
+    <!-- Second Calculation Group -->
+    <div class="calculation-group">
+        <label for="inputField2"><font size="2"><b><i>Enter Mathematical Expression:</i></b></font></label>
+        <input type="text" id="inputField2" placeholder="e.g., x! + y * sin(z) + log2(a) + b - c + d - e + f + g" style="height: 30px;">
+        <label for="outputField2"><font size="2"><i>Result 2:</i></font></label>
+        <output id="outputField2">0</output>
+    </div>
+
+    <!-- Notes Input Field -->
+    <div class="calculation-group">
+        <label for="notesField">Notes:</label>
+        <div id="notesField" class="notes-field" contenteditable="true" placeholder="Write your notes here..."></div>
+    </div>
+
+    <script>
+        // Get references to the input fields and output fields
+        const variableNameInputs = [
+            document.getElementById('variableName1'),
+            document.getElementById('variableName2'),
+            document.getElementById('variableName3'),
+            document.getElementById('variableName4'),
+            document.getElementById('variableName5'),
+            document.getElementById('variableName6'),
+            document.getElementById('variableName7'),
+            document.getElementById('variableName8'),
+            document.getElementById('variableName9'),
+            document.getElementById('variableName10')
+        ];
+
+        const variableValueInputs = [
+            document.getElementById('variableValue1'),
+            document.getElementById('variableValue2'),
+            document.getElementById('variableValue3'),
+            document.getElementById('variableValue4'),
+            document.getElementById('variableValue5'),
+            document.getElementById('variableValue6'),
+            document.getElementById('variableValue7'),
+            document.getElementById('variableValue8'),
+            document.getElementById('variableValue9'),
+            document.getElementById('variableValue10')
+        ];
+
+        const inputField1 = document.getElementById('inputField1');
+        const outputField1 = document.getElementById('outputField1');
+        const inputField2 = document.getElementById('inputField2');
+        const outputField2 = document.getElementById('outputField2');
+        const notesField = document.getElementById('notesField');
+
+        // Object to store user-defined variables
+        let variables = {};
+
+        // Function to update variables
+        function updateVariables() {
+            for (let i = 0; i < variableNameInputs.length; i++) {
+                const name = variableNameInputs[i].value.trim();
+                const value = parseFloat(variableValueInputs[i].value.trim());
+                if (name && !isNaN(value)) {
+                    variables[name] = value;
+                }
+            }
+        }
+
+        // Function to replace variable names and constants with their values
+        function replaceVariables(expression) {
+            // Replace pi with Math.PI
+            expression = expression.replace(/\bpi\b/g, Math.PI);
+
+            // Replace g with 9.8 (acceleration due to gravity)
+            expression = expression.replace(/\bg\b/g, 9.8);
+
+            // Replace variable names with their values
+            for (const [name, value] of Object.entries(variables)) {
+                const regex = new RegExp(`\\b${name}\\b`, 'g');
+                expression = expression.replace(regex, value);
+            }
+            return expression;
+        }
+
+        // Function to calculate factorial
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        // Function to convert degrees to radians
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        // Function to convert radians to degrees
+        function toDegrees(radians) {
+            return radians * (180 / Math.PI);
+        }
+
+        // Function to replace logx(y) with the appropriate JavaScript expression
+        function replaceLogSyntax(expression) {
+            // Regular expression to match logx(y) syntax
+            const logRegex = /log(\d+|e)\(([^)]+)\)/g;
+            return expression.replace(logRegex, (match, base, y) => {
+                if (base === 'e') {
+                    // Natural logarithm (base e)
+                    return `Math.log(${y})`;
+                } else {
+                    // Logarithm with custom base using the change of base formula
+                    return `(Math.log(${y}) / Math.log(${base}))`;
+                }
+            });
+        }
+
+        // Function to replace trigonometric functions with their evaluated values
+        function replaceTrigFunctions(expression) {
+            // Replace sin(x) with Math.sin(toRadians(x))
+            expression = expression.replace(/sin\(([^)]+)\)/g, (match, x) => {
+                return `Math.sin(toRadians(${x}))`;
+            });
+            // Replace cos(x) with Math.cos(toRadians(x))
+            expression = expression.replace(/cos\(([^)]+)\)/g, (match, x) => {
+                return `Math.cos(toRadians(${x}))`;
+            });
+            // Replace tan(x) with Math.tan(toRadians(x))
+            expression = expression.replace(/tan\(([^)]+)\)/g, (match, x) => {
+                return `Math.tan(toRadians(${x}))`;
+            });
+            // Replace cosec(x) with 1 / Math.sin(toRadians(x))
+            expression = expression.replace(/cosec\(([^)]+)\)/g, (match, x) => {
+                return `(1 / Math.sin(toRadians(${x})))`;
+            });
+            // Replace sec(x) with 1 / Math.cos(toRadians(x))
+            expression = expression.replace(/sec\(([^)]+)\)/g, (match, x) => {
+                return `(1 / Math.cos(toRadians(${x})))`;
+            });
+            // Replace cot(x) with 1 / Math.tan(toRadians(x))
+            expression = expression.replace(/cot\(([^)]+)\)/g, (match, x) => {
+                return `(1 / Math.tan(toRadians(${x})))`;
+            });
+            return expression;
+        }
+
+        // Function to replace inverse trigonometric functions with their evaluated values
+        function replaceInverseTrigFunctions(expression) {
+            // Replace sin-1(x) with toDegrees(Math.asin(x))
+            expression = expression.replace(/sin-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.asin(${x}))`;
+            });
+            // Replace cos-1(x) with toDegrees(Math.acos(x))
+            expression = expression.replace(/cos-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.acos(${x}))`;
+            });
+            // Replace tan-1(x) with toDegrees(Math.atan(x))
+            expression = expression.replace(/tan-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.atan(${x}))`;
+            });
+            // Replace cosec-1(x) with toDegrees(Math.asin(1 / x))
+            expression = expression.replace(/cosec-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.asin(1 / ${x}))`;
+            });
+            // Replace sec-1(x) with toDegrees(Math.acos(1 / x))
+            expression = expression.replace(/sec-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.acos(1 / ${x}))`;
+            });
+            // Replace cot-1(x) with toDegrees(Math.atan(1 / x))
+            expression = expression.replace(/cot-1\(([^)]+)\)/g, (match, x) => {
+                return `toDegrees(Math.atan(1 / ${x}))`;
+            });
+            return expression;
+        }
+
+        // Function to replace factorial syntax (x!) with the factorial function call
+        function replaceFactorialSyntax(expression) {
+            // Regular expression to match x! syntax
+            const factorialRegex = /(\d+)!/g;
+            return expression.replace(factorialRegex, (match, x) => {
+                return `factorial(${x})`;
+            });
+        }
+
+        // Function to evaluate a mathematical expression
+        function evaluateExpression(expression, outputField) {
+            try {
+                // Update variables when the calculation input changes
+                updateVariables();
+
+                // Replace variable names and constants with their values
+                expression = replaceVariables(expression);
+
+                // Replace the ^ symbol with ** for exponentiation
+                expression = expression.replace(/\^/g, '**');
+                // Replace the letter 'e' with Math.E (Euler's constant)
+                expression = expression.replace(/\be\b/g, Math.E);
+                // Replace logx(y) syntax with the appropriate JavaScript expression
+                expression = replaceLogSyntax(expression);
+                // Replace trigonometric functions with their evaluated values
+                expression = replaceTrigFunctions(expression);
+                // Replace inverse trigonometric functions with their evaluated values
+                expression = replaceInverseTrigFunctions(expression);
+                // Replace factorial syntax (x!) with the factorial function call
+                expression = replaceFactorialSyntax(expression);
+                // Evaluate the mathematical expression
+                const result = eval(expression);
+                // Update the output field with the result
+                outputField.textContent = result;
+            } catch (error) {
+                // If there's an error (e.g., invalid input), display an error message
+                outputField.textContent = 'Invalid Expression';
+            }
+        }
+
+        // Add event listeners to the input fields
+        inputField1.addEventListener('input', function () {
+            evaluateExpression(inputField1.value, outputField1);
+        });
+
+        inputField2.addEventListener('input', function () {
+            evaluateExpression(inputField2.value, outputField2);
+        });
+
+        // Add event listeners to all variable value fields
+        variableValueInputs.forEach(input => {
+            input.addEventListener('input', function () {
+                // Re-evaluate both expressions when a variable value changes
+                evaluateExpression(inputField1.value, outputField1);
+                evaluateExpression(inputField2.value, outputField2);
+            });
+        });
+    </script>
+</body>
+</html>
