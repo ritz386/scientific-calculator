@@ -3,181 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Mathematical Calculator with Eight Variables</title>
+    <title>Advanced Mathematical Calculator with Ten Variables</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 50px;
-            font-size: 10px; /* Reduced font size by half */
+            margin: 20px;
+            font-size: 9px; /* Reduced font size by half */
         }
-        input, output {
+        input, output, textarea {
             display: block;
-            margin: 1px 0; /* Adjusted margin for smaller fields */
+            margin: 0 px 0; /* Adjusted margin for smaller fields */
             padding: 5px; /* Reduced padding by half */
-            width: 260px; /* Reduced width by half */
-            font-size: 10px; /* Reduced font size by half */
+            width: 300px; /* Reduced width by half */
+            font-size: 12px; /* Reduced font size by half */
         }
         output {
             background-color: #f0f0f0;
             border: 1px solid #ccc;
+            width: 300 px;
+            height: 15px;         
+        }
+        .notes-field {
+            width: 300px; /* Wider for notes */
+            height: 100px; /* Taller for notes */
+            border: 1px solid #ccc;
+            padding: 5px;
+            font-size: 10px;
+            resize: vertical; /* Allow vertical resizing */
+            overflow: auto; /* Add scrollbar if content overflows */
         }
         .variable-input {
             display: flex;
-            gap: 5px; /* Reduced gap between inputs */
+            gap: 3px; /* Reduced gap between inputs */
             margin-bottom: 1px; /* Reduced margin for smaller fields */
         }
         .variable-input input {
-            width: 120px; /* Reduced width by half */
+            width: 143px; /* Reduced width by half */
+        }
+        .calculation-group {
+            margin-bottom: 20px; /* Space between calculation groups */
         }
     </style>
 </head>
 <body>
+    <img src="title.jpg" alt="Math Tool Box">
+<br>
+    <font size="1"><i>for scientific, engineering, and day-to-day calculations </i> <font size="5"><b>&#9881</b></font><font size="5"><b>&#9787</b></font><font size="5"><b>&#9786</b></font></font><br><br>
 
-    <h1>Mathematical Calculator</h1>
-<div>
-<div>
+    <font size="2"><b><i>Enter variable names <font color="#FFFFFF">..........</font>Enter values</i></b></font>
+
     <!-- Variable Input Fields -->
     <div class="variable-input">
-        <input type="text" id="variableName1" placeholder="Variable Name (e.g., x, Pressure, T)">
-        <input type="text" id="variableValue1" placeholder="Value (e.g., 10)"> 
-<font size = "1">The 7 SI units: Second (s, time), metre (m, length), kilogram (kg, mass),<br> 
-ampere (A, electric current), kelvin (K, thermodynamic temperature), <br>
-mole (mol, amount of substance), and candela (cd, luminous intensity).</font>
-
-
+        <input type="text" id="variableName1" placeholder="V"><font size="4">:</font>
+        <input type="text" id="variableValue1" placeholder="Value (e.g., 10)">
+        <font color="#0000A0">The 7 SI units: Second (s, time), metre (m, length), kilogram (kg, mass),<br>
+            ampere (A, electric current), kelvin (K, thermodynamic temperature),<br> 
+            mole (mol, amount of substance), and candela (cd, luminous intensity).</font>
     </div>
+
     <div class="variable-input">
-        <input type="text" id="variableName2" placeholder="Variable Name (e.g., y)">
-        <input type="text" id="variableValue2" placeholder="Value (e.g., 20)">
-1 mile = 1760 yards (1.6093 km)<br>
-1 yard = 3 feet<br>
-1 furlong = 220 yard (201.168 meter)
-
-
+        <input type="text" id="variableName2" placeholder="n"><font size="4">:</font>
+        <input type="text" id="variableValue2" placeholder="Value (e.g., 2)">
+        1 mile = 1760 yards (1.6093 km) <br>
+        1 yard = 3 feet <br>
+        1 furlong = 220 yard (201.168 meter)
     </div>
+
     <div class="variable-input">
-        <input type="text" id="variableName3" placeholder="Variable Name (e.g., z)">
-        <input type="text" id="variableValue3" placeholder="Value (e.g., 30)">
-1 foot (feet) = 12 inch <br>
-1 inch = 2.54 cm <br>
-1 foot (feet) = 30.48 cm
-
-
+        <input type="text" id="variableName3" placeholder="R"><font size="4">:</font>
+        <input type="text" id="variableValue3" placeholder="Value (e.g., 8.314)">
+        1 foot (feet) = 12 inch <br>
+        1 inch = 2.54 cm <br>
+        1 foot (feet) = 30.48 cm
     </div>
+
     <div class="variable-input">
-        <input type="text" id="variableName4" placeholder="Variable Name (e.g., a)">
-        <input type="text" id="variableValue4" placeholder="Value (e.g., 40)">
-1 hector = 10000 m2 = 107639.147 sqft <br>
-1 m2 = 10,7639 sqft.<br>
-1 hector = 2.471 acre <br>
-1 acre = 43,560 sqft
-
-
-
+        <input type="text" id="variableName4" placeholder="T"><font size="4">:</font>
+        <input type="text" id="variableValue4" placeholder="Value (e.g., 300)">
+        1 hector = 10000 m2 = 107639.147 sqft <br>
+        1 m2 = 10,7639 sqft. <br>
+        1 hector = 2.471 acre, 1 acre = 43,560 sqft
     </div>
+
     <div class="variable-input">
-        <input type="text" id="variableName5" placeholder="Variable Name (e.g., b)">
-        <input type="text" id="variableValue5" placeholder="Value (e.g., 50)">
-The 7 SI units: Second (s, time), metre (m, length), kilogram (kg, mass),<br> 
-ampere (A, electric current), kelvin (K, thermodynamic temperature), <br>
-mole (mol, amount of substance), and candela (cd, luminous intensity).
+        <input type="text" id="variableName5" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue5" placeholder="">
+        1 metric ton = 1000 kg <br>
+        1 ton (US) = 2000 pound (907.18 kg) <br>
+        1 pound = 16 ounce
     </div>
-    <div class="variable-input">
-        <input type="text" id="variableName6" placeholder="Variable Name (e.g., c)">
-        <input type="text" id="variableValue6" placeholder="Value (e.g., 60)">
-The 7 SI units: Second (s, time), metre (m, length), kilogram (kg, mass),<br> 
-ampere (A, electric current), kelvin (K, thermodynamic temperature), <br>
-mole (mol, amount of substance), and candela (cd, luminous intensity)..
 
-
-    </div>
     <div class="variable-input">
-        <input type="text" id="variableName7" placeholder="Variable Name (e.g., d)">
-        <input type="text" id="variableValue7" placeholder="Value (e.g., 70)">
+        <input type="text" id="variableName6" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue6" placeholder="">
+        1 pound = 453.592 gm = 0.4536 kg <br>
+        1 ounce = 28.3495 gm <br>
+        1 kg = 2.2046 pound
     </div>
-    <div class="variable-input">
-        <input type="text" id="variableName8" placeholder="Variable Name (e.g., e)">
-        <input type="text" id="variableValue8" placeholder="Value (e.g., 80)">
-    </div>
-<br>
-    <label for="inputField"><big>Enter Mathematical Expression:</big></label>
-    <input type="text" id="inputField" placeholder="e.g., x! + y * sin(z) + log2(a) + b - c + d - e">
 
-    <label for="outputField"><big>Result:</big></label>
-    <output id="outputField">0</output>
-</div>
-</div>
+    <div class="variable-input">
+        <input type="text" id="variableName7" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue7" placeholder="">
+        1 decimeter = 10 centimeter<br>
+        1 decameter = 10 meter<br>
+        1 decigram = 0.1 gram
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName8" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue8" placeholder="">
+        1 decagram = 10 gram <br>
+        1 deciliter = 100 milliliter <br>
+        1 decaliter = 10 liter
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName9" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue9" placeholder="">
+        Avogadro’s number (Na): 6.022*10^23 mol-1 <br>
+        Boltzmann constant (k): 1.380649*10^(-23) m2 kg s-2 K-1 <br>
+        Planck's constant (h):  6.62607015*10^(-34) m2 kg / s
+    </div>
+
+    <div class="variable-input">
+        <input type="text" id="variableName10" placeholder=""><font size="4">:</font>
+        <input type="text" id="variableValue10" placeholder="">
+        Elementary charge (c): 1.60217663*10^(-19) coulombs <br>
+        Faraday constant (F): 96 485.3321  sA / mol <br>
+        The gas constant (R): is 8.314 J / mol·K., to all constants (to be updated)
+    </div>
+
+    <br> <font size="2" color="#0000FF"><font size="5"><b>&#9787</b></font>Example equations: <b>PV = nRT</b> (ideal gas law), <b>Net present value = Rt/(1+i)^t</b>, etc.</font>
+    <br> <font size="2" color="#0000FF"> List of equations: chemistry, physics, statistics, engineering, economics. (to be updated) </font>
+    <br>
+ 
+   
+ <!-- First Calculation Group -->
+    <div class="calculation-group">
+        <label for="inputField1"><font size="2"><b><i>Enter Mathematical Expression:</i></b></font></label>         
+        <input type="text" id="inputField1" placeholder="e.g., nRT/V" style="height: 30px;"> 
+        <font color="#800080">syntax: for log use logx(y) where x is the base, pi returns the value of pi, e returns the value of exponential constant
+        <br>
+        sin-1(x) returns sin inverse of x, provide angles in degrees in trigonometric calculations</font>
+        <br>
+        <label for="outputField1"><font size="2"><i>Result 1:</i></font></label>
+        <output id="outputField1">0</output>   
+    </div>
+
+    <!-- Second Calculation Group -->
+    <div class="calculation-group">
+        <label for="inputField2"><font size="2"><b><i>Enter Mathematical Expression:</i></b></font></label>
+        <input type="text" id="inputField2" placeholder="e.g., x! + y * sin(z) + log2(a) + b - c + d - e + f + g" style="height: 30px;">
+        <label for="outputField2"><font size="2"><i>Result 2:</i></font></label>
+        <output id="outputField2">0</output>
+    </div>
+
+    <!-- Notes Input Field -->
+    <div class="calculation-group">
+        <label for="notesField">Notes:</label>
+        <div id="notesField" class="notes-field" contenteditable="true" placeholder="Write your notes here..."></div>
+Advanced scientific calculator,
+All purpose scientific calculator,
+Excel like calculator
+    </div>
+
     <script>
-        // Get references to the input fields and output field
-        const variableNameInput1 = document.getElementById('variableName1');
-        const variableValueInput1 = document.getElementById('variableValue1');
-        const variableNameInput2 = document.getElementById('variableName2');
-        const variableValueInput2 = document.getElementById('variableValue2');
-        const variableNameInput3 = document.getElementById('variableName3');
-        const variableValueInput3 = document.getElementById('variableValue3');
-        const variableNameInput4 = document.getElementById('variableName4');
-        const variableValueInput4 = document.getElementById('variableValue4');
-        const variableNameInput5 = document.getElementById('variableName5');
-        const variableValueInput5 = document.getElementById('variableValue5');
-        const variableNameInput6 = document.getElementById('variableName6');
-        const variableValueInput6 = document.getElementById('variableValue6');
-        const variableNameInput7 = document.getElementById('variableName7');
-        const variableValueInput7 = document.getElementById('variableValue7');
-        const variableNameInput8 = document.getElementById('variableName8');
-        const variableValueInput8 = document.getElementById('variableValue8');
-        const inputField = document.getElementById('inputField');
-        const outputField = document.getElementById('outputField');
+        // Get references to the input fields and output fields
+        const variableNameInputs = [
+            document.getElementById('variableName1'),
+            document.getElementById('variableName2'),
+            document.getElementById('variableName3'),
+            document.getElementById('variableName4'),
+            document.getElementById('variableName5'),
+            document.getElementById('variableName6'),
+            document.getElementById('variableName7'),
+            document.getElementById('variableName8'),
+            document.getElementById('variableName9'),
+            document.getElementById('variableName10')
+        ];
+
+        const variableValueInputs = [
+            document.getElementById('variableValue1'),
+            document.getElementById('variableValue2'),
+            document.getElementById('variableValue3'),
+            document.getElementById('variableValue4'),
+            document.getElementById('variableValue5'),
+            document.getElementById('variableValue6'),
+            document.getElementById('variableValue7'),
+            document.getElementById('variableValue8'),
+            document.getElementById('variableValue9'),
+            document.getElementById('variableValue10')
+        ];
+
+        const inputField1 = document.getElementById('inputField1');
+        const outputField1 = document.getElementById('outputField1');
+        const inputField2 = document.getElementById('inputField2');
+        const outputField2 = document.getElementById('outputField2');
+        const notesField = document.getElementById('notesField');
 
         // Object to store user-defined variables
         let variables = {};
 
         // Function to update variables
         function updateVariables() {
-            const name1 = variableNameInput1.value.trim();
-            const value1 = parseFloat(variableValueInput1.value.trim());
-            const name2 = variableNameInput2.value.trim();
-            const value2 = parseFloat(variableValueInput2.value.trim());
-            const name3 = variableNameInput3.value.trim();
-            const value3 = parseFloat(variableValueInput3.value.trim());
-            const name4 = variableNameInput4.value.trim();
-            const value4 = parseFloat(variableValueInput4.value.trim());
-            const name5 = variableNameInput5.value.trim();
-            const value5 = parseFloat(variableValueInput5.value.trim());
-            const name6 = variableNameInput6.value.trim();
-            const value6 = parseFloat(variableValueInput6.value.trim());
-            const name7 = variableNameInput7.value.trim();
-            const value7 = parseFloat(variableValueInput7.value.trim());
-            const name8 = variableNameInput8.value.trim();
-            const value8 = parseFloat(variableValueInput8.value.trim());
-
-            if (name1 && !isNaN(value1)) {
-                variables[name1] = value1;
-            }
-            if (name2 && !isNaN(value2)) {
-                variables[name2] = value2;
-            }
-            if (name3 && !isNaN(value3)) {
-                variables[name3] = value3;
-            }
-            if (name4 && !isNaN(value4)) {
-                variables[name4] = value4;
-            }
-            if (name5 && !isNaN(value5)) {
-                variables[name5] = value5;
-            }
-            if (name6 && !isNaN(value6)) {
-                variables[name6] = value6;
-            }
-            if (name7 && !isNaN(value7)) {
-                variables[name7] = value7;
-            }
-            if (name8 && !isNaN(value8)) {
-                variables[name8] = value8;
+            for (let i = 0; i < variableNameInputs.length; i++) {
+                const name = variableNameInputs[i].value.trim();
+                const value = parseFloat(variableValueInputs[i].value.trim());
+                if (name && !isNaN(value)) {
+                    variables[name] = value;
+                }
             }
         }
 
-        // Function to replace variable names with their values
+        // Function to replace variable names and constants with their values
         function replaceVariables(expression) {
+            // Replace pi with Math.PI
+            expression = expression.replace(/\bpi\b/g, Math.PI);
+
+            // Replace g with 9.8 (acceleration due to gravity)
+            expression = expression.replace(/\bg\b/g, 9.8);
+
+            // Replace variable names with their values
             for (const [name, value] of Object.entries(variables)) {
                 const regex = new RegExp(`\\b${name}\\b`, 'g');
                 expression = expression.replace(regex, value);
@@ -287,14 +333,14 @@ mole (mol, amount of substance), and candela (cd, luminous intensity)..
             });
         }
 
-        // Add an event listener to the input field
-        inputField.addEventListener('input', function () {
+        // Function to evaluate a mathematical expression
+        function evaluateExpression(expression, outputField) {
             try {
                 // Update variables when the calculation input changes
                 updateVariables();
 
-                // Replace variable names with their values
-                let expression = replaceVariables(inputField.value);
+                // Replace variable names and constants with their values
+                expression = replaceVariables(expression);
 
                 // Replace the ^ symbol with ** for exponentiation
                 expression = expression.replace(/\^/g, '**');
@@ -316,8 +362,25 @@ mole (mol, amount of substance), and candela (cd, luminous intensity)..
                 // If there's an error (e.g., invalid input), display an error message
                 outputField.textContent = 'Invalid Expression';
             }
+        }
+
+        // Add event listeners to the input fields
+        inputField1.addEventListener('input', function () {
+            evaluateExpression(inputField1.value, outputField1);
+        });
+
+        inputField2.addEventListener('input', function () {
+            evaluateExpression(inputField2.value, outputField2);
+        });
+
+        // Add event listeners to all variable value fields
+        variableValueInputs.forEach(input => {
+            input.addEventListener('input', function () {
+                // Re-evaluate both expressions when a variable value changes
+                evaluateExpression(inputField1.value, outputField1);
+                evaluateExpression(inputField2.value, outputField2);
+            });
         });
     </script>
-
 </body>
 </html>
