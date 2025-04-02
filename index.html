@@ -70,7 +70,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 120%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
@@ -82,18 +82,18 @@
             padding: 10px;
             border-radius: 8px;
             width: 90%;
-            max-width: 700px;
+            max-width: 800px;
             position: relative;
         }
         #closeUnitConverter {
             position: absolute;
-            top: 1px;
-            right: 10px;
+            top: 2px;
+            right: 5px;
             background: #ff4444;
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 20px;
+            border-radius: 100%;
+            width: 30px;
             height: 30px;
             font-weight: bold;
             cursor: pointer;
@@ -104,13 +104,14 @@
             padding: 1px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 1.3em;
         }
         .converter-section h2 {
             margin-top: 0;
             color: #3498db;
             font-size: 1.5em;
             border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
+            padding-bottom: 2px;
         }
         .converter-container {
             display: flex;
@@ -122,12 +123,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
+
         }
         .input-group input[type="number"] {
             padding: 6px;
             width: 120px;
             border: 1px solid #ddd;
             border-radius: 4px;
+           font-size: 1.3em;
         }
         .input-group select {
             padding: 6px;
@@ -151,7 +154,9 @@
         .result {
             font-weight: bold;
             color: #2c3e50;
-            margin-left: 10px;
+            margin-left: 11px;
+             font-size: 1.5em;
+
         }
     </style>
 </head>
@@ -317,7 +322,10 @@ Excel like calculator
     <div id="unitConverterModal">
         <div id="unitConverterContent">
             <button id="closeUnitConverter" onclick="closeUnitConverter()">×</button>
-            <h1>Universal Unit Converter</h1>
+            <font size="5"><b>Universal Unit Converter</b></font>
+<br>
+<br>
+<br>
             
             <!-- Length Converter -->
             <div class="converter-section">
@@ -366,7 +374,7 @@ Excel like calculator
                             <option value="au">Astronomical Units (AU)</option>
                             <option value="pc">Parsecs (pc)</option>
                         </select>
-                        <button onclick="convertLength()">Convert</button>
+                        <button onclick="convertLength()"><font size="2">Convert</font></button>
                         <span class="result" id="length-result">-</span>
                     </div>
                 </div>
@@ -411,7 +419,7 @@ Excel like calculator
                             <option value="ust">US Tons (short ton)</option>
                             <option value="ukt">UK Tons (long ton)</option>
                         </select>
-                        <button onclick="convertWeight()">Convert</button>
+                        <button onclick="convertWeight()"><font size="2">Convert</font></button>
                         <span class="result" id="weight-result">-</span>
                     </div>
                 </div>
@@ -466,7 +474,7 @@ Excel like calculator
                             <option value="ft3">Cubic Feet (ft³)</option>
                             <option value="yd3">Cubic Yards (yd³)</option>
                         </select>
-                        <button onclick="convertVolume()">Convert</button>
+                        <button onclick="convertVolume()"><font size="2">Convert</font></button>
                         <span class="result" id="volume-result">-</span>
                     </div>
                 </div>
@@ -503,7 +511,7 @@ Excel like calculator
                             <option value="ac">Acres (ac)</option>
                             <option value="mi2">Square Miles (mi²)</option>
                         </select>
-                        <button onclick="convertArea()">Convert</button>
+                        <button onclick="convertArea()"><font size="2">Convert</font></button>
                         <span class="result" id="area-result">-</span>
                     </div>
                 </div>
@@ -528,7 +536,7 @@ Excel like calculator
                             <option value="k">Kelvin (K)</option>
                             <option value="r">Rankine (°R)</option>
                         </select>
-                        <button onclick="convertTemperature()">Convert</button>
+                        <button onclick="convertTemperature()"><font size="2">Convert</font></button>
                         <span class="result" id="temp-result">-</span>
                     </div>
                 </div>
@@ -565,7 +573,7 @@ Excel like calculator
                             <option value="psi">PSI (lb/in²)</option>
                             <option value="psf">PSF (lb/ft²)</option>
                         </select>
-                        <button onclick="convertPressure()">Convert</button>
+                        <button onclick="convertPressure()"><font size="2">Convert</font></button>
                         <span class="result" id="pressure-result">-</span>
                     </div>
                 </div>
@@ -610,7 +618,7 @@ Excel like calculator
                             <option value="cfm">Cubic feet per minute (ft³/min)</option>
                             <option value="cfh">Cubic feet per hour (ft³/h)</option>
                         </select>
-                        <button onclick="convertFlow()">Convert</button>
+                        <button onclick="convertFlow()"><font size="2">Convert</font></button>
                         <span class="result" id="flow-result">-</span>
                     </div>
                 </div>
@@ -661,7 +669,7 @@ Excel like calculator
                             <option value="tep">Tonnes of oil equivalent (toe)</option>
                             <option value="tce">Tonnes of coal equivalent (tce)</option>
                         </select>
-                        <button onclick="convertEnergy()">Convert</button>
+                        <button onclick="convertEnergy()"><font size="2">Convert</font></button>
                         <span class="result" id="energy-result">-</span>
                     </div>
                 </div>
@@ -682,7 +690,7 @@ Excel like calculator
             const calculatorHTML = `
                 <div class="calculation-group">
                     <div class="expression-container">
-                        <label for="inputField${newCalculatorId}"><font size="2"><b><i>Calculator:</i></b></font></label>
+                        <label for="inputField${newCalculatorId}"><font size="3"><b><i>Calculator:</i></b></font></label>
                         <input type="text" class="result-input" id="resultField${newCalculatorId}" placeholder="Result variable name">
                         <input type="text" placeholder="Notes">
                     </div>
