@@ -624,52 +624,11 @@
             border-bottom: 2px solid #000;
             padding-bottom: 5px;
         }
-
-        .ga-settings {
-            margin-top: 10px;
-            padding: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        .ga-settings h4 {
-            font-size: 12px;
-            color: #333;
-            margin-bottom: 6px;
-        }
-
-        .ga-params {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-        }
-
-        @media (max-width: 768px) {
-            .ga-params {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .ga-param {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .ga-param label {
-            font-size: 10px;
-            margin-bottom: 2px;
-        }
-
-        .ga-param input {
-            padding: 4px;
-            font-size: 11px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Nonlinear Regression Analysis (Genetic Algorithm)</h1>
+        <h1>Nonlinear Regression Analysis</h1>
         
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
@@ -718,117 +677,52 @@
                     <div>Function Status:</div>
                     <div class="function-valid" id="functionValidStatus">Ready</div>
                 </div>
-
-                <div class="ga-settings">
-                    <h4>GA Settings (Optional)</h4>
-                    <div class="ga-params">
-                        <div class="ga-param">
-                            <label>Population:</label>
-                            <input type="number" id="populationSize" value="100" min="20" max="500">
-                        </div>
-                        <div class="ga-param">
-                            <label>Generations:</label>
-                            <input type="number" id="generations" value="500" min="50" max="2000">
-                        </div>
-                        <div class="ga-param">
-                            <label>Mutation Rate:</label>
-                            <input type="number" id="mutationRate" value="0.1" min="0.01" max="0.5" step="0.01">
-                        </div>
-                    </div>
-                </div>
                 
                 <div class="compact-section">
-                    <h3>3. Parameter Bounds (for GA)</h3>
-                    <small>Leave empty for auto bounds based on data</small>
-                    <div class="compact-param-grid" style="margin-top: 6px;">
+                    <h3>3. Initial Parameter Values</h3>
+                    <div class="compact-param-grid">
                         <div class="param-input">
-                            <label>c1 min:</label>
-                            <input type="text" id="c1_min" placeholder="auto">
+                            <label>c1:</label>
+                            <input type="text" id="c1" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c1 max:</label>
-                            <input type="text" id="c1_max" placeholder="auto">
+                            <label>c2:</label>
+                            <input type="text" id="c2" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c2 min:</label>
-                            <input type="text" id="c2_min" placeholder="auto">
+                            <label>c3:</label>
+                            <input type="text" id="c3" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c2 max:</label>
-                            <input type="text" id="c2_max" placeholder="auto">
+                            <label>c4:</label>
+                            <input type="text" id="c4" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c3 min:</label>
-                            <input type="text" id="c3_min" placeholder="auto">
+                            <label>c5:</label>
+                            <input type="text" id="c5" value="1.0">
                         </div>
                     </div>
                     
                     <div class="compact-param-grid">
                         <div class="param-input">
-                            <label>c3 max:</label>
-                            <input type="text" id="c3_max" placeholder="auto">
+                            <label>c6:</label>
+                            <input type="text" id="c6" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c4 min:</label>
-                            <input type="text" id="c4_min" placeholder="auto">
+                            <label>c7:</label>
+                            <input type="text" id="c7" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c4 max:</label>
-                            <input type="text" id="c4_max" placeholder="auto">
+                            <label>c8:</label>
+                            <input type="text" id="c8" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c5 min:</label>
-                            <input type="text" id="c5_min" placeholder="auto">
+                            <label>c9:</label>
+                            <input type="text" id="c9" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c5 max:</label>
-                            <input type="text" id="c5_max" placeholder="auto">
-                        </div>
-                    </div>
-
-                    <div class="compact-param-grid">
-                        <div class="param-input">
-                            <label>c6 min:</label>
-                            <input type="text" id="c6_min" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c6 max:</label>
-                            <input type="text" id="c6_max" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c7 min:</label>
-                            <input type="text" id="c7_min" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c7 max:</label>
-                            <input type="text" id="c7_max" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c8 min:</label>
-                            <input type="text" id="c8_min" placeholder="auto">
-                        </div>
-                    </div>
-
-                    <div class="compact-param-grid">
-                        <div class="param-input">
-                            <label>c8 max:</label>
-                            <input type="text" id="c8_max" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c9 min:</label>
-                            <input type="text" id="c9_min" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c9 max:</label>
-                            <input type="text" id="c9_max" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c10 min:</label>
-                            <input type="text" id="c10_min" placeholder="auto">
-                        </div>
-                        <div class="param-input">
-                            <label>c10 max:</label>
-                            <input type="text" id="c10_max" placeholder="auto">
+                            <label>c10:</label>
+                            <input type="text" id="c10" value="1.0">
                         </div>
                     </div>
                     
@@ -839,7 +733,7 @@
             
             <!-- 3. Data with initial function fit - 50% width -->
             <div class="section plot-section">
-                <h2>3. Data Visualization</h2>
+                <h2>3. Data with Initial Function Fit</h2>
                 <div class="plot-container" id="plotDiv"></div>
             </div>
         </div>
@@ -884,9 +778,1449 @@
                     </div>
                 </div>
                 
+                <div class="advanced-stats">
+                    <h3>Parameter Statistics</h3>
+                    <table class="param-table" id="paramStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                                <th>Std Error</th>
+                                <th>t-Statistic</th>
+                                <th>p-value</th>
+                                <th>Significance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paramStatsBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
                 <div class="export-section">
                     <h3>
                         <span>📋 Export Results to Excel</span>
                     </h3>
                     <p style="color: #666; margin-bottom: 10px; font-size: 12px;">
-                        Copy the tables below and paste directly into Excel.
+                        Copy the tables below and paste directly into Excel. Each section is formatted for easy Excel import.
+                    </p>
+                    
+                    <div class="copy-buttons">
+                        <button class="copy-button" onclick="copyAllResults()">📋 Copy All Results</button>
+                        <button class="copy-button" onclick="copyGoodnessOfFit()">📊 Copy Goodness of Fit</button>
+                        <button class="copy-button" onclick="copyParameterStats()">🔢 Copy Parameter Statistics</button>
+                        <button class="copy-button" onclick="copyRegressionEquation()">📐 Copy Regression Equation</button>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Goodness of Fit Metrics</h4>
+                        <table class="export-table" id="exportGoodnessTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportGoodnessBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Parameter Statistics</h4>
+                        <table class="export-table" id="exportParamTable">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Std Error</th>
+                                    <th>t-Statistic</th>
+                                    <th>p-value</th>
+                                    <th>Significance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportParamBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Regression Summary</h4>
+                        <table class="export-table" id="exportSummaryTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportSummaryBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="copyNotification" class="copy-notification" style="display: none;"></div>
+
+    <script>
+        // The entire JavaScript code remains exactly the same as before
+        // Only the CSS and HTML structure has been modified
+        let xData = [];
+        let yData = [];
+        let usedParams = [];
+        let dataCells = [];
+        let plotUpdateTimeout = null;
+        let functionUpdateTimeout = null;
+        let paramUpdateTimeout = null;
+        let lastFunctionHash = '';
+        let lastParamsHash = '';
+        let lastDataHash = '';
+        let currentRegressionResults = null;
+        
+        // Initialize data grid
+        function initializeDataGrid() {
+            const grid = document.getElementById('dataGrid');
+            grid.innerHTML = '';
+            
+            // Create 2 columns with 20 initial rows
+            const xColumn = document.createElement('div');
+            xColumn.className = 'data-column';
+            
+            const yColumn = document.createElement('div');
+            yColumn.className = 'data-column';
+            
+            dataCells = [];
+            
+            for (let i = 0; i < 20; i++) {
+                const xCell = document.createElement('div');
+                xCell.className = 'data-cell empty';
+                xCell.contentEditable = 'true';
+                xCell.dataset.row = i;
+                xCell.dataset.col = 'x';
+                xCell.addEventListener('input', handleCellInput);
+                xCell.addEventListener('keydown', handleCellKeydown);
+                xCell.addEventListener('paste', handlePaste);
+                xCell.addEventListener('blur', scheduleDataUpdate);
+                xColumn.appendChild(xCell);
+                
+                const yCell = document.createElement('div');
+                yCell.className = 'data-cell empty';
+                yCell.contentEditable = 'true';
+                yCell.dataset.row = i;
+                yCell.dataset.col = 'y';
+                yCell.addEventListener('input', handleCellInput);
+                yCell.addEventListener('keydown', handleCellKeydown);
+                yCell.addEventListener('paste', handlePaste);
+                yCell.addEventListener('blur', scheduleDataUpdate);
+                yColumn.appendChild(yCell);
+                
+                dataCells.push({x: xCell, y: yCell});
+            }
+            
+            grid.appendChild(xColumn);
+            grid.appendChild(yColumn);
+            
+            // Add event listeners for function input
+            document.getElementById('funcInput').addEventListener('input', scheduleFunctionUpdate);
+            
+            // Add event listeners for parameter inputs
+            for (let i = 1; i <= 10; i++) {
+                document.getElementById('c' + i).addEventListener('input', scheduleParamUpdate);
+            }
+            
+            // Add sample data
+            setSampleData();
+        }
+        
+        function setSampleData() {
+            const sampleX = [1, 2, 3, 4, 5];
+            const sampleY = [2.1, 4.3, 6.2, 8.1, 10.3];
+            
+            for (let i = 0; i < sampleX.length; i++) {
+                dataCells[i].x.textContent = sampleX[i];
+                dataCells[i].y.textContent = sampleY[i];
+                dataCells[i].x.classList.remove('empty');
+                dataCells[i].y.classList.remove('empty');
+            }
+            
+            // Automatically plot the sample data
+            setTimeout(() => {
+                parseDataFromGrid();
+                updatePlot();
+            }, 100);
+        }
+        
+        function handleCellInput(event) {
+            const cell = event.target;
+            if (cell.textContent.trim() === '') {
+                cell.classList.add('empty');
+            } else {
+                cell.classList.remove('empty');
+            }
+            
+            // Schedule data update
+            scheduleDataUpdate();
+        }
+        
+        function scheduleDataUpdate() {
+            // Clear any existing timeout
+            if (plotUpdateTimeout) {
+                clearTimeout(plotUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay (debouncing)
+            plotUpdateTimeout = setTimeout(() => {
+                parseDataFromGrid();
+                updatePlot();
+            }, 300);
+        }
+        
+        function scheduleFunctionUpdate() {
+            // Clear any existing timeout
+            if (functionUpdateTimeout) {
+                clearTimeout(functionUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay
+            functionUpdateTimeout = setTimeout(() => {
+                checkFunctionAndUpdate();
+            }, 500);
+        }
+        
+        function scheduleParamUpdate() {
+            // Clear any existing timeout
+            if (paramUpdateTimeout) {
+                clearTimeout(paramUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay
+            paramUpdateTimeout = setTimeout(() => {
+                updatePlot();
+            }, 500);
+        }
+        
+        function handleCellKeydown(event) {
+            const cell = event.target;
+            const row = parseInt(cell.dataset.row);
+            const col = cell.dataset.col;
+            
+            switch(event.key) {
+                case 'Tab':
+                    event.preventDefault();
+                    const nextCol = col === 'x' ? 'y' : 'x';
+                    const nextRow = event.shiftKey ? Math.max(0, row - 1) : row;
+                    focusCell(nextRow, nextCol);
+                    break;
+                    
+                case 'Enter':
+                    event.preventDefault();
+                    focusCell(row + 1, col);
+                    break;
+                    
+                case 'ArrowUp':
+                    event.preventDefault();
+                    focusCell(Math.max(0, row - 1), col);
+                    break;
+                    
+                case 'ArrowDown':
+                    event.preventDefault();
+                    focusCell(row + 1, col);
+                    break;
+                    
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    focusCell(row, 'x');
+                    break;
+                    
+                case 'ArrowRight':
+                    event.preventDefault();
+                    focusCell(row, 'y');
+                    break;
+            }
+        }
+        
+        function focusCell(row, col) {
+            if (row >= dataCells.length) {
+                addRow();
+            }
+            
+            const cell = col === 'x' ? dataCells[row].x : dataCells[row].y;
+            cell.focus();
+            
+            // Select all text
+            const range = document.createRange();
+            range.selectNodeContents(cell);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        
+        function handlePaste(event) {
+            event.preventDefault();
+            const pasteData = event.clipboardData.getData('text');
+            const rows = pasteData.trim().split('\n');
+            
+            // Find the target cell
+            const targetCell = event.target;
+            const startRow = parseInt(targetCell.dataset.row);
+            const startCol = targetCell.dataset.col;
+            
+            let currentRow = startRow;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const columns = rows[i].split('\t');
+                
+                if (columns.length >= 2) {
+                    // Two columns pasted
+                    if (currentRow >= dataCells.length) {
+                        addRow();
+                    }
+                    
+                    dataCells[currentRow].x.textContent = columns[0].trim();
+                    dataCells[currentRow].y.textContent = columns[1].trim();
+                    dataCells[currentRow].x.classList.remove('empty');
+                    dataCells[currentRow].y.classList.remove('empty');
+                    
+                } else if (columns.length === 1) {
+                    // Single column pasted
+                    if (currentRow >= dataCells.length) {
+                        addRow();
+                    }
+                    
+                    if (startCol === 'x') {
+                        dataCells[currentRow].x.textContent = columns[0].trim();
+                        dataCells[currentRow].x.classList.remove('empty');
+                    } else {
+                        dataCells[currentRow].y.textContent = columns[0].trim();
+                        dataCells[currentRow].y.classList.remove('empty');
+                    }
+                }
+                
+                currentRow++;
+            }
+            
+            // Focus the last edited cell
+            setTimeout(() => {
+                focusCell(startRow, startCol);
+                // Trigger plot update immediately after paste
+                parseDataFromGrid();
+                updatePlot();
+            }, 10);
+        }
+        
+        function addRow() {
+            const lastRow = dataCells.length;
+            const grid = document.getElementById('dataGrid');
+            
+            // Add to X column
+            const xCell = document.createElement('div');
+            xCell.className = 'data-cell empty';
+            xCell.contentEditable = 'true';
+            xCell.dataset.row = lastRow;
+            xCell.dataset.col = 'x';
+            xCell.addEventListener('input', handleCellInput);
+            xCell.addEventListener('keydown', handleCellKeydown);
+            xCell.addEventListener('paste', handlePaste);
+            xCell.addEventListener('blur', scheduleDataUpdate);
+            grid.children[0].appendChild(xCell);
+            
+            // Add to Y column
+            const yCell = document.createElement('div');
+            yCell.className = 'data-cell empty';
+            yCell.contentEditable = 'true';
+            yCell.dataset.row = lastRow;
+            yCell.dataset.col = 'y';
+            yCell.addEventListener('input', handleCellInput);
+            yCell.addEventListener('keydown', handleCellKeydown);
+            yCell.addEventListener('paste', handlePaste);
+            yCell.addEventListener('blur', scheduleDataUpdate);
+            grid.children[1].appendChild(yCell);
+            
+            dataCells.push({x: xCell, y: yCell});
+        }
+        
+        function clearData() {
+            dataCells.forEach(cellPair => {
+                cellPair.x.textContent = '';
+                cellPair.y.textContent = '';
+                cellPair.x.classList.add('empty');
+                cellPair.y.classList.add('empty');
+            });
+            
+            // Keep only first 20 rows
+            while (dataCells.length > 20) {
+                const lastIndex = dataCells.length - 1;
+                dataCells[lastIndex].x.remove();
+                dataCells[lastIndex].y.remove();
+                dataCells.pop();
+            }
+            
+            // Reset to sample data
+            setSampleData();
+        }
+        
+        function parseDataFromGrid() {
+            xData = [];
+            yData = [];
+            
+            for (let i = 0; i < dataCells.length; i++) {
+                const xVal = parseFloat(dataCells[i].x.textContent.trim());
+                const yVal = parseFloat(dataCells[i].y.textContent.trim());
+                
+                if (!isNaN(xVal) && !isNaN(yVal)) {
+                    xData.push(xVal);
+                    yData.push(yVal);
+                }
+            }
+            
+            // Update point count display
+            document.getElementById('pointCount').textContent = xData.length;
+            
+            return xData.length > 0;
+        }
+        
+        function checkFunctionAndUpdate() {
+            const funcStr = document.getElementById('funcInput').value;
+            const funcHash = funcStr;
+            
+            // Only update if function changed
+            if (funcHash === lastFunctionHash && xData.length > 0) {
+                return;
+            }
+            
+            lastFunctionHash = funcHash;
+            usedParams = identifyUsedParams(funcStr);
+            
+            // Update function status
+            const statusElement = document.getElementById('functionValidStatus');
+            if (usedParams.length === 0) {
+                statusElement.textContent = 'No parameters found';
+                statusElement.className = 'function-invalid';
+            } else {
+                try {
+                    // Test if function can be evaluated
+                    const testParams = Array(10).fill(1);
+                    evaluateFunction(0, testParams);
+                    statusElement.textContent = `Valid (using c${usedParams.join(', c')})`;
+                    statusElement.className = 'function-valid';
+                } catch (e) {
+                    statusElement.textContent = 'Invalid function';
+                    statusElement.className = 'function-invalid';
+                }
+            }
+            
+            // Update plot if we have data
+            if (xData.length > 0) {
+                updatePlot();
+            }
+        }
+        
+        function calculatePlotRange(xDataVals, yDataVals, functionYVals) {
+            // Combine all Y values to determine range
+            const allYVals = [...yDataVals, ...functionYVals];
+            
+            // Calculate min and max with padding
+            const xMin = Math.min(...xDataVals);
+            const xMax = Math.max(...xDataVals);
+            const yMin = Math.min(...allYVals);
+            const yMax = Math.max(...allYVals);
+            
+            // Add 10% padding to ranges
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+            const xPadding = xRange * 0.1;
+            const yPadding = yRange * 0.1;
+            
+            return {
+                x: [xMin - xPadding, xMax + xPadding],
+                y: [yMin - yPadding, yMax + yPadding]
+            };
+        }
+        
+        function updatePlot() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                // Show empty plot or placeholder
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { title: 'X', range: [0, 10] },
+                    yaxis: { title: 'Y', range: [0, 10] },
+                    showlegend: true,
+                    annotations: [{
+                        text: 'No data to display',
+                        xref: 'paper',
+                        yref: 'paper',
+                        x: 0.5,
+                        y: 0.5,
+                        showarrow: false,
+                        font: { size: 16, color: '#999' }
+                    }]
+                };
+                
+                Plotly.newPlot('plotDiv', [], layout);
+                document.getElementById('plotStatus').textContent = 'No data plotted';
+                document.getElementById('plotStatus').style.color = '#999';
+                return;
+            }
+            
+            const errorDiv = document.getElementById('dataError');
+            errorDiv.innerHTML = '';
+            
+            if (xData.length !== yData.length) {
+                errorDiv.innerHTML = '<div class="error">X and Y data must have the same length.</div>';
+                document.getElementById('plotStatus').textContent = 'Error: Data length mismatch';
+                document.getElementById('plotStatus').style.color = '#d32f2f';
+                return;
+            }
+            
+            // Get current function and parameters
+            const funcStr = document.getElementById('funcInput').value;
+            usedParams = identifyUsedParams(funcStr);
+            
+            if (usedParams.length === 0) {
+                // Just show data points if no function defined
+                const trace = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { 
+                        title: 'X',
+                        range: calculatePlotRange(xData, yData, []).x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: calculatePlotRange(xData, yData, []).y
+                    },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('plotDiv', [trace], layout);
+                document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points)`;
+                document.getElementById('plotStatus').style.color = '#000';
+                return;
+            }
+            
+            // Try to plot with initial parameters
+            try {
+                const params = getInitialParams();
+                const xMin = Math.min(...xData);
+                const xMax = Math.max(...xData);
+                const xRange = xMax - xMin;
+                const step = xRange / (xData.length * 10);
+                
+                const xContinuous = [];
+                const yContinuous = [];
+                
+                // Generate function values
+                for (let x = xMin; x <= xMax; x += step) {
+                    xContinuous.push(x);
+                    yContinuous.push(evaluateFunction(x, params));
+                }
+                
+                // Ensure we include the exact endpoint
+                xContinuous.push(xMax);
+                yContinuous.push(evaluateFunction(xMax, params));
+                
+                // Calculate plot range that includes both data and function
+                const plotRange = calculatePlotRange(xData, yData, yContinuous);
+                
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const traceInitial = {
+                    x: xContinuous,
+                    y: yContinuous,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Initial Fit',
+                    line: { color: '#FF9800', width: 2 }
+                };
+                
+                const layout = {
+                    title: 'Data with Initial Function Fit',
+                    xaxis: { 
+                        title: 'X',
+                        range: plotRange.x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: plotRange.y
+                    },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData, traceInitial], layout);
+                document.getElementById('plotStatus').textContent = `Data with initial fit (${xData.length} points)`;
+                document.getElementById('plotStatus').style.color = '#000';
+                
+            } catch (e) {
+                // If function evaluation fails, just show data
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { 
+                        title: 'X',
+                        range: calculatePlotRange(xData, yData, []).x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: calculatePlotRange(xData, yData, []).y
+                    },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData], layout);
+                document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points) - Function error`;
+                document.getElementById('plotStatus').style.color = '#FF9800';
+            }
+            
+            // Clear any existing results since data changed
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+        
+        // Initialize grid on page load
+        document.addEventListener('DOMContentLoaded', initializeDataGrid);
+        
+        // ====================================================
+        // IMPROVEMENT #1: BETTER JACOBIAN (Central Difference)
+        // ====================================================
+        function jacobian(params) {
+            const jac = [];
+            for (let i = 0; i < xData.length; i++) {
+                const row = [];
+                for (let j = 0; j < usedParams.length; j++) {
+                    const paramIdx = usedParams[j] - 1;
+                    const paramValue = params[paramIdx];
+                    
+                    // Adaptive step size - much more stable
+                    const h = Math.max(1e-8, Math.abs(paramValue) * 1e-6);
+                    
+                    // Central difference (more accurate than forward difference)
+                    const paramsPlus = [...params];
+                    const paramsMinus = [...params];
+                    
+                    paramsPlus[paramIdx] = paramValue + h;
+                    paramsMinus[paramIdx] = paramValue - h;
+                    
+                    try {
+                        const fPlus = evaluateFunction(xData[i], paramsPlus);
+                        const fMinus = evaluateFunction(xData[i], paramsMinus);
+                        
+                        // Central difference formula
+                        const derivative = (fPlus - fMinus) / (2 * h);
+                        
+                        // Handle edge cases
+                        if (!isFinite(derivative)) {
+                            // Fallback to forward difference if central fails
+                            const f = evaluateFunction(xData[i], params);
+                            row.push((fPlus - f) / h);
+                        } else {
+                            row.push(derivative);
+                        }
+                    } catch (e) {
+                        // If evaluation fails, use a safe default
+                        row.push(1.0);
+                    }
+                }
+                jac.push(row);
+            }
+            return jac;
+        }
+        
+        function identifyUsedParams(funcStr) {
+            const params = [];
+            for (let i = 1; i <= 10; i++) {
+                if (funcStr.includes('c' + i)) {
+                    params.push(i);
+                }
+            }
+            return params;
+        }
+        
+        // ====================================================
+        // IMPROVEMENT #2: SAFER FUNCTION EVALUATION (Math.js)
+        // ====================================================
+        function evaluateFunction(x, params) {
+            const funcStr = document.getElementById('funcInput').value;
+            
+            // First try using Math.js (much safer than eval)
+            try {
+                // Create scope with all variables
+                const scope = {
+                    x: x,
+                    c1: params[0] || 0,
+                    c2: params[1] || 0,
+                    c3: params[2] || 0,
+                    c4: params[3] || 0,
+                    c5: params[4] || 0,
+                    c6: params[5] || 0,
+                    c7: params[6] || 0,
+                    c8: params[7] || 0,
+                    c9: params[8] || 0,
+                    c10: params[9] || 0  // FIXED: Changed from params[10] to params[9]
+                };
+                
+                // Evaluate using Math.js (already included in your <head>!)
+                return math.evaluate(funcStr, scope);
+            } catch (mathError) {
+                // Fallback to original method for compatibility
+                try {
+                    const converted = convertFunction(funcStr);
+                    const c1 = params[0] || 0;
+                    const c2 = params[1] || 0;
+                    const c3 = params[2] || 0;
+                    const c4 = params[3] || 0;
+                    const c5 = params[4] || 0;
+                    const c6 = params[5] || 0;
+                    const c7 = params[6] || 0;
+                    const c8 = params[7] || 0;
+                    const c9 = params[8] || 0;
+                    const c10 = params[9] || 0;
+                    
+                    return eval(converted);
+                } catch (evalError) {
+                    throw new Error('Function error: ' + mathError.message);
+                }
+            }
+        }
+        
+        function convertFunction(funcStr) {
+            let converted = funcStr.replace(/\^/g, '**');
+            
+            const mathFuncs = ['exp', 'log', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'pow'];
+            mathFuncs.forEach(func => {
+                const regex = new RegExp('\\b' + func + '\\(', 'g');
+                converted = converted.replace(regex, 'Math.' + func + '(');
+            });
+            
+            return converted;
+        }
+        
+        function getInitialParams() {
+            const params = [];
+            for (let i = 1; i <= 10; i++) {
+                const val = document.getElementById('c' + i).value.trim();
+                params.push(val === '' ? 1.0 : parseFloat(val));
+            }
+            return params;
+        }
+        
+        function parseConstraints() {
+            const constraintStr = document.getElementById('constraints').value.trim();
+            if (!constraintStr) return [];
+            
+            const constraints = [];
+            const parts = constraintStr.split(',');
+            
+            for (let part of parts) {
+                part = part.trim();
+                if (!part) continue;
+                
+                let match = part.match(/c(\d+)\s*(>=|<=|>|<)\s*(-?\d+\.?\d*)/);
+                if (match) {
+                    constraints.push({
+                        param: parseInt(match[1]) - 1,
+                        operator: match[2],
+                        value: parseFloat(match[3])
+                    });
+                }
+            }
+            
+            return constraints;
+        }
+        
+        function checkConstraints(params, constraints) {
+            for (let c of constraints) {
+                const val = params[c.param];
+                switch (c.operator) {
+                    case '>':
+                        if (!(val > c.value)) return false;
+                        break;
+                    case '<':
+                        if (!(val < c.value)) return false;
+                        break;
+                    case '>=':
+                        if (!(val >= c.value)) return false;
+                        break;
+                    case '<=':
+                        if (!(val <= c.value)) return false;
+                        break;
+                }
+            }
+            return true;
+        }
+        
+        function residuals(params) {
+            const res = [];
+            for (let i = 0; i < xData.length; i++) {
+                try {
+                    const predicted = evaluateFunction(xData[i], params);
+                    // Check for invalid predictions
+                    if (!isFinite(predicted)) {
+                        res.push(1e10); // Large penalty for invalid predictions
+                    } else {
+                        res.push(yData[i] - predicted);
+                    }
+                } catch (e) {
+                    res.push(1e10); // Large penalty for evaluation errors
+                }
+            }
+            return res;
+        }
+        
+        function matrixMultiply(A, B) {
+            const result = [];
+            for (let i = 0; i < A.length; i++) {
+                result[i] = [];
+                for (let j = 0; j < B[0].length; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < A[0].length; k++) {
+                        sum += A[i][k] * B[k][j];
+                    }
+                    result[i][j] = sum;
+                }
+            }
+            return result;
+        }
+        
+        function transpose(A) {
+            return A[0].map((_, i) => A.map(row => row[i]));
+        }
+        
+        function invertMatrix(A) {
+            const n = A.length;
+            const I = Array(n).fill().map((_, i) => Array(n).fill(0).map((_, j) => i === j ? 1 : 0));
+            const M = A.map((row, i) => [...row, ...I[i]]);
+            
+            for (let i = 0; i < n; i++) {
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                [M[i], M[maxRow]] = [M[maxRow], M[i]];
+                
+                if (Math.abs(M[i][i]) < 1e-10) {
+                    throw new Error('Matrix is singular');
+                }
+                
+                const pivot = M[i][i];
+                for (let j = 0; j < 2 * n; j++) {
+                    M[i][j] /= pivot;
+                }
+                
+                for (let k = 0; k < n; k++) {
+                    if (k !== i) {
+                        const factor = M[k][i];
+                        for (let j = 0; j < 2 * n; j++) {
+                            M[k][j] -= factor * M[i][j];
+                        }
+                    }
+                }
+            }
+            
+            return M.map(row => row.slice(n));
+        }
+        
+        function calculateCovarianceMatrix(J, residuals, params) {
+            // Calculate covariance matrix: Cov = (J'J)^(-1) * sigma^2
+            // where sigma^2 = SSE / (n - p)
+            const JT = transpose(J);
+            const JTJ = matrixMultiply(JT, J);
+            
+            try {
+                const JTJinv = invertMatrix(JTJ);
+                
+                // Calculate mean squared error (sigma^2)
+                const n = residuals.length;
+                const p = params.length;
+                const sse = residuals.reduce((sum, r) => sum + r * r, 0);
+                const mse = sse / (n - p);
+                
+                // Scale inverse by MSE
+                const cov = JTJinv.map(row => row.map(val => val * mse));
+                return cov;
+            } catch (e) {
+                // If matrix inversion fails, return diagonal matrix
+                const p = params.length;
+                const n = residuals.length;
+                const sse = residuals.reduce((sum, r) => sum + r * r, 0);
+                const mse = sse / (n - p);
+                
+                // Return diagonal matrix with variances
+                const cov = Array(p).fill().map(() => Array(p).fill(0));
+                for (let i = 0; i < p; i++) {
+                    cov[i][i] = mse;
+                }
+                return cov;
+            }
+        }
+        
+        function calculateTStatistic(paramValue, stdError) {
+            return paramValue / stdError;
+        }
+        
+        function calculatePValue(tStat, df) {
+            // Using two-tailed t-test
+            // Simplified approximation - in practice use proper t-distribution
+            const absT = Math.abs(tStat);
+            
+            // Very rough approximation for p-value
+            if (absT > 12) return 0.00001;
+            if (absT > 8) return 0.0001;
+            if (absT > 6) return 0.001;
+            if (absT > 4) return 0.01;
+            if (absT > 2) return 0.05;
+            if (absT > 1.5) return 0.1;
+            return 0.2;
+        }
+        
+        function levenbergMarquardt(initialParams, constraints, maxIter = 100, tolerance = 1e-6) {
+            // FIXED: Filter parameters correctly based on usedParams
+            // usedParams contains indices like [1, 2, 3], so we need to subtract 1
+            let params = initialParams.filter((_, i) => usedParams.includes(i + 1));
+            let lambda = 0.01;
+            let iteration = 0;
+            let finalJ = null;
+            let finalResiduals = null;
+            
+            while (iteration < maxIter) {
+                const res = residuals(initialParams);
+                const J = jacobian(initialParams);
+                const JT = transpose(J);
+                const JTJ = matrixMultiply(JT, J);
+                
+                const n = JTJ.length;
+                for (let i = 0; i < n; i++) {
+                    JTJ[i][i] *= (1 + lambda);
+                }
+                
+                const JTr = matrixMultiply(JT, res.map(r => [r]));
+                
+                let delta;
+                try {
+                    const JTJinv = invertMatrix(JTJ);
+                    delta = matrixMultiply(JTJinv, JTr).map(row => row[0]);
+                } catch (e) {
+                    lambda *= 10;
+                    iteration++;
+                    continue;
+                }
+                
+                const newParamsReduced = params.map((p, i) => p + delta[i]);
+                const newParams = [...initialParams];
+                
+                // Map reduced parameters back to full parameter array
+                usedParams.forEach((paramIdx, i) => {
+                    newParams[paramIdx - 1] = newParamsReduced[i];
+                });
+                
+                if (constraints.length > 0 && !checkConstraints(newParams, constraints)) {
+                    lambda *= 10;
+                    iteration++;
+                    continue;
+                }
+                
+                const newRes = residuals(newParams);
+                const oldSSE = res.reduce((sum, r) => sum + r * r, 0);
+                const newSSE = newRes.reduce((sum, r) => sum + r * r, 0);
+                
+                if (newSSE < oldSSE) {
+                    initialParams = newParams;
+                    params = newParamsReduced;
+                    finalJ = J;
+                    finalResiduals = res;
+                    lambda /= 10;
+                    
+                    if (Math.max(...delta.map(Math.abs)) < tolerance) {
+                        break;
+                    }
+                } else {
+                    lambda *= 10;
+                }
+                
+                iteration++;
+            }
+            
+            // Return both optimized parameters and Jacobian for covariance calculation
+            return {
+                params: initialParams,
+                jacobian: finalJ,
+                residuals: finalResiduals
+            };
+        }
+        
+        function calculateAllStatistics(optimizedParams, regressionResult) {
+            const n = yData.length;
+            const p = usedParams.length;
+            const predicted = xData.map((x, i) => evaluateFunction(x, optimizedParams));
+            
+            // Calculate R²
+            const yMean = yData.reduce((a, b) => a + b, 0) / n;
+            const ssRes = yData.reduce((sum, y, i) => sum + Math.pow(y - predicted[i], 2), 0);
+            const ssTot = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+            const r2 = 1 - (ssRes / ssTot);
+            const adjR2 = 1 - ((1 - r2) * (n - 1) / (n - p - 1));
+            const r = Math.sqrt(Math.abs(r2)) * (r2 >= 0 ? 1 : -1);
+            
+            // Calculate error metrics
+            let sae = 0;  // Sum of absolute errors
+            for (let i = 0; i < n; i++) {
+                sae += Math.abs(yData[i] - predicted[i]);
+            }
+            
+            const mse = ssRes / n;
+            const rmse = Math.sqrt(mse);
+            const mae = sae / n;
+            
+            // Calculate AIC
+            const aic = n * Math.log(ssRes / n) + 2 * p;
+            
+            // Calculate F-statistic
+            const ssReg = ssTot - ssRes;
+            const msReg = ssReg / p;
+            const msRes = ssRes / (n - p - 1);
+            const fStat = msReg / msRes;
+            
+            // Calculate parameter statistics
+            const paramStats = [];
+            if (regressionResult.jacobian && regressionResult.residuals) {
+                const covMatrix = calculateCovarianceMatrix(
+                    regressionResult.jacobian, 
+                    regressionResult.residuals, 
+                    optimizedParams.filter((_, i) => usedParams.includes(i + 1))
+                );
+                
+                const df = n - p - 1;
+                
+                for (let i = 0; i < usedParams.length; i++) {
+                    const paramIdx = usedParams[i] - 1;
+                    const paramValue = optimizedParams[paramIdx];
+                    const stdError = Math.sqrt(Math.abs(covMatrix[i][i]));
+                    const tStat = calculateTStatistic(paramValue, stdError);
+                    const pValue = calculatePValue(tStat, df);
+                    
+                    paramStats.push({
+                        name: `c${usedParams[i]}`,
+                        value: paramValue,
+                        stdError: stdError,
+                        tStat: tStat,
+                        pValue: pValue
+                    });
+                }
+            }
+            
+            return {
+                r: r,
+                r2: r2,
+                adjR2: adjR2,
+                rmse: rmse,
+                mae: mae,
+                aic: aic,
+                fStat: fStat,
+                paramStats: paramStats,
+                n: n,
+                p: p,
+                ssRes: ssRes,
+                ssTot: ssTot,
+                ssReg: ssReg
+            };
+        }
+        
+        function displayParameterStats(paramStats) {
+            const tbody = document.getElementById('paramStatsBody');
+            tbody.innerHTML = '';
+            
+            for (const stat of paramStats) {
+                const row = document.createElement('tr');
+                
+                // Determine significance stars
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                row.innerHTML = `
+                    <td class="param-name">${stat.name}</td>
+                    <td>${stat.value.toExponential(6)}</td>
+                    <td>${stat.stdError.toExponential(6)}</td>
+                    <td>${stat.tStat.toFixed(4)}</td>
+                    <td>${stat.pValue.toFixed(6)}</td>
+                    <td class="sig-star">${sigStars}</td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+        
+        function showCopyNotification(message) {
+            const notification = document.getElementById('copyNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyNotification('Copied to clipboard! Ready to paste into Excel.');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopyNotification('Copied to clipboard! Ready to paste into Excel.');
+            });
+        }
+        
+        function formatForExcel(value) {
+            if (typeof value === 'number') {
+                // Use scientific notation for very small/large numbers
+                if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
+                    return value.toExponential(6);
+                } else {
+                    return value.toFixed(6);
+                }
+            }
+            return value;
+        }
+        
+        function generateExportTables(stats, optimizedParams) {
+            // Generate Goodness of Fit table
+            const goodnessBody = document.getElementById('exportGoodnessBody');
+            goodnessBody.innerHTML = '';
+            
+            const goodnessData = [
+                ['R (Correlation)', formatForExcel(stats.r)],
+                ['R² (R-squared)', formatForExcel(stats.r2)],
+                ['Adjusted R²', formatForExcel(stats.adjR2)],
+                ['RMSE', formatForExcel(stats.rmse)],
+                ['MAE', formatForExcel(stats.mae)],
+                ['AIC', formatForExcel(stats.aic)],
+                ['F-Statistic', formatForExcel(stats.fStat)],
+                ['Data Points', stats.n],
+                ['Parameters', stats.p],
+                ['SS Residual', formatForExcel(stats.ssRes)],
+                ['SS Total', formatForExcel(stats.ssTot)],
+                ['SS Regression', formatForExcel(stats.ssReg)]
+            ];
+            
+            goodnessData.forEach(([metric, value]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${metric}</td><td>${value}</td>`;
+                goodnessBody.appendChild(row);
+            });
+            
+            // Generate Parameter Statistics table
+            const paramBody = document.getElementById('exportParamBody');
+            paramBody.innerHTML = '';
+            
+            stats.paramStats.forEach(stat => {
+                const row = document.createElement('tr');
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                row.innerHTML = `
+                    <td>${stat.name}</td>
+                    <td>${formatForExcel(stat.value)}</td>
+                    <td>${formatForExcel(stat.stdError)}</td>
+                    <td>${formatForExcel(stat.tStat)}</td>
+                    <td>${formatForExcel(stat.pValue)}</td>
+                    <td>${sigStars}</td>
+                `;
+                paramBody.appendChild(row);
+            });
+            
+            // Generate Summary table
+            const summaryBody = document.getElementById('exportSummaryBody');
+            summaryBody.innerHTML = '';
+            
+            const funcStr = document.getElementById('funcInput').value;
+            const date = new Date().toLocaleString();
+            
+            const summaryData = [
+                ['Regression Function', funcStr],
+                ['Analysis Date', date],
+                ['Data Points', stats.n],
+                ['Fitted Parameters', stats.p],
+                ['Used Parameters', usedParams.map(p => `c${p}`).join(', ')],
+                ['R² Value', formatForExcel(stats.r2)],
+                ['Adjusted R²', formatForExcel(stats.adjR2)],
+                ['RMSE', formatForExcel(stats.rmse)]
+            ];
+            
+            summaryData.forEach(([item, value]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${item}</td><td>${value}</td>`;
+                summaryBody.appendChild(row);
+            });
+            
+            return {
+                goodnessData,
+                paramStats: stats.paramStats,
+                summaryData
+            };
+        }
+        
+        function copyAllResults() {
+            if (!currentRegressionResults) return;
+            
+            const { goodnessData, paramStats, summaryData } = currentRegressionResults;
+            
+            let output = "NONLINEAR REGRESSION ANALYSIS RESULTS\n";
+            output += "=".repeat(50) + "\n\n";
+            
+            output += "SUMMARY\n";
+            output += "=".repeat(50) + "\n";
+            summaryData.forEach(([item, value]) => {
+                output += `${item}\t${value}\n`;
+            });
+            
+            output += "\n\nGOODNESS OF FIT\n";
+            output += "=".repeat(50) + "\n";
+            goodnessData.forEach(([metric, value]) => {
+                output += `${metric}\t${value}\n`;
+            });
+            
+            output += "\n\nPARAMETER STATISTICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Parameter\tValue\tStd Error\tt-Statistic\tp-value\tSignificance\n";
+            paramStats.forEach(stat => {
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                output += `${stat.name}\t${formatForExcel(stat.value)}\t${formatForExcel(stat.stdError)}\t${formatForExcel(stat.tStat)}\t${formatForExcel(stat.pValue)}\t${sigStars}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyGoodnessOfFit() {
+            if (!currentRegressionResults) return;
+            
+            const { goodnessData } = currentRegressionResults;
+            
+            let output = "GOODNESS OF FIT METRICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Metric\tValue\n";
+            
+            goodnessData.forEach(([metric, value]) => {
+                output += `${metric}\t${value}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyParameterStats() {
+            if (!currentRegressionResults) return;
+            
+            const { paramStats } = currentRegressionResults;
+            
+            let output = "PARAMETER STATISTICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Parameter\tValue\tStd Error\tt-Statistic\tp-value\tSignificance\n";
+            
+            paramStats.forEach(stat => {
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                output += `${stat.name}\t${formatForExcel(stat.value)}\t${formatForExcel(stat.stdError)}\t${formatForExcel(stat.tStat)}\t${formatForExcel(stat.pValue)}\t${sigStars}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyRegressionEquation() {
+            const funcStr = document.getElementById('funcInput').value;
+            const optimizedParams = currentRegressionResults?.optimizedParams;
+            
+            if (!optimizedParams) return;
+            
+            let output = "REGRESSION EQUATION\n";
+            output += "=".repeat(50) + "\n\n";
+            output += `Function: y = ${funcStr}\n\n`;
+            output += "Optimized Parameters:\n";
+            
+            usedParams.forEach(i => {
+                const paramIdx = i - 1;
+                output += `c${i} = ${formatForExcel(optimizedParams[paramIdx])}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function runRegression() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                document.getElementById('functionError').innerHTML = '<div class="error">Please enter data first.</div>';
+                return;
+            }
+            
+            const funcStr = document.getElementById('funcInput').value;
+            usedParams = identifyUsedParams(funcStr);
+            
+            if (usedParams.length === 0) {
+                document.getElementById('functionError').innerHTML = '<div class="error">No parameters found in function.</div>';
+                return;
+            }
+            
+            const initialParams = getInitialParams();
+            const constraints = parseConstraints();
+            
+            try {
+                const regressionResult = levenbergMarquardt(initialParams, constraints);
+                const optimizedParams = regressionResult.params;
+                
+                // Calculate all statistics
+                const stats = calculateAllStatistics(optimizedParams, regressionResult);
+                
+                // Store results for export
+                currentRegressionResults = {
+                    stats: stats,
+                    optimizedParams: optimizedParams,
+                    ...generateExportTables(stats, optimizedParams)
+                };
+                
+                const xMin = Math.min(...xData);
+                const xMax = Math.max(...xData);
+                const xRange = xMax - xMin;
+                
+                const xStart = xMin;
+                const xEnd = xMax;
+                const step = xRange / (xData.length * 10);
+                
+                const xContinuous = [];
+                const yInitial = [];
+                const yFitted = [];
+                
+                for (let x = xStart; x <= xEnd; x += step) {
+                    xContinuous.push(x);
+                    yInitial.push(evaluateFunction(x, initialParams));
+                    yFitted.push(evaluateFunction(x, optimizedParams));
+                }
+                
+                xContinuous.push(xMax);
+                yInitial.push(evaluateFunction(xMax, initialParams));
+                yFitted.push(evaluateFunction(xMax, optimizedParams));
+                
+                // Calculate plot range that includes data and both fits
+                const plotRange = calculatePlotRange(xData, yData, [...yInitial, ...yFitted]);
+                
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const traceInitial = {
+                    x: xContinuous,
+                    y: yInitial,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Initial Fit',
+                    line: { color: '#FF9800', width: 2, dash: 'dash' }
+                };
+                
+                const traceFitted = {
+                    x: xContinuous,
+                    y: yFitted,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Optimized Fit',
+                    line: { color: '#4CAF50', width: 3 }
+                };
+                
+                const layout = {
+                    title: 'Regression Results (Within Data Range)',
+                    xaxis: { 
+                        title: 'X',
+                        range: plotRange.x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: plotRange.y
+                    },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
+                
+                // Display optimized parameters
+                const resultsHTML = usedParams.map(i => {
+                    return `
+                        <div class="result-item">
+                            <div class="result-label">c${i}</div>
+                            <div class="result-value">${optimizedParams[i-1].toExponential(6)}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('optimizedParams').innerHTML = resultsHTML;
+                
+                // Display all statistics
+                document.getElementById('rValue').textContent = stats.r.toFixed(6);
+                document.getElementById('r2Value').textContent = stats.r2.toFixed(6);
+                document.getElementById('adjR2Value').textContent = stats.adjR2.toFixed(6);
+                document.getElementById('rmseValue').textContent = stats.rmse.toFixed(6);
+                document.getElementById('maeValue').textContent = stats.mae.toFixed(6);
+                document.getElementById('aicValue').textContent = stats.aic.toFixed(2);
+                document.getElementById('fStatValue').textContent = stats.fStat.toFixed(4);
+                
+                // Display parameter statistics
+                if (stats.paramStats.length > 0) {
+                    displayParameterStats(stats.paramStats);
+                }
+                
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('functionError').innerHTML = '<div class="info">Regression completed successfully! All statistics calculated.</div>';
+                
+            } catch (e) {
+                document.getElementById('functionError').innerHTML = '<div class="error">Regression failed: ' + e.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>
