@@ -20,8 +20,8 @@
         }
         
         .container {
-            max-width: 1100px;
-            margin: 0;
+            max-width: 1000px;
+            margin: 0 auto;
             background: white;
             border-radius: 4px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -38,7 +38,7 @@
         /* Desktop Layout - All in one row */
         .main-grid {
             display: grid;
-            grid-template-columns: 20% 30% 50%;
+            grid-template-columns: 20% 30% 35%;
             gap: 6px;
             margin-bottom: 7px;
             align-items: stretch;
@@ -624,6 +624,12 @@
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
         }
+        
+        /* Red color for parameters */
+        .param-red {
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -662,15 +668,15 @@
             <div class="section">
                 <h2>2. Function Definition</h2>
                 <div class="input-group">
-                    <label for="funcInput">Function (use x, c1, c2, ... c10):</label>
+                    <label for="funcInput">Function (use x, <span class="param-red">c1</span>, <span class="param-red">c2</span>, ... <span class="param-red">c10</span>):</label>
                     <input type="text" id="funcInput" placeholder="c1*x^2 + c2*x + c3" value="c1*x^2 + c2*x + c3">
-                    <small>Supported: +, -, *, /, ^, exp(), log(), sin(), cos(), sqrt(), etc.</small>
+                    <small>Example: <span class="param-red">c1</span>*x^2 + <span class="param-red">c2</span>*x + <span class="param-red">c3</span></small>
                 </div>
                 
                 <div class="input-group" style="margin-top: 5px;">
                     <label for="constraints">Constraints (optional):</label>
                     <input type="text" id="constraints" placeholder="c1>0, c2<10, c3>=0">
-                    <small>Format: c1>0, c2<10, c3>=0, etc.</small>
+                    <small>Format: <span class="param-red">c1</span>>0, <span class="param-red">c2</span>&lt;10, <span class="param-red">c3</span>&gt;=0, etc.</small>
                 </div>
                 
                 <div class="function-status" id="functionStatus">
@@ -682,46 +688,46 @@
                     <h3>3. Initial Parameter Values</h3>
                     <div class="compact-param-grid">
                         <div class="param-input">
-                            <label>c1:</label>
+                            <label><span class="param-red">c1</span>:</label>
                             <input type="text" id="c1" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c2:</label>
+                            <label><span class="param-red">c2</span>:</label>
                             <input type="text" id="c2" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c3:</label>
+                            <label><span class="param-red">c3</span>:</label>
                             <input type="text" id="c3" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c4:</label>
+                            <label><span class="param-red">c4</span>:</label>
                             <input type="text" id="c4" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c5:</label>
+                            <label><span class="param-red">c5</span>:</label>
                             <input type="text" id="c5" value="1.0">
                         </div>
                     </div>
                     
                     <div class="compact-param-grid">
                         <div class="param-input">
-                            <label>c6:</label>
+                            <label><span class="param-red">c6</span>:</label>
                             <input type="text" id="c6" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c7:</label>
+                            <label><span class="param-red">c7</span>:</label>
                             <input type="text" id="c7" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c8:</label>
+                            <label><span class="param-red">c8</span>:</label>
                             <input type="text" id="c8" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c9:</label>
+                            <label><span class="param-red">c9</span>:</label>
                             <input type="text" id="c9" value="1.0">
                         </div>
                         <div class="param-input">
-                            <label>c10:</label>
+                            <label><span class="param-red">c10</span>:</label>
                             <input type="text" id="c10" value="1.0">
                         </div>
                     </div>
@@ -1900,7 +1906,7 @@
                 else if (stat.pValue < 0.1) sigStars = '.';
                 
                 row.innerHTML = `
-                    <td class="param-name">${stat.name}</td>
+                    <td class="param-name"><span class="param-red">${stat.name}</span></td>
                     <td>${stat.value.toExponential(6)}</td>
                     <td>${stat.stdError.toExponential(6)}</td>
                     <td>${stat.tStat.toFixed(4)}</td>
@@ -1988,7 +1994,7 @@
                 else if (stat.pValue < 0.1) sigStars = '.';
                 
                 row.innerHTML = `
-                    <td>${stat.name}</td>
+                    <td><span class="param-red">${stat.name}</span></td>
                     <td>${formatForExcel(stat.value)}</td>
                     <td>${formatForExcel(stat.stdError)}</td>
                     <td>${formatForExcel(stat.tStat)}</td>
@@ -2005,12 +2011,15 @@
             const funcStr = document.getElementById('funcInput').value;
             const date = new Date().toLocaleString();
             
+            // Highlight parameters in the used parameters string
+            const usedParamsStr = usedParams.map(p => `<span class="param-red">c${p}</span>`).join(', ');
+            
             const summaryData = [
                 ['Regression Function', funcStr],
                 ['Analysis Date', date],
                 ['Data Points', stats.n],
                 ['Fitted Parameters', stats.p],
-                ['Used Parameters', usedParams.map(p => `c${p}`).join(', ')],
+                ['Used Parameters', usedParamsStr],
                 ['R² Value', formatForExcel(stats.r2)],
                 ['Adjusted R²', formatForExcel(stats.adjR2)],
                 ['RMSE', formatForExcel(stats.rmse)]
@@ -2228,11 +2237,11 @@
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
                 
-                // Display optimized parameters
+                // Display optimized parameters with red color
                 const resultsHTML = usedParams.map(i => {
                     return `
                         <div class="result-item">
-                            <div class="result-label">c${i}</div>
+                            <div class="result-label"><span class="param-red">c${i}</span></div>
                             <div class="result-value">${optimizedParams[i-1].toExponential(6)}</div>
                         </div>
                     `;
@@ -2264,7 +2273,3 @@
     </script>
 </body>
 </html>
-
-
-
-
