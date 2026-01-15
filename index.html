@@ -16,83 +16,98 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
-            padding: 20px;
+            padding: 10px;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            padding: 15px;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
         }
         
-        .grid {
+        /* Desktop Layout - All in one row */
+        .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: 20% 30% 50%;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: stretch;
         }
         
+        /* Mobile Layout - First two in row 1, graph in row 2 */
         @media (max-width: 768px) {
-            .grid {
+            .main-grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
+                grid-template-rows: auto auto auto;
+                gap: 10px;
             }
             
             .container {
-                padding: 15px;
+                padding: 10px;
+            }
+            
+            body {
+                padding: 5px;
             }
             
             h1 {
-                font-size: 20px;
+                font-size: 18px;
+                margin-bottom: 10px;
             }
         }
         
         .section {
             background: #f9f9f9;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .section h2 {
             color: #333;
-            font-size: 16px;
-            margin-bottom: 12px;
+            font-size: 15px;
+            margin-bottom: 10px;
             border-bottom: 2px solid #000;
-            padding-bottom: 6px;
+            padding-bottom: 5px;
         }
         
         .data-input-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            flex: 1;
         }
         
         .data-header {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
             font-weight: bold;
             color: #333;
-            padding: 0 8px;
-            font-size: 14px;
+            padding: 0 6px;
+            font-size: 13px;
         }
         
         .data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            max-height: 250px;
+            gap: 6px;
+            flex: 1;
+            min-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -105,12 +120,12 @@
         }
         
         .data-cell {
-            padding: 6px 8px;
+            padding: 5px 6px;
             border-bottom: 1px solid #f0f0f0;
             border-right: 1px solid #f0f0f0;
             font-family: 'Courier New', monospace;
-            font-size: 13px;
-            min-height: 32px;
+            font-size: 12px;
+            min-height: 30px;
             outline: none;
             background: white;
         }
@@ -133,23 +148,23 @@
         
         label {
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             color: #333;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         input[type="text"] {
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .param-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
+            margin-top: 6px;
         }
         
         .param-input {
@@ -158,14 +173,14 @@
         }
         
         .param-input label {
-            font-size: 11px;
+            font-size: 10px;
             text-align: center;
             margin-bottom: 2px;
         }
         
         .param-input input {
-            padding: 6px;
-            font-size: 12px;
+            padding: 5px;
+            font-size: 11px;
             text-align: center;
             width: 100%;
         }
@@ -174,12 +189,12 @@
             background: #000;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: background 0.3s;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         
         button:hover {
@@ -193,8 +208,8 @@
         
         .plot-container {
             width: 100%;
-            height: 400px;
-            margin: 15px 0;
+            height: 100%;
+            min-height: 400px;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             background: white;
@@ -202,30 +217,30 @@
         
         @media (max-width: 768px) {
             .plot-container {
-                height: 350px;
+                min-height: 350px;
             }
         }
         
         .results {
             background: #fff;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
-            margin-top: 15px;
+            margin-top: 12px;
         }
         
         .results h2 {
             color: #000;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border-bottom: 2px solid #000;
-            padding-bottom: 6px;
+            padding-bottom: 5px;
         }
         
         .results-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         
         @media (max-width: 1024px) {
@@ -242,19 +257,19 @@
         
         .result-item {
             background: #fff;
-            padding: 8px;
+            padding: 6px;
             border-radius: 4px;
             border: 1px solid #ddd;
         }
         
         .result-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             font-weight: 600;
         }
         
         .result-value {
-            font-size: 14px;
+            font-size: 13px;
             color: #000;
             font-weight: bold;
             font-family: 'Courier New', monospace;
@@ -262,35 +277,35 @@
         
         .stats-row {
             display: flex;
-            gap: 15px;
-            margin-top: 12px;
+            gap: 12px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
         @media (max-width: 768px) {
             .stats-row {
-                gap: 10px;
+                gap: 8px;
             }
         }
         
         .stat-box {
             background: #fff;
-            padding: 12px;
+            padding: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
             flex: 1;
-            min-width: 150px;
+            min-width: 140px;
             text-align: center;
         }
         
         .stat-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         
         .stat-value {
-            font-size: 20px;
+            font-size: 18px;
             color: #000;
             font-weight: bold;
         }
@@ -298,38 +313,38 @@
         .error {
             color: #d32f2f;
             background: #ffebee;
-            padding: 8px;
+            padding: 6px;
             border-radius: 4px;
-            margin-top: 8px;
+            margin-top: 6px;
             border-left: 4px solid #d32f2f;
-            font-size: 13px;
+            font-size: 12px;
         }
         
         .info {
             color: #000;
             background: #f5f5f5;
-            padding: 8px;
+            padding: 6px;
             border-radius: 4px;
-            margin-top: 8px;
+            margin-top: 6px;
             border-left: 4px solid #000;
-            font-size: 13px;
+            font-size: 12px;
         }
         
         .button-group {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 10px;
         }
         
         .data-controls {
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
+            margin-top: 6px;
         }
         
         .data-controls button {
-            padding: 6px 12px;
-            font-size: 13px;
+            padding: 5px 10px;
+            font-size: 12px;
             background: #000;
         }
         
@@ -341,11 +356,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
-            padding: 4px 8px;
+            margin-top: 6px;
+            padding: 3px 6px;
             background: #f5f5f5;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
         }
         
         .point-count {
@@ -368,11 +383,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
-            padding: 4px 8px;
+            margin-top: 6px;
+            padding: 3px 6px;
             background: #f5f5f5;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
         }
         
         .function-valid {
@@ -388,13 +403,13 @@
         .param-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 12px;
+            margin-top: 12px;
+            font-size: 11px;
         }
         
         .param-table th {
             background: #f5f5f5;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
             text-align: center;
             font-weight: 600;
@@ -402,7 +417,7 @@
         }
         
         .param-table td {
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
             text-align: center;
             background: white;
@@ -419,20 +434,20 @@
         }
         
         .advanced-stats {
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 2px solid #ddd;
         }
         
         .advanced-stats h3 {
             color: #000;
-            margin-bottom: 12px;
-            font-size: 16px;
+            margin-bottom: 10px;
+            font-size: 15px;
         }
         
         .export-section {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 12px;
             background: #f9f9f9;
             border-radius: 6px;
             border: 2px solid #ddd;
@@ -440,24 +455,24 @@
         
         .export-section h3 {
             color: #000;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 16px;
+            gap: 6px;
+            font-size: 15px;
         }
         
         .export-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 12px;
+            margin-top: 10px;
+            font-size: 11px;
             background: white;
         }
         
         .export-table th {
             background: #f5f5f5;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
             text-align: left;
             font-weight: 600;
@@ -465,7 +480,7 @@
         }
         
         .export-table td {
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #e0e0e0;
             font-family: 'Courier New', monospace;
         }
@@ -478,8 +493,8 @@
         
         .copy-buttons {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
@@ -487,9 +502,9 @@
             background: #000;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -504,11 +519,11 @@
         
         .copy-notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             background: #000;
             color: white;
-            padding: 10px 16px;
+            padding: 8px 12px;
             border-radius: 4px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             z-index: 1000;
@@ -523,8 +538,8 @@
         }
         
         .compact-section {
-            margin-top: 15px;
-            padding: 12px;
+            margin-top: 12px;
+            padding: 10px;
             background: #fff;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
@@ -532,28 +547,28 @@
         
         .compact-section h3 {
             color: #333;
-            font-size: 15px;
-            margin-bottom: 8px;
+            font-size: 14px;
+            margin-bottom: 6px;
             border-bottom: 2px solid #000;
-            padding-bottom: 4px;
+            padding-bottom: 3px;
         }
         
         .compact-param-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         
         .run-regression-btn {
             background: #000;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: background 0.3s;
-            margin-top: 12px;
+            margin-top: 10px;
             width: 100%;
         }
         
@@ -564,8 +579,8 @@
         .compact-param-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 5px;
+            margin-bottom: 5px;
         }
         
         @media (max-width: 1024px) {
@@ -591,8 +606,23 @@
         
         small {
             color: #666;
-            margin-top: 4px;
-            font-size: 12px;
+            margin-top: 3px;
+            font-size: 11px;
+        }
+        
+        /* Make sure plot container takes full height */
+        .plot-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .plot-section h2 {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
         }
     </style>
 </head>
@@ -600,7 +630,8 @@
     <div class="container">
         <h1>Nonlinear Regression Analysis</h1>
         
-        <div class="grid">
+        <div class="main-grid">
+            <!-- 1. Input Data (X and Y) - 20% width -->
             <div class="section">
                 <h2>1. Input Data (X and Y)</h2>
                 
@@ -627,6 +658,7 @@
                 <div id="dataError"></div>
             </div>
             
+            <!-- 2. Function Definition - 30% width -->
             <div class="section">
                 <h2>2. Function Definition</h2>
                 <div class="input-group">
@@ -635,7 +667,7 @@
                     <small>Supported: +, -, *, /, ^, exp(), log(), sin(), cos(), sqrt(), etc.</small>
                 </div>
                 
-                <div class="input-group" style="margin-top: 12px;">
+                <div class="input-group" style="margin-top: 10px;">
                     <label for="constraints">Constraints (optional):</label>
                     <input type="text" id="constraints" placeholder="c1>0, c2<10, c3>=0">
                     <small>Format: c1>0, c2<10, c3>=0, etc.</small>
@@ -698,16 +730,20 @@
                     <div id="functionError"></div>
                 </div>
             </div>
+            
+            <!-- 3. Data with initial function fit - 50% width -->
+            <div class="section plot-section">
+                <h2>3. Data with Initial Function Fit</h2>
+                <div class="plot-container" id="plotDiv"></div>
+            </div>
         </div>
-        
-        <div class="plot-container" id="plotDiv"></div>
         
         <div id="resultsSection" style="display: none;">
             <div class="results">
                 <h2>Optimized Parameters</h2>
                 <div class="results-grid" id="optimizedParams"></div>
                 
-                <h2 style="margin-top: 15px;">Goodness of Fit</h2>
+                <h2 style="margin-top: 12px;">Goodness of Fit</h2>
                 <div class="stats-row">
                     <div class="stat-box">
                         <div class="stat-label">R (Correlation)</div>
@@ -765,7 +801,7 @@
                     <h3>
                         <span>📋 Export Results to Excel</span>
                     </h3>
-                    <p style="color: #666; margin-bottom: 12px; font-size: 13px;">
+                    <p style="color: #666; margin-bottom: 10px; font-size: 12px;">
                         Copy the tables below and paste directly into Excel. Each section is formatted for easy Excel import.
                     </p>
                     
@@ -776,8 +812,8 @@
                         <button class="copy-button" onclick="copyRegressionEquation()">📐 Copy Regression Equation</button>
                     </div>
                     
-                    <div style="margin-top: 15px;">
-                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Goodness of Fit Metrics</h4>
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Goodness of Fit Metrics</h4>
                         <table class="export-table" id="exportGoodnessTable">
                             <thead>
                                 <tr>
@@ -791,8 +827,8 @@
                         </table>
                     </div>
                     
-                    <div style="margin-top: 15px;">
-                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Parameter Statistics</h4>
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Parameter Statistics</h4>
                         <table class="export-table" id="exportParamTable">
                             <thead>
                                 <tr>
@@ -810,8 +846,8 @@
                         </table>
                     </div>
                     
-                    <div style="margin-top: 15px;">
-                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Regression Summary</h4>
+                    <div style="margin-top: 12px;">
+                        <h4 style="color: #000; margin-bottom: 6px; font-size: 13px;">Regression Summary</h4>
                         <table class="export-table" id="exportSummaryTable">
                             <thead>
                                 <tr>
@@ -832,6 +868,8 @@
     <div id="copyNotification" class="copy-notification" style="display: none;"></div>
 
     <script>
+        // The entire JavaScript code remains exactly the same as before
+        // Only the CSS and HTML structure has been modified
         let xData = [];
         let yData = [];
         let usedParams = [];
@@ -2186,5 +2224,3 @@
     </script>
 </body>
 </html>
-
-
