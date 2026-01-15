@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nonlinear Regression Analysis</title>
+    <meta name="description" content="Advanced Nonlinear Regression Analysis Tool">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Regression App">
+    
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
     <style>
@@ -28,11 +37,127 @@
             padding: 20px;
         }
         
+        .pwa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
         h1 {
             color: #333;
-            margin-bottom: 20px;
             text-align: center;
             font-size: 24px;
+        }
+        
+        .install-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .install-btn:hover {
+            background: #333;
+        }
+        
+        .install-btn.installed {
+            background: #666;
+            cursor: default;
+        }
+        
+        .save-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .save-section h2 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+        }
+        
+        .save-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .save-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .save-btn, .load-btn, .delete-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .save-btn:hover, .load-btn:hover, .delete-btn:hover {
+            background: #333;
+        }
+        
+        .saved-calculations {
+            margin-top: 15px;
+        }
+        
+        .calculations-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .calculation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .calculation-item:last-child {
+            border-bottom: none;
+        }
+        
+        .calculation-item:hover {
+            background: #f8f8f8;
+        }
+        
+        .calculation-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .calculation-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .calculation-controls {
+            display: flex;
+            gap: 5px;
         }
         
         .grid {
@@ -54,6 +179,10 @@
             
             h1 {
                 font-size: 20px;
+            }
+            
+            .save-controls {
+                flex-direction: column;
             }
         }
         
@@ -594,11 +723,54 @@
             margin-top: 4px;
             font-size: 12px;
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #000;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Nonlinear Regression Analysis</h1>
+        <div class="pwa-header">
+            <h1>Nonlinear Regression Analysis</h1>
+            <button id="installBtn" class="install-btn">Install on Desktop</button>
+        </div>
+        
+        <!-- PWA Save/Load Section -->
+        <div class="save-section" id="pwaSection">
+            <h2>PWA Features (Save/Load Calculations)</h2>
+            <div class="save-controls">
+                <input type="text" id="saveName" class="save-input" placeholder="Enter calculation name">
+                <button onclick="saveCalculation()" class="save-btn">Save Current</button>
+            </div>
+            
+            <div class="saved-calculations">
+                <h3 style="color: #333; font-size: 14px; margin-bottom: 8px;">Saved Calculations:</h3>
+                <div class="calculations-list" id="calculationsList">
+                    <!-- Saved calculations will appear here -->
+                </div>
+            </div>
+        </div>
         
         <div class="grid">
             <div class="section">
@@ -830,8 +1002,14 @@
     </div>
 
     <div id="copyNotification" class="copy-notification" style="display: none;"></div>
+    <div id="generalNotification" class="notification" style="display: none;"></div>
 
     <script>
+        // PWA Installation Variables
+        let deferredPrompt;
+        let isPWAInstalled = false;
+        
+        // Data Storage Variables
         let xData = [];
         let yData = [];
         let usedParams = [];
@@ -843,6 +1021,55 @@
         let lastParamsHash = '';
         let lastDataHash = '';
         let currentRegressionResults = null;
+        
+        // PWA Installation Handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Update UI to show install button
+            const installBtn = document.getElementById('installBtn');
+            installBtn.style.display = 'block';
+            installBtn.addEventListener('click', () => {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        installBtn.textContent = 'Installed';
+                        installBtn.classList.add('installed');
+                        isPWAInstalled = true;
+                        // Show PWA features after installation
+                        document.getElementById('pwaSection').style.display = 'block';
+                        loadSavedCalculations();
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+        
+        // Check if app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            isPWAInstalled = true;
+            document.getElementById('installBtn').textContent = 'Installed';
+            document.getElementById('installBtn').classList.add('installed');
+            document.getElementById('pwaSection').style.display = 'block';
+            loadSavedCalculations();
+        });
+        
+        // Check on load if running as PWA
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            isPWAInstalled = true;
+            document.getElementById('installBtn').style.display = 'none';
+            document.getElementById('pwaSection').style.display = 'block';
+            loadSavedCalculations();
+        }
         
         // Initialize data grid
         function initializeDataGrid() {
@@ -897,8 +1124,202 @@
             
             // Add sample data
             setSampleData();
+            
+            // Load saved calculations if PWA
+            if (isPWAInstalled) {
+                loadSavedCalculations();
+            }
         }
         
+        // PWA Save/Load Functions
+        function saveCalculation() {
+            if (!isPWAInstalled) {
+                showNotification('Please install the app first to save calculations');
+                return;
+            }
+            
+            const saveName = document.getElementById('saveName').value.trim();
+            if (!saveName) {
+                showNotification('Please enter a name for the calculation');
+                return;
+            }
+            
+            // Collect all current data
+            const calculationData = {
+                name: saveName,
+                date: new Date().toISOString(),
+                displayDate: new Date().toLocaleString(),
+                xData: getXData(),
+                yData: getYData(),
+                function: document.getElementById('funcInput').value,
+                constraints: document.getElementById('constraints').value,
+                parameters: getParameterValues(),
+                results: currentRegressionResults
+            };
+            
+            // Save to localStorage
+            const savedCalculations = JSON.parse(localStorage.getItem('regressionCalculations') || '[]');
+            
+            // Check if name already exists
+            const existingIndex = savedCalculations.findIndex(item => item.name === saveName);
+            if (existingIndex !== -1) {
+                if (!confirm(`Calculation "${saveName}" already exists. Overwrite?`)) {
+                    return;
+                }
+                savedCalculations[existingIndex] = calculationData;
+            } else {
+                savedCalculations.push(calculationData);
+            }
+            
+            localStorage.setItem('regressionCalculations', JSON.stringify(savedCalculations));
+            
+            // Update UI
+            loadSavedCalculations();
+            document.getElementById('saveName').value = '';
+            showNotification(`Calculation "${saveName}" saved successfully!`);
+        }
+        
+        function loadSavedCalculations() {
+            if (!isPWAInstalled) return;
+            
+            const savedCalculations = JSON.parse(localStorage.getItem('regressionCalculations') || '[]');
+            const listElement = document.getElementById('calculationsList');
+            
+            if (savedCalculations.length === 0) {
+                listElement.innerHTML = '<div class="calculation-item" style="color: #666; font-style: italic;">No saved calculations yet</div>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            savedCalculations.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            listElement.innerHTML = savedCalculations.map(calc => `
+                <div class="calculation-item" data-name="${calc.name}">
+                    <div>
+                        <div class="calculation-name">${calc.name}</div>
+                        <div class="calculation-date">${calc.displayDate}</div>
+                    </div>
+                    <div class="calculation-controls">
+                        <button onclick="loadCalculation('${calc.name}')" class="load-btn" style="padding: 4px 8px; font-size: 12px;">Load</button>
+                        <button onclick="deleteCalculation('${calc.name}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px; background: #d32f2f;">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function loadCalculation(name) {
+            if (!isPWAInstalled) return;
+            
+            const savedCalculations = JSON.parse(localStorage.getItem('regressionCalculations') || '[]');
+            const calculation = savedCalculations.find(calc => calc.name === name);
+            
+            if (!calculation) {
+                showNotification(`Calculation "${name}" not found`);
+                return;
+            }
+            
+            // Load data into UI
+            loadDataIntoUI(calculation);
+            showNotification(`Loaded calculation "${name}"`);
+        }
+        
+        function deleteCalculation(name) {
+            if (!isPWAInstalled) return;
+            
+            if (!confirm(`Delete calculation "${name}"? This cannot be undone.`)) {
+                return;
+            }
+            
+            const savedCalculations = JSON.parse(localStorage.getItem('regressionCalculations') || '[]');
+            const filteredCalculations = savedCalculations.filter(calc => calc.name !== name);
+            
+            localStorage.setItem('regressionCalculations', JSON.stringify(filteredCalculations));
+            loadSavedCalculations();
+            showNotification(`Calculation "${name}" deleted`);
+        }
+        
+        function getXData() {
+            const xData = [];
+            for (let i = 0; i < dataCells.length; i++) {
+                const val = parseFloat(dataCells[i].x.textContent.trim());
+                if (!isNaN(val)) {
+                    xData.push(val);
+                }
+            }
+            return xData;
+        }
+        
+        function getYData() {
+            const yData = [];
+            for (let i = 0; i < dataCells.length; i++) {
+                const val = parseFloat(dataCells[i].y.textContent.trim());
+                if (!isNaN(val)) {
+                    yData.push(val);
+                }
+            }
+            return yData;
+        }
+        
+        function getParameterValues() {
+            const params = {};
+            for (let i = 1; i <= 10; i++) {
+                params[`c${i}`] = document.getElementById(`c${i}`).value;
+            }
+            return params;
+        }
+        
+        function loadDataIntoUI(calculation) {
+            // Clear existing data
+            clearData();
+            
+            // Load X and Y data
+            calculation.xData.forEach((val, index) => {
+                if (index < dataCells.length) {
+                    dataCells[index].x.textContent = val;
+                    dataCells[index].x.classList.remove('empty');
+                }
+            });
+            
+            calculation.yData.forEach((val, index) => {
+                if (index < dataCells.length) {
+                    dataCells[index].y.textContent = val;
+                    dataCells[index].y.classList.remove('empty');
+                }
+            });
+            
+            // Load function and constraints
+            document.getElementById('funcInput').value = calculation.function || '';
+            document.getElementById('constraints').value = calculation.constraints || '';
+            
+            // Load parameters
+            for (let i = 1; i <= 10; i++) {
+                const paramValue = calculation.parameters ? calculation.parameters[`c${i}`] : '1.0';
+                document.getElementById(`c${i}`).value = paramValue || '1.0';
+            }
+            
+            // Update UI
+            parseDataFromGrid();
+            checkFunctionAndUpdate();
+            updatePlot();
+            
+            // Load results if available
+            if (calculation.results) {
+                currentRegressionResults = calculation.results;
+                // You could also restore the results display here
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('generalNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Rest of the existing functions remain the same...
         function setSampleData() {
             const sampleX = [1, 2, 3, 4, 5];
             const sampleY = [2.1, 4.3, 6.2, 8.1, 10.3];
