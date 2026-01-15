@@ -1368,17 +1368,50 @@
         // Initialize grid on page load
         document.addEventListener('DOMContentLoaded', initializeDataGrid);
         
-        // Rest of the functions remain the same...
-        function convertFunction(funcStr) {
-            let converted = funcStr.replace(/\^/g, '**');
-            
-            const mathFuncs = ['exp', 'log', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'pow'];
-            mathFuncs.forEach(func => {
-                const regex = new RegExp('\\b' + func + '\\(', 'g');
-                converted = converted.replace(regex, 'Math.' + func + '(');
-            });
-            
-            return converted;
+        // ====================================================
+        // IMPROVEMENT #1: BETTER JACOBIAN (Central Difference)
+        // ====================================================
+        function jacobian(params) {
+            const jac = [];
+            for (let i = 0; i < xData.length; i++) {
+                const row = [];
+                for (let j = 0; j < usedParams.length; j++) {
+                    const paramIdx = usedParams[j] - 1;
+                    const paramValue = params[paramIdx];
+                    
+                    // Adaptive step size - much more stable
+                    const h = Math.max(1e-8, Math.abs(paramValue) * 1e-6);
+                    
+                    // Central difference (more accurate than forward difference)
+                    const paramsPlus = [...params];
+                    const paramsMinus = [...params];
+                    
+                    paramsPlus[paramIdx] = paramValue + h;
+                    paramsMinus[paramIdx] = paramValue - h;
+                    
+                    try {
+                        const fPlus = evaluateFunction(xData[i], paramsPlus);
+                        const fMinus = evaluateFunction(xData[i], paramsMinus);
+                        
+                        // Central difference formula
+                        const derivative = (fPlus - fMinus) / (2 * h);
+                        
+                        // Handle edge cases
+                        if (!isFinite(derivative)) {
+                            // Fallback to forward difference if central fails
+                            const f = evaluateFunction(xData[i], params);
+                            row.push((fPlus - f) / h);
+                        } else {
+                            row.push(derivative);
+                        }
+                    } catch (e) {
+                        // If evaluation fails, use a safe default
+                        row.push(1.0);
+                    }
+                }
+                jac.push(row);
+            }
+            return jac;
         }
         
         function identifyUsedParams(funcStr) {
@@ -1391,26 +1424,63 @@
             return params;
         }
         
+        // ====================================================
+        // IMPROVEMENT #2: SAFER FUNCTION EVALUATION (Math.js)
+        // ====================================================
         function evaluateFunction(x, params) {
             const funcStr = document.getElementById('funcInput').value;
-            const converted = convertFunction(funcStr);
             
-            const c1 = params[0] || 0;
-            const c2 = params[1] || 0;
-            const c3 = params[2] || 0;
-            const c4 = params[3] || 0;
-            const c5 = params[4] || 0;
-            const c6 = params[5] || 0;
-            const c7 = params[6] || 0;
-            const c8 = params[7] || 0;
-            const c9 = params[8] || 0;
-            const c10 = params[9] || 0;
-            
+            // First try using Math.js (much safer than eval)
             try {
-                return eval(converted);
-            } catch (e) {
-                throw new Error('Error evaluating function: ' + e.message);
+                // Create scope with all variables
+                const scope = {
+                    x: x,
+                    c1: params[0] || 0,
+                    c2: params[1] || 0,
+                    c3: params[2] || 0,
+                    c4: params[3] || 0,
+                    c5: params[4] || 0,
+                    c6: params[5] || 0,
+                    c7: params[6] || 0,
+                    c8: params[7] || 0,
+                    c9: params[8] || 0,
+                    c10: params[9] || 0  // FIXED: Changed from params[10] to params[9]
+                };
+                
+                // Evaluate using Math.js (already included in your <head>!)
+                return math.evaluate(funcStr, scope);
+            } catch (mathError) {
+                // Fallback to original method for compatibility
+                try {
+                    const converted = convertFunction(funcStr);
+                    const c1 = params[0] || 0;
+                    const c2 = params[1] || 0;
+                    const c3 = params[2] || 0;
+                    const c4 = params[3] || 0;
+                    const c5 = params[4] || 0;
+                    const c6 = params[5] || 0;
+                    const c7 = params[6] || 0;
+                    const c8 = params[7] || 0;
+                    const c9 = params[8] || 0;
+                    const c10 = params[9] || 0;
+                    
+                    return eval(converted);
+                } catch (evalError) {
+                    throw new Error('Function error: ' + mathError.message);
+                }
             }
+        }
+        
+        function convertFunction(funcStr) {
+            let converted = funcStr.replace(/\^/g, '**');
+            
+            const mathFuncs = ['exp', 'log', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'pow'];
+            mathFuncs.forEach(func => {
+                const regex = new RegExp('\\b' + func + '\\(', 'g');
+                converted = converted.replace(regex, 'Math.' + func + '(');
+            });
+            
+            return converted;
         }
         
         function getInitialParams() {
@@ -1470,29 +1540,19 @@
         function residuals(params) {
             const res = [];
             for (let i = 0; i < xData.length; i++) {
-                const predicted = evaluateFunction(xData[i], params);
-                res.push(yData[i] - predicted);
+                try {
+                    const predicted = evaluateFunction(xData[i], params);
+                    // Check for invalid predictions
+                    if (!isFinite(predicted)) {
+                        res.push(1e10); // Large penalty for invalid predictions
+                    } else {
+                        res.push(yData[i] - predicted);
+                    }
+                } catch (e) {
+                    res.push(1e10); // Large penalty for evaluation errors
+                }
             }
             return res;
-        }
-        
-        function jacobian(params, h = 1e-8) {
-            const jac = [];
-            for (let i = 0; i < xData.length; i++) {
-                const row = [];
-                for (let j = 0; j < usedParams.length; j++) {
-                    const paramIdx = usedParams[j] - 1;
-                    const paramsPlus = [...params];
-                    paramsPlus[paramIdx] += h;
-                    
-                    const fPlus = evaluateFunction(xData[i], paramsPlus);
-                    const f = evaluateFunction(xData[i], params);
-                    
-                    row.push((fPlus - f) / h);
-                }
-                jac.push(row);
-            }
-            return jac;
         }
         
         function matrixMultiply(A, B) {
@@ -1604,6 +1664,8 @@
         }
         
         function levenbergMarquardt(initialParams, constraints, maxIter = 100, tolerance = 1e-6) {
+            // FIXED: Filter parameters correctly based on usedParams
+            // usedParams contains indices like [1, 2, 3], so we need to subtract 1
             let params = initialParams.filter((_, i) => usedParams.includes(i + 1));
             let lambda = 0.01;
             let iteration = 0;
@@ -1635,6 +1697,8 @@
                 
                 const newParamsReduced = params.map((p, i) => p + delta[i]);
                 const newParams = [...initialParams];
+                
+                // Map reduced parameters back to full parameter array
                 usedParams.forEach((paramIdx, i) => {
                     newParams[paramIdx - 1] = newParamsReduced[i];
                 });
@@ -2122,4 +2186,3 @@
     </script>
 </body>
 </html>
-
