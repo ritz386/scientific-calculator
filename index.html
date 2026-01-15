@@ -206,13 +206,101 @@
             cursor: not-allowed;
         }
         
+        /* Improved Plot Container */
+        .plot-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 400px;
+        }
+        
         .plot-container {
             width: 100%;
             height: 100%;
-            min-height: 400px;
+            min-height: 350px;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             background: white;
+            position: relative;
+        }
+        
+        /* Optimize plotly legend */
+        .js-plotly-plot .plotly .main-svg {
+            width: 100% !important;
+        }
+        
+        .js-plotly-plot .plotly .legend {
+            transform: translate(0, 0) !important;
+            top: 0 !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: auto !important;
+            max-width: 90% !important;
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 4px !important;
+            padding: 5px 10px !important;
+        }
+        
+        /* Horizontal legend items */
+        .js-plotly-plot .plotly .legend .traces {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 15px !important;
+        }
+        
+        .js-plotly-plot .plotly .legend .traces .legendtoggle {
+            display: flex !important;
+            align-items: center !important;
+            margin-right: 0 !important;
+        }
+        
+        .js-plotly-plot .plotly .legendtext {
+            margin-left: 5px !important;
+            white-space: nowrap !important;
+        }
+        
+        /* Mobile optimization for plot */
+        @media (max-width: 768px) {
+            .plot-container {
+                min-height: 300px;
+            }
+            
+            .js-plotly-plot .plotly .legend {
+                font-size: 11px !important;
+                padding: 3px 8px !important;
+            }
+            
+            .js-plotly-plot .plotly .legend .traces {
+                gap: 10px !important;
+            }
+        }
+        
+        /* Ensure plot uses full available space */
+        .js-plotly-plot {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* Prevent legend from overflowing on mobile */
+        .js-plotly-plot .plotly .legend .traces {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            max-height: 40px !important;
+            overflow-y: hidden !important;
+        }
+        
+        @media (max-width: 768px) {
+            .js-plotly-plot .plotly .legend {
+                max-width: 95% !important;
+                transform: translateX(-50%) scale(0.9) !important;
+            }
+            
+            .js-plotly-plot .plotly .legendtext {
+                font-size: 10px !important;
+            }
         }
         
         @media (max-width: 768px) {
@@ -869,7 +957,7 @@
 
     <script>
         // The entire JavaScript code remains exactly the same as before
-        // Only the CSS and HTML structure has been modified
+        // Only the CSS and plot layout configurations have been modified for legend optimization
         let xData = [];
         let yData = [];
         let usedParams = [];
@@ -1242,24 +1330,89 @@
             };
         }
         
+        function getPlotLayout(title, showLegend = true) {
+            const baseLayout = {
+                title: {
+                    text: title,
+                    font: {
+                        size: 14,
+                        color: '#333'
+                    },
+                    x: 0.5,
+                    xanchor: 'center'
+                },
+                xaxis: {
+                    title: {
+                        text: 'X',
+                        font: {
+                            size: 12,
+                            color: '#666'
+                        }
+                    },
+                    showgrid: true,
+                    gridcolor: '#f0f0f0',
+                    zerolinecolor: '#ddd'
+                },
+                yaxis: {
+                    title: {
+                        text: 'Y',
+                        font: {
+                            size: 12,
+                            color: '#666'
+                        }
+                    },
+                    showgrid: true,
+                    gridcolor: '#f0f0f0',
+                    zerolinecolor: '#ddd'
+                },
+                showlegend: showLegend,
+                hovermode: 'closest',
+                plot_bgcolor: '#fff',
+                paper_bgcolor: '#fff',
+                margin: {
+                    t: 50,
+                    b: 50,
+                    l: 60,
+                    r: 20,
+                    pad: 5
+                }
+            };
+            
+            if (showLegend) {
+                baseLayout.legend = {
+                    x: 0.02,
+                    y: 0.98,
+                    xanchor: 'left',
+                    yanchor: 'top',
+                    orientation: 'h',
+                    bgcolor: 'rgba(255, 255, 255, 0.85)',
+                    bordercolor: '#ddd',
+                    borderwidth: 1,
+                    font: {
+                        size: 11,
+                        color: '#333'
+                    },
+                    itemclick: 'toggle',
+                    itemdoubleclick: 'toggleothers'
+                };
+            }
+            
+            return baseLayout;
+        }
+        
         function updatePlot() {
             if (!parseDataFromGrid() || xData.length === 0) {
                 // Show empty plot or placeholder
-                const layout = {
-                    title: 'Data Visualization',
-                    xaxis: { title: 'X', range: [0, 10] },
-                    yaxis: { title: 'Y', range: [0, 10] },
-                    showlegend: true,
-                    annotations: [{
-                        text: 'No data to display',
-                        xref: 'paper',
-                        yref: 'paper',
-                        x: 0.5,
-                        y: 0.5,
-                        showarrow: false,
-                        font: { size: 16, color: '#999' }
-                    }]
-                };
+                const layout = getPlotLayout('Data Visualization');
+                layout.annotations = [{
+                    text: 'No data to display',
+                    xref: 'paper',
+                    yref: 'paper',
+                    x: 0.5,
+                    y: 0.5,
+                    showarrow: false,
+                    font: { size: 16, color: '#999' }
+                }];
                 
                 Plotly.newPlot('plotDiv', [], layout);
                 document.getElementById('plotStatus').textContent = 'No data plotted';
@@ -1292,18 +1445,9 @@
                     marker: { size: 8, color: '#2196F3' }
                 };
                 
-                const layout = {
-                    title: 'Data Visualization',
-                    xaxis: { 
-                        title: 'X',
-                        range: calculatePlotRange(xData, yData, []).x
-                    },
-                    yaxis: { 
-                        title: 'Y',
-                        range: calculatePlotRange(xData, yData, []).y
-                    },
-                    showlegend: true
-                };
+                const layout = getPlotLayout('Data Visualization');
+                layout.xaxis.range = calculatePlotRange(xData, yData, []).x;
+                layout.yaxis.range = calculatePlotRange(xData, yData, []).y;
                 
                 Plotly.newPlot('plotDiv', [trace], layout);
                 document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points)`;
@@ -1353,18 +1497,9 @@
                     line: { color: '#FF9800', width: 2 }
                 };
                 
-                const layout = {
-                    title: 'Data with Initial Function Fit',
-                    xaxis: { 
-                        title: 'X',
-                        range: plotRange.x
-                    },
-                    yaxis: { 
-                        title: 'Y',
-                        range: plotRange.y
-                    },
-                    showlegend: true
-                };
+                const layout = getPlotLayout('Data with Initial Function Fit');
+                layout.xaxis.range = plotRange.x;
+                layout.yaxis.range = plotRange.y;
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial], layout);
                 document.getElementById('plotStatus').textContent = `Data with initial fit (${xData.length} points)`;
@@ -1381,18 +1516,9 @@
                     marker: { size: 8, color: '#2196F3' }
                 };
                 
-                const layout = {
-                    title: 'Data Visualization',
-                    xaxis: { 
-                        title: 'X',
-                        range: calculatePlotRange(xData, yData, []).x
-                    },
-                    yaxis: { 
-                        title: 'Y',
-                        range: calculatePlotRange(xData, yData, []).y
-                    },
-                    showlegend: true
-                };
+                const layout = getPlotLayout('Data Visualization');
+                layout.xaxis.range = calculatePlotRange(xData, yData, []).x;
+                layout.yaxis.range = calculatePlotRange(xData, yData, []).y;
                 
                 Plotly.newPlot('plotDiv', [traceData], layout);
                 document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points) - Function error`;
@@ -2173,18 +2299,9 @@
                     line: { color: '#4CAF50', width: 3 }
                 };
                 
-                const layout = {
-                    title: 'Regression Results (Within Data Range)',
-                    xaxis: { 
-                        title: 'X',
-                        range: plotRange.x
-                    },
-                    yaxis: { 
-                        title: 'Y',
-                        range: plotRange.y
-                    },
-                    showlegend: true
-                };
+                const layout = getPlotLayout('Regression Results (Within Data Range)');
+                layout.xaxis.range = plotRange.x;
+                layout.yaxis.range = plotRange.y;
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
                 
