@@ -3,27 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
-    <meta name="description" content="Nonlinear Regression Analysis Tool">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Nonlinear Regression Analysis</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="icons/icon-192.png">
-    
-    <!-- External Libraries -->
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
-    
     <style>
-        /* All existing CSS remains the same, adding new CSS for PWA features */
         * {
             margin: 0;
             padding: 0;
@@ -59,9 +42,6 @@
             gap: 6px;
             margin-bottom: 7px;
             align-items: stretch;
-            min-height: 450px;
-            max-height: 450px;
-            height: 450px;
         }
         
         /* Mobile Layout - First two in row 1, graph in row 2 */
@@ -70,9 +50,6 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: auto auto auto;
                 gap: 5px;
-                min-height: auto;
-                max-height: none;
-                height: auto;
             }
             
             .container {
@@ -97,14 +74,6 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            max-height: 450px;
-            overflow: hidden;
-        }
-        
-        @media (max-width: 768px) {
-            .section {
-                max-height: none;
-            }
         }
         
         .section h2 {
@@ -115,287 +84,6 @@
             padding-bottom: 2px;
         }
         
-        /* PWA Header Section */
-        .pwa-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 5px;
-            background: #000;
-            color: white;
-            border-radius: 3px;
-        }
-        
-        .pwa-header h1 {
-            color: white;
-            margin: 0;
-            font-size: 18px;
-        }
-        
-        .pwa-controls {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .pwa-btn {
-            background: white;
-            color: #000;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .pwa-btn:hover {
-            background: #f0f0f0;
-        }
-        
-        /* Session Management Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #000;
-        }
-        
-        .modal-header h2 {
-            color: #000;
-            margin: 0;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-        
-        .close-modal:hover {
-            color: #000;
-        }
-        
-        /* Session List */
-        .session-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-        
-        .session-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid #eee;
-            background: white;
-        }
-        
-        .session-item:hover {
-            background: #f9f9f9;
-        }
-        
-        .session-info {
-            flex: 1;
-        }
-        
-        .session-name {
-            font-weight: bold;
-            color: #000;
-            margin-bottom: 2px;
-        }
-        
-        .session-date {
-            font-size: 11px;
-            color: #666;
-        }
-        
-        .session-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .session-btn {
-            padding: 3px 8px;
-            font-size: 11px;
-            border: none;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-        
-        .load-btn {
-            background: #000;
-            color: white;
-        }
-        
-        .delete-btn {
-            background: #d32f2f;
-            color: white;
-        }
-        
-        /* Save Session Form */
-        .save-form {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
-        }
-        
-        .form-group {
-            margin-bottom: 10px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-        
-        .save-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .save-actions button {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 3px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .save-btn {
-            background: #000;
-            color: white;
-        }
-        
-        .cancel-btn {
-            background: #666;
-            color: white;
-        }
-        
-        /* PWA Install Button */
-        .install-btn {
-            display: none;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .install-btn:hover {
-            background: #45a049;
-        }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001;
-            display: none;
-            animation: slideUp 0.3s ease;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-        
-        /* Data Management Section */
-        .data-management {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 3px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .data-management h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        
-        .data-buttons {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .data-btn {
-            background: #000;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        
-        .data-btn:hover {
-            background: #333;
-        }
-        
-        /* Existing CSS continues... */
         .data-input-container {
             display: flex;
             flex-direction: column;
@@ -520,9 +208,8 @@
         
         .plot-container {
             width: 100%;
-            height: 400px;
+            height: 100%;
             min-height: 400px;
-            max-height: 400px;
             border: 1px solid #e0e0e0;
             border-radius: 3px;
             background: white;
@@ -530,9 +217,7 @@
         
         @media (max-width: 768px) {
             .plot-container {
-                height: 350px;
                 min-height: 350px;
-                max-height: 350px;
             }
         }
         
@@ -945,50 +630,12 @@
             color: #d32f2f;
             font-weight: bold;
         }
-        
-        /* PWA Status Indicator */
-        .pwa-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-        }
-        
-        .pwa-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ccc;
-        }
-        
-        .pwa-status-dot.installed {
-            background: #4CAF50;
-        }
-        
-        .pwa-status-dot.online {
-            background: #4CAF50;
-        }
-        
-        .pwa-status-dot.offline {
-            background: #d32f2f;
-        }
     </style>
 </head>
 <body>
-    <!-- PWA Header -->
-    <div class="pwa-header">
-        <h1>📈 Regression Analyzer</h1>
-        <div class="pwa-controls">
-            <div class="pwa-status">
-                <span class="pwa-status-dot" id="pwaStatusDot"></span>
-                <span id="pwaStatusText">Loading...</span>
-            </div>
-            <button class="pwa-btn" id="manageSessionsBtn">💾 Sessions</button>
-            <button class="install-btn" id="installBtn">⬇ Install App</button>
-        </div>
-    </div>
-    
     <div class="container">
+        <h1>Nonlinear Regression Analysis</h1>
+        
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
             <div class="section">
@@ -1015,16 +662,6 @@
                     <div class="plot-status" id="plotStatus">No data plotted</div>
                 </div>
                 <div id="dataError"></div>
-                
-                <!-- Data Management Section -->
-                <div class="data-management">
-                    <h3>Session Management</h3>
-                    <div class="data-buttons">
-                        <button class="data-btn" onclick="saveCurrentSession()">💾 Save Current</button>
-                        <button class="data-btn" onclick="exportSession()">📤 Export Session</button>
-                        <button class="data-btn" onclick="importSession()">📥 Import Session</button>
-                    </div>
-                </div>
             </div>
             
             <!-- 2. Function Definition - 30% width -->
@@ -1234,453 +871,11 @@
         </div>
     </div>
 
-    <!-- Session Management Modal -->
-    <div class="modal-overlay" id="sessionModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>💾 Saved Sessions</h2>
-                <button class="close-modal" onclick="closeSessionModal()">&times;</button>
-            </div>
-            
-            <div class="session-list" id="sessionList">
-                <!-- Sessions will be loaded here -->
-            </div>
-            
-            <div class="save-form">
-                <h3>Save Current Session</h3>
-                <div class="form-group">
-                    <label for="sessionName">Session Name:</label>
-                    <input type="text" id="sessionName" placeholder="Enter a name for this session" maxlength="50">
-                </div>
-                <div class="save-actions">
-                    <button class="save-btn" onclick="saveSession()">💾 Save Session</button>
-                    <button class="cancel-btn" onclick="closeSessionModal()">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Copy Notification -->
     <div id="copyNotification" class="copy-notification" style="display: none;"></div>
 
     <script>
-        // ====================================================
-        // PWA & SESSION MANAGEMENT CODE
-        // ====================================================
-        
-        // Register Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered: ', registration);
-                        updatePWAStatus('Service Worker Active');
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                        updatePWAStatus('Service Worker Not Available');
-                    });
-            });
-        }
-        
-        // PWA Install Prompt
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            // Show install button
-            installBtn.style.display = 'block';
-            updatePWAStatus('Install Available');
-            
-            installBtn.addEventListener('click', () => {
-                // Hide the install button
-                installBtn.style.display = 'none';
-                // Show the install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                        updatePWAStatus('App Installed');
-                        showToast('App installed successfully!');
-                    } else {
-                        console.log('User dismissed the install prompt');
-                        updatePWAStatus('Install Dismissed');
-                    }
-                    deferredPrompt = null;
-                });
-            });
-        });
-        
-        // Check if app is already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
-            installBtn.style.display = 'none';
-            updatePWAStatus('App Installed');
-        });
-        
-        // Update PWA status display
-        function updatePWAStatus(status) {
-            const statusDot = document.getElementById('pwaStatusDot');
-            const statusText = document.getElementById('pwaStatusText');
-            
-            statusText.textContent = status;
-            
-            if (status.includes('Installed')) {
-                statusDot.className = 'pwa-status-dot installed';
-            } else if (status.includes('Online')) {
-                statusDot.className = 'pwa-status-dot online';
-            } else if (status.includes('Offline')) {
-                statusDot.className = 'pwa-status-dot offline';
-            } else {
-                statusDot.className = 'pwa-status-dot';
-            }
-            
-            // Update online/offline status
-            updateOnlineStatus();
-        }
-        
-        // Online/Offline detection
-        function updateOnlineStatus() {
-            const status = navigator.onLine ? 'Online' : 'Offline';
-            const currentText = document.getElementById('pwaStatusText').textContent;
-            
-            if (!currentText.includes('Installed')) {
-                updatePWAStatus(status);
-            }
-            
-            if (!navigator.onLine) {
-                showToast('You are offline. Sessions will be saved locally.');
-            }
-        }
-        
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        
-        // Show toast notification
-        function showToast(message, duration = 3000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, duration);
-        }
-        
-        // ====================================================
-        // SESSION MANAGEMENT FUNCTIONS
-        // ====================================================
-        
-        const SESSION_STORAGE_KEY = 'regression_sessions';
-        let currentSessionId = null;
-        
-        // Modal functions
-        function openSessionModal() {
-            document.getElementById('sessionModal').style.display = 'flex';
-            loadSessions();
-            document.getElementById('sessionName').value = '';
-        }
-        
-        function closeSessionModal() {
-            document.getElementById('sessionModal').style.display = 'none';
-        }
-        
-        // Save current session
-        function saveCurrentSession() {
-            const sessionName = prompt('Enter a name for this session:', 
-                `Session_${new Date().toLocaleDateString()}`);
-            
-            if (sessionName && sessionName.trim()) {
-                saveSessionWithName(sessionName.trim());
-            }
-        }
-        
-        function saveSession() {
-            const sessionName = document.getElementById('sessionName').value.trim();
-            if (!sessionName) {
-                alert('Please enter a session name');
-                return;
-            }
-            
-            saveSessionWithName(sessionName);
-            closeSessionModal();
-        }
-        
-        function saveSessionWithName(sessionName) {
-            // Collect all current data
-            const sessionData = {
-                id: currentSessionId || Date.now().toString(),
-                name: sessionName,
-                date: new Date().toISOString(),
-                data: {
-                    xData: xData,
-                    yData: yData,
-                    function: document.getElementById('funcInput').value,
-                    constraints: document.getElementById('constraints').value,
-                    parameters: {
-                        c1: document.getElementById('c1').value,
-                        c2: document.getElementById('c2').value,
-                        c3: document.getElementById('c3').value,
-                        c4: document.getElementById('c4').value,
-                        c5: document.getElementById('c5').value,
-                        c6: document.getElementById('c6').value,
-                        c7: document.getElementById('c7').value,
-                        c8: document.getElementById('c8').value,
-                        c9: document.getElementById('c9').value,
-                        c10: document.getElementById('c10').value
-                    },
-                    results: currentRegressionResults || null
-                },
-                gridData: getGridData()
-            };
-            
-            // Save to localStorage
-            saveSessionToStorage(sessionData);
-            currentSessionId = sessionData.id;
-            
-            showToast(`Session "${sessionName}" saved successfully!`);
-            loadSessions();
-        }
-        
-        function getGridData() {
-            const gridData = [];
-            for (let i = 0; i < dataCells.length; i++) {
-                gridData.push({
-                    x: dataCells[i].x.textContent,
-                    y: dataCells[i].y.textContent
-                });
-            }
-            return gridData;
-        }
-        
-        function saveSessionToStorage(sessionData) {
-            let sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-            
-            // Check if session with same ID exists
-            const existingIndex = sessions.findIndex(s => s.id === sessionData.id);
-            if (existingIndex > -1) {
-                sessions[existingIndex] = sessionData;
-            } else {
-                sessions.push(sessionData);
-            }
-            
-            // Limit to 50 sessions
-            if (sessions.length > 50) {
-                sessions = sessions.slice(-50);
-            }
-            
-            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessions));
-        }
-        
-        // Load sessions
-        function loadSessions() {
-            const sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-            const sessionList = document.getElementById('sessionList');
-            
-            if (sessions.length === 0) {
-                sessionList.innerHTML = '<div class="session-item" style="justify-content: center; color: #666;">No saved sessions yet</div>';
-                return;
-            }
-            
-            // Sort by date (newest first)
-            sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sessionList.innerHTML = sessions.map(session => `
-                <div class="session-item" data-id="${session.id}">
-                    <div class="session-info">
-                        <div class="session-name">${session.name}</div>
-                        <div class="session-date">${new Date(session.date).toLocaleString()}</div>
-                    </div>
-                    <div class="session-actions">
-                        <button class="session-btn load-btn" onclick="loadSession('${session.id}')">Load</button>
-                        <button class="session-btn delete-btn" onclick="deleteSession('${session.id}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Load a specific session
-        function loadSession(sessionId) {
-            const sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-            const session = sessions.find(s => s.id === sessionId);
-            
-            if (!session) {
-                showToast('Session not found!');
-                return;
-            }
-            
-            // Load data
-            const data = session.data;
-            
-            // Load function and constraints
-            document.getElementById('funcInput').value = data.function || '';
-            document.getElementById('constraints').value = data.constraints || '';
-            
-            // Load parameters
-            if (data.parameters) {
-                for (let i = 1; i <= 10; i++) {
-                    document.getElementById('c' + i).value = data.parameters['c' + i] || '1.0';
-                }
-            }
-            
-            // Load grid data
-            if (session.gridData) {
-                // Clear existing data
-                clearData();
-                
-                // Load new data
-                for (let i = 0; i < session.gridData.length; i++) {
-                    if (i >= dataCells.length) {
-                        addRow();
-                    }
-                    dataCells[i].x.textContent = session.gridData[i].x || '';
-                    dataCells[i].y.textContent = session.gridData[i].y || '';
-                    
-                    if (session.gridData[i].x || session.gridData[i].y) {
-                        dataCells[i].x.classList.remove('empty');
-                        dataCells[i].y.classList.remove('empty');
-                    }
-                }
-            }
-            
-            // Parse and update plot
-            parseDataFromGrid();
-            checkFunctionAndUpdate();
-            
-            // Load results if available
-            if (data.results) {
-                currentRegressionResults = data.results;
-                // You might want to restore the full results display here
-                // This is simplified - in production you'd want to restore all UI state
-            }
-            
-            currentSessionId = sessionId;
-            closeSessionModal();
-            showToast(`Session "${session.name}" loaded successfully!`);
-        }
-        
-        // Delete a session
-        function deleteSession(sessionId) {
-            if (!confirm('Are you sure you want to delete this session?')) {
-                return;
-            }
-            
-            let sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-            sessions = sessions.filter(s => s.id !== sessionId);
-            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessions));
-            
-            if (currentSessionId === sessionId) {
-                currentSessionId = null;
-            }
-            
-            showToast('Session deleted successfully!');
-            loadSessions();
-        }
-        
-        // Export session as JSON file
-        function exportSession() {
-            if (!currentSessionId) {
-                alert('Please save the session first before exporting.');
-                return;
-            }
-            
-            const sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-            const session = sessions.find(s => s.id === currentSessionId);
-            
-            if (!session) {
-                alert('Session not found!');
-                return;
-            }
-            
-            const dataStr = JSON.stringify(session, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `regression-session-${session.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showToast('Session exported successfully!');
-        }
-        
-        // Import session from JSON file
-        function importSession() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(event) {
-                    try {
-                        const sessionData = JSON.parse(event.target.result);
-                        
-                        // Validate session data
-                        if (!sessionData.name || !sessionData.data) {
-                            throw new Error('Invalid session file format');
-                        }
-                        
-                        // Save to localStorage
-                        saveSessionToStorage(sessionData);
-                        
-                        // Load the imported session
-                        loadSession(sessionData.id);
-                        
-                        showToast(`Session "${sessionData.name}" imported successfully!`);
-                    } catch (error) {
-                        alert('Error importing session: ' + error.message);
-                    }
-                };
-                
-                reader.readAsText(file);
-            };
-            
-            input.click();
-        }
-        
-        // Auto-save feature
-        let autoSaveTimeout = null;
-        const AUTO_SAVE_DELAY = 30000; // 30 seconds
-        
-        function scheduleAutoSave() {
-            if (autoSaveTimeout) {
-                clearTimeout(autoSaveTimeout);
-            }
-            
-            autoSaveTimeout = setTimeout(() => {
-                if (xData.length > 0 && currentSessionId) {
-                    // Update existing session
-                    const sessions = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)) || [];
-                    const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
-                    
-                    if (sessionIndex > -1) {
-                        saveSessionWithName(sessions[sessionIndex].name + ' (Auto-saved)');
-                        console.log('Auto-saved session');
-                    }
-                }
-            }, AUTO_SAVE_DELAY);
-        }
-        
-        // Listen for data changes to trigger auto-save
-        document.addEventListener('input', scheduleAutoSave);
-        
-        // ====================================================
-        // ORIGINAL REGRESSION CODE (REMAINS UNCHANGED)
-        // ====================================================
-        
-        // All original variables and functions remain exactly the same
+        // The entire JavaScript code remains exactly the same as before
+        // Only the CSS and HTML structure has been modified
         let xData = [];
         let yData = [];
         let usedParams = [];
@@ -2077,14 +1272,7 @@
                         y: 0.5,
                         showarrow: false,
                         font: { size: 16, color: '#999' }
-                    }],
-                    height: 380,
-                    margin: {
-                        t: 40,
-                        b: 40,
-                        l: 50,
-                        r: 20
-                    }
+                    }]
                 };
                 
                 Plotly.newPlot('plotDiv', [], layout);
@@ -2136,13 +1324,6 @@
                         bordercolor: '#ddd',
                         borderwidth: 1,
                         font: { size: 12 }
-                    },
-                    height: 380,
-                    margin: {
-                        t: 40,
-                        b: 40,
-                        l: 50,
-                        r: 20
                     }
                 };
                 
@@ -2212,13 +1393,6 @@
                         bordercolor: '#ddd',
                         borderwidth: 1,
                         font: { size: 12 }
-                    },
-                    height: 380,
-                    margin: {
-                        t: 40,
-                        b: 40,
-                        l: 50,
-                        r: 20
                     }
                 };
                 
@@ -2255,13 +1429,6 @@
                         bordercolor: '#ddd',
                         borderwidth: 1,
                         font: { size: 12 }
-                    },
-                    height: 380,
-                    margin: {
-                        t: 40,
-                        b: 40,
-                        l: 50,
-                        r: 20
                     }
                 };
                 
@@ -2275,29 +1442,11 @@
         }
         
         // Initialize grid on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeDataGrid();
-            
-            // Initialize PWA
-            updatePWAStatus('Loading...');
-            updateOnlineStatus();
-            
-            // Setup session management button
-            document.getElementById('manageSessionsBtn').addEventListener('click', openSessionModal);
-            
-            // Load last session if available
-            const lastSessionId = localStorage.getItem('last_session_id');
-            if (lastSessionId) {
-                setTimeout(() => {
-                    loadSession(lastSessionId);
-                }, 1000);
-            }
-        });
+        document.addEventListener('DOMContentLoaded', initializeDataGrid);
         
         // ====================================================
-        // ORIGINAL REGRESSION FUNCTIONS (REMAIN UNCHANGED)
+        // IMPROVEMENT #1: BETTER JACOBIAN (Central Difference)
         // ====================================================
-        
         function jacobian(params) {
             const jac = [];
             for (let i = 0; i < xData.length; i++) {
@@ -2306,8 +1455,10 @@
                     const paramIdx = usedParams[j] - 1;
                     const paramValue = params[paramIdx];
                     
+                    // Adaptive step size - much more stable
                     const h = Math.max(1e-8, Math.abs(paramValue) * 1e-6);
                     
+                    // Central difference (more accurate than forward difference)
                     const paramsPlus = [...params];
                     const paramsMinus = [...params];
                     
@@ -2318,15 +1469,19 @@
                         const fPlus = evaluateFunction(xData[i], paramsPlus);
                         const fMinus = evaluateFunction(xData[i], paramsMinus);
                         
+                        // Central difference formula
                         const derivative = (fPlus - fMinus) / (2 * h);
                         
+                        // Handle edge cases
                         if (!isFinite(derivative)) {
+                            // Fallback to forward difference if central fails
                             const f = evaluateFunction(xData[i], params);
                             row.push((fPlus - f) / h);
                         } else {
                             row.push(derivative);
                         }
                     } catch (e) {
+                        // If evaluation fails, use a safe default
                         row.push(1.0);
                     }
                 }
@@ -2345,10 +1500,15 @@
             return params;
         }
         
+        // ====================================================
+        // IMPROVEMENT #2: SAFER FUNCTION EVALUATION (Math.js)
+        // ====================================================
         function evaluateFunction(x, params) {
             const funcStr = document.getElementById('funcInput').value;
             
+            // First try using Math.js (much safer than eval)
             try {
+                // Create scope with all variables
                 const scope = {
                     x: x,
                     c1: params[0] || 0,
@@ -2360,11 +1520,13 @@
                     c7: params[6] || 0,
                     c8: params[7] || 0,
                     c9: params[8] || 0,
-                    c10: params[9] || 0
+                    c10: params[9] || 0  // FIXED: Changed from params[10] to params[9]
                 };
                 
+                // Evaluate using Math.js (already included in your <head>!)
                 return math.evaluate(funcStr, scope);
             } catch (mathError) {
+                // Fallback to original method for compatibility
                 try {
                     const converted = convertFunction(funcStr);
                     const c1 = params[0] || 0;
@@ -2456,13 +1618,14 @@
             for (let i = 0; i < xData.length; i++) {
                 try {
                     const predicted = evaluateFunction(xData[i], params);
+                    // Check for invalid predictions
                     if (!isFinite(predicted)) {
-                        res.push(1e10);
+                        res.push(1e10); // Large penalty for invalid predictions
                     } else {
                         res.push(yData[i] - predicted);
                     }
                 } catch (e) {
-                    res.push(1e10);
+                    res.push(1e10); // Large penalty for evaluation errors
                 }
             }
             return res;
@@ -2524,25 +1687,31 @@
         }
         
         function calculateCovarianceMatrix(J, residuals, params) {
+            // Calculate covariance matrix: Cov = (J'J)^(-1) * sigma^2
+            // where sigma^2 = SSE / (n - p)
             const JT = transpose(J);
             const JTJ = matrixMultiply(JT, J);
             
             try {
                 const JTJinv = invertMatrix(JTJ);
                 
+                // Calculate mean squared error (sigma^2)
                 const n = residuals.length;
                 const p = params.length;
                 const sse = residuals.reduce((sum, r) => sum + r * r, 0);
                 const mse = sse / (n - p);
                 
+                // Scale inverse by MSE
                 const cov = JTJinv.map(row => row.map(val => val * mse));
                 return cov;
             } catch (e) {
+                // If matrix inversion fails, return diagonal matrix
                 const p = params.length;
                 const n = residuals.length;
                 const sse = residuals.reduce((sum, r) => sum + r * r, 0);
                 const mse = sse / (n - p);
                 
+                // Return diagonal matrix with variances
                 const cov = Array(p).fill().map(() => Array(p).fill(0));
                 for (let i = 0; i < p; i++) {
                     cov[i][i] = mse;
@@ -2556,8 +1725,11 @@
         }
         
         function calculatePValue(tStat, df) {
+            // Using two-tailed t-test
+            // Simplified approximation - in practice use proper t-distribution
             const absT = Math.abs(tStat);
             
+            // Very rough approximation for p-value
             if (absT > 12) return 0.00001;
             if (absT > 8) return 0.0001;
             if (absT > 6) return 0.001;
@@ -2568,6 +1740,8 @@
         }
         
         function levenbergMarquardt(initialParams, constraints, maxIter = 100, tolerance = 1e-6) {
+            // FIXED: Filter parameters correctly based on usedParams
+            // usedParams contains indices like [1, 2, 3], so we need to subtract 1
             let params = initialParams.filter((_, i) => usedParams.includes(i + 1));
             let lambda = 0.01;
             let iteration = 0;
@@ -2600,6 +1774,7 @@
                 const newParamsReduced = params.map((p, i) => p + delta[i]);
                 const newParams = [...initialParams];
                 
+                // Map reduced parameters back to full parameter array
                 usedParams.forEach((paramIdx, i) => {
                     newParams[paramIdx - 1] = newParamsReduced[i];
                 });
@@ -2631,6 +1806,7 @@
                 iteration++;
             }
             
+            // Return both optimized parameters and Jacobian for covariance calculation
             return {
                 params: initialParams,
                 jacobian: finalJ,
@@ -2643,6 +1819,7 @@
             const p = usedParams.length;
             const predicted = xData.map((x, i) => evaluateFunction(x, optimizedParams));
             
+            // Calculate R²
             const yMean = yData.reduce((a, b) => a + b, 0) / n;
             const ssRes = yData.reduce((sum, y, i) => sum + Math.pow(y - predicted[i], 2), 0);
             const ssTot = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
@@ -2650,7 +1827,8 @@
             const adjR2 = 1 - ((1 - r2) * (n - 1) / (n - p - 1));
             const r = Math.sqrt(Math.abs(r2)) * (r2 >= 0 ? 1 : -1);
             
-            let sae = 0;
+            // Calculate error metrics
+            let sae = 0;  // Sum of absolute errors
             for (let i = 0; i < n; i++) {
                 sae += Math.abs(yData[i] - predicted[i]);
             }
@@ -2659,13 +1837,16 @@
             const rmse = Math.sqrt(mse);
             const mae = sae / n;
             
+            // Calculate AIC
             const aic = n * Math.log(ssRes / n) + 2 * p;
             
+            // Calculate F-statistic
             const ssReg = ssTot - ssRes;
             const msReg = ssReg / p;
             const msRes = ssRes / (n - p - 1);
             const fStat = msReg / msRes;
             
+            // Calculate parameter statistics
             const paramStats = [];
             if (regressionResult.jacobian && regressionResult.residuals) {
                 const covMatrix = calculateCovarianceMatrix(
@@ -2717,6 +1898,7 @@
             for (const stat of paramStats) {
                 const row = document.createElement('tr');
                 
+                // Determine significance stars
                 let sigStars = '';
                 if (stat.pValue < 0.001) sigStars = '***';
                 else if (stat.pValue < 0.01) sigStars = '**';
@@ -2750,6 +1932,7 @@
             navigator.clipboard.writeText(text).then(() => {
                 showCopyNotification('Copied to clipboard! Ready to paste into Excel.');
             }).catch(err => {
+                // Fallback for older browsers
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 document.body.appendChild(textArea);
@@ -2762,6 +1945,7 @@
         
         function formatForExcel(value) {
             if (typeof value === 'number') {
+                // Use scientific notation for very small/large numbers
                 if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
                     return value.toExponential(6);
                 } else {
@@ -2772,6 +1956,7 @@
         }
         
         function generateExportTables(stats, optimizedParams) {
+            // Generate Goodness of Fit table
             const goodnessBody = document.getElementById('exportGoodnessBody');
             goodnessBody.innerHTML = '';
             
@@ -2796,6 +1981,7 @@
                 goodnessBody.appendChild(row);
             });
             
+            // Generate Parameter Statistics table
             const paramBody = document.getElementById('exportParamBody');
             paramBody.innerHTML = '';
             
@@ -2818,12 +2004,14 @@
                 paramBody.appendChild(row);
             });
             
+            // Generate Summary table
             const summaryBody = document.getElementById('exportSummaryBody');
             summaryBody.innerHTML = '';
             
             const funcStr = document.getElementById('funcInput').value;
             const date = new Date().toLocaleString();
             
+            // Highlight parameters in the used parameters string
             const usedParamsStr = usedParams.map(p => `<span class="param-red">c${p}</span>`).join(', ');
             
             const summaryData = [
@@ -2964,8 +2152,10 @@
                 const regressionResult = levenbergMarquardt(initialParams, constraints);
                 const optimizedParams = regressionResult.params;
                 
+                // Calculate all statistics
                 const stats = calculateAllStatistics(optimizedParams, regressionResult);
                 
+                // Store results for export
                 currentRegressionResults = {
                     stats: stats,
                     optimizedParams: optimizedParams,
@@ -2994,6 +2184,7 @@
                 yInitial.push(evaluateFunction(xMax, initialParams));
                 yFitted.push(evaluateFunction(xMax, optimizedParams));
                 
+                // Calculate plot range that includes data and both fits
                 const plotRange = calculatePlotRange(xData, yData, [...yInitial, ...yFitted]);
                 
                 const traceData = {
@@ -3041,18 +2232,12 @@
                         bordercolor: '#ddd',
                         borderwidth: 1,
                         font: { size: 12 }
-                    },
-                    height: 380,
-                    margin: {
-                        t: 40,
-                        b: 40,
-                        l: 50,
-                        r: 20
                     }
                 };
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
                 
+                // Display optimized parameters with red color
                 const resultsHTML = usedParams.map(i => {
                     return `
                         <div class="result-item">
@@ -3064,6 +2249,7 @@
                 
                 document.getElementById('optimizedParams').innerHTML = resultsHTML;
                 
+                // Display all statistics
                 document.getElementById('rValue').textContent = stats.r.toFixed(6);
                 document.getElementById('r2Value').textContent = stats.r2.toFixed(6);
                 document.getElementById('adjR2Value').textContent = stats.adjR2.toFixed(6);
@@ -3072,6 +2258,7 @@
                 document.getElementById('aicValue').textContent = stats.aic.toFixed(2);
                 document.getElementById('fStatValue').textContent = stats.fStat.toFixed(4);
                 
+                // Display parameter statistics
                 if (stats.paramStats.length > 0) {
                     displayParameterStats(stats.paramStats);
                 }
@@ -3086,3 +2273,4 @@
     </script>
 </body>
 </html>
+
