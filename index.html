@@ -1250,6 +1250,14 @@
                     xaxis: { title: 'X', range: [0, 10] },
                     yaxis: { title: 'Y', range: [0, 10] },
                     showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    },
                     annotations: [{
                         text: 'No data to display',
                         xref: 'paper',
@@ -1302,7 +1310,15 @@
                         title: 'Y',
                         range: calculatePlotRange(xData, yData, []).y
                     },
-                    showlegend: true
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
                 };
                 
                 Plotly.newPlot('plotDiv', [trace], layout);
@@ -1363,7 +1379,15 @@
                         title: 'Y',
                         range: plotRange.y
                     },
-                    showlegend: true
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
                 };
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial], layout);
@@ -1391,7 +1415,15 @@
                         title: 'Y',
                         range: calculatePlotRange(xData, yData, []).y
                     },
-                    showlegend: true
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
                 };
                 
                 Plotly.newPlot('plotDiv', [traceData], layout);
@@ -2183,7 +2215,15 @@
                         title: 'Y',
                         range: plotRange.y
                     },
-                    showlegend: true
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
                 };
                 
                 Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
