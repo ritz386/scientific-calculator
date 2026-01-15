@@ -20,7 +20,7 @@
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 8px;
@@ -35,39 +35,15 @@
             font-size: 24px;
         }
         
-        .main-layout {
+        .grid {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 20px;
         }
         
-        @media (max-width: 1200px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .top-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
         @media (max-width: 768px) {
-            .top-row {
+            .grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
@@ -86,7 +62,6 @@
             padding: 15px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
-            height: fit-content;
         }
         
         .section h2 {
@@ -117,7 +92,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -218,15 +193,16 @@
         
         .plot-container {
             width: 100%;
-            height: 500px;
+            height: 400px;
+            margin: 15px 0;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             background: white;
         }
         
-        @media (max-width: 1200px) {
+        @media (max-width: 768px) {
             .plot-container {
-                height: 400px;
+                height: 350px;
             }
         }
         
@@ -235,14 +211,7 @@
             padding: 15px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        @media (max-width: 1200px) {
-            .results {
-                max-height: 400px;
-            }
+            margin-top: 15px;
         }
         
         .results h2 {
@@ -250,25 +219,24 @@
             margin-bottom: 12px;
             border-bottom: 2px solid #000;
             padding-bottom: 6px;
-            font-size: 16px;
         }
         
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin-bottom: 15px;
         }
         
         @media (max-width: 1024px) {
             .results-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
         
         @media (max-width: 768px) {
             .results-grid {
-                grid-template-columns: repeat(1, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -293,15 +261,15 @@
         }
         
         .stats-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            display: flex;
+            gap: 15px;
             margin-top: 12px;
+            flex-wrap: wrap;
         }
         
         @media (max-width: 768px) {
             .stats-row {
-                grid-template-columns: 1fr;
+                gap: 10px;
             }
         }
         
@@ -310,6 +278,8 @@
             padding: 12px;
             border-radius: 4px;
             border: 1px solid #ddd;
+            flex: 1;
+            min-width: 150px;
             text-align: center;
         }
         
@@ -320,7 +290,7 @@
         }
         
         .stat-value {
-            font-size: 18px;
+            font-size: 20px;
             color: #000;
             font-weight: bold;
         }
@@ -361,7 +331,6 @@
             padding: 6px 12px;
             font-size: 13px;
             background: #000;
-            flex: 1;
         }
         
         .data-controls button:last-child {
@@ -420,12 +389,12 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            font-size: 11px;
+            font-size: 12px;
         }
         
         .param-table th {
             background: #f5f5f5;
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
             font-weight: 600;
@@ -433,7 +402,7 @@
         }
         
         .param-table td {
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
             background: white;
@@ -458,7 +427,7 @@
         .advanced-stats h3 {
             color: #000;
             margin-bottom: 12px;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         .export-section {
@@ -482,13 +451,13 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
-            font-size: 11px;
+            font-size: 12px;
             background: white;
         }
         
         .export-table th {
             background: #f5f5f5;
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: left;
             font-weight: 600;
@@ -496,7 +465,7 @@
         }
         
         .export-table td {
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #e0e0e0;
             font-family: 'Courier New', monospace;
         }
@@ -523,8 +492,6 @@
             font-size: 13px;
             cursor: pointer;
             transition: background 0.3s;
-            flex: 1;
-            min-width: 120px;
         }
         
         .copy-button:hover {
@@ -627,259 +594,237 @@
             margin-top: 4px;
             font-size: 12px;
         }
-        
-        .ad-space {
-            background: #f9f9f9;
-            border: 2px dashed #ddd;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-            color: #999;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-        
-        .ad-space.right {
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .ad-label {
-            font-weight: 600;
-            color: #666;
-            margin-bottom: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Nonlinear Regression Analysis</h1>
         
-        <div class="main-layout">
-            <div class="left-panel">
-                <div class="top-row">
-                    <div class="section">
-                        <h2>1. Input Data (X and Y)</h2>
-                        
-                        <div class="data-input-container">
-                            <div class="data-header">
-                                <div>X Data</div>
-                                <div>Y Data</div>
-                            </div>
-                            
-                            <div class="data-grid" id="dataGrid">
-                                <!-- Data cells will be generated here -->
-                            </div>
-                            
-                            <div class="data-controls">
-                                <button onclick="addRow()">Add Row</button>
-                                <button onclick="clearData()">Clear All</button>
-                            </div>
-                        </div>
-                        
-                        <div class="status-bar">
-                            <div class="point-count">Data Points: <span id="pointCount">0</span></div>
-                            <div class="plot-status" id="plotStatus">No data plotted</div>
-                        </div>
-                        <div id="dataError"></div>
+        <div class="grid">
+            <div class="section">
+                <h2>1. Input Data (X and Y)</h2>
+                
+                <div class="data-input-container">
+                    <div class="data-header">
+                        <div>X Data</div>
+                        <div>Y Data</div>
                     </div>
                     
-                    <div class="section">
-                        <h2>2. Function Definition</h2>
-                        <div class="input-group">
-                            <label for="funcInput">Function (use x, c1, c2, ... c10):</label>
-                            <input type="text" id="funcInput" placeholder="c1*x^2 + c2*x + c3" value="c1*x^2 + c2*x + c3">
-                            <small>Supported: +, -, *, /, ^, exp(), log(), sin(), cos(), sqrt(), etc.</small>
-                        </div>
-                        
-                        <div class="input-group" style="margin-top: 12px;">
-                            <label for="constraints">Constraints (optional):</label>
-                            <input type="text" id="constraints" placeholder="c1>0, c2<10, c3>=0">
-                            <small>Format: c1>0, c2<10, c3>=0, etc.</small>
-                        </div>
-                        
-                        <div class="function-status" id="functionStatus">
-                            <div>Function Status:</div>
-                            <div class="function-valid" id="functionValidStatus">Ready</div>
-                        </div>
-                        
-                        <div class="compact-section">
-                            <h3>3. Initial Parameter Values</h3>
-                            <div class="compact-param-grid">
-                                <div class="param-input">
-                                    <label>c1:</label>
-                                    <input type="text" id="c1" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c2:</label>
-                                    <input type="text" id="c2" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c3:</label>
-                                    <input type="text" id="c3" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c4:</label>
-                                    <input type="text" id="c4" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c5:</label>
-                                    <input type="text" id="c5" value="1.0">
-                                </div>
-                            </div>
-                            
-                            <div class="compact-param-grid">
-                                <div class="param-input">
-                                    <label>c6:</label>
-                                    <input type="text" id="c6" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c7:</label>
-                                    <input type="text" id="c7" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c8:</label>
-                                    <input type="text" id="c8" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c9:</label>
-                                    <input type="text" id="c9" value="1.0">
-                                </div>
-                                <div class="param-input">
-                                    <label>c10:</label>
-                                    <input type="text" id="c10" value="1.0">
-                                </div>
-                            </div>
-                            
-                            <button class="run-regression-btn" onclick="runRegression()">Run Regression</button>
-                            <div id="functionError"></div>
-                        </div>
+                    <div class="data-grid" id="dataGrid">
+                        <!-- Data cells will be generated here -->
+                    </div>
+                    
+                    <div class="data-controls">
+                        <button onclick="addRow()">Add Row</button>
+                        <button onclick="clearData()">Clear All</button>
                     </div>
                 </div>
                 
-                <div id="resultsSection" style="display: none;">
-                    <div class="results">
-                        <h2>Optimized Parameters</h2>
-                        <div class="results-grid" id="optimizedParams"></div>
-                        
-                        <h2 style="margin-top: 15px;">Goodness of Fit</h2>
-                        <div class="stats-row">
-                            <div class="stat-box">
-                                <div class="stat-label">R (Correlation)</div>
-                                <div class="stat-value" id="rValue">-</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">R² (R-squared)</div>
-                                <div class="stat-value" id="r2Value">-</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Adjusted R²</div>
-                                <div class="stat-value" id="adjR2Value">-</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">RMSE</div>
-                                <div class="stat-value" id="rmseValue">-</div>
-                            </div>
-                        </div>
-                        
-                        <div class="advanced-stats">
-                            <h3>Parameter Statistics</h3>
-                            <table class="param-table" id="paramStatsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Parameter</th>
-                                        <th>Value</th>
-                                        <th>Std Error</th>
-                                        <th>t-Statistic</th>
-                                        <th>p-value</th>
-                                        <th>Significance</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="paramStatsBody">
-                                    <!-- Will be populated by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="copy-buttons" style="margin-top: 15px;">
-                            <button class="copy-button" onclick="copyAllResults()">📋 Copy All Results</button>
-                            <button class="copy-button" onclick="copyGoodnessOfFit()">📊 Copy Goodness of Fit</button>
-                            <button class="copy-button" onclick="copyParameterStats()">🔢 Copy Parameter Statistics</button>
-                            <button class="copy-button" onclick="copyRegressionEquation()">📐 Copy Regression Equation</button>
-                        </div>
-                    </div>
+                <div class="status-bar">
+                    <div class="point-count">Data Points: <span id="pointCount">0</span></div>
+                    <div class="plot-status" id="plotStatus">No data plotted</div>
                 </div>
+                <div id="dataError"></div>
             </div>
             
-            <div class="right-panel">
-                <div class="plot-container" id="plotDiv"></div>
+            <div class="section">
+                <h2>2. Function Definition</h2>
+                <div class="input-group">
+                    <label for="funcInput">Function (use x, c1, c2, ... c10):</label>
+                    <input type="text" id="funcInput" placeholder="c1*x^2 + c2*x + c3" value="c1*x^2 + c2*x + c3">
+                    <small>Supported: +, -, *, /, ^, exp(), log(), sin(), cos(), sqrt(), etc.</small>
+                </div>
                 
-                <div class="ad-space right">
-                    <div>
-                        <div class="ad-label">Advertisement Space</div>
-                        <div>Right side ad (300x100)</div>
+                <div class="input-group" style="margin-top: 12px;">
+                    <label for="constraints">Constraints (optional):</label>
+                    <input type="text" id="constraints" placeholder="c1>0, c2<10, c3>=0">
+                    <small>Format: c1>0, c2<10, c3>=0, etc.</small>
+                </div>
+                
+                <div class="function-status" id="functionStatus">
+                    <div>Function Status:</div>
+                    <div class="function-valid" id="functionValidStatus">Ready</div>
+                </div>
+                
+                <div class="compact-section">
+                    <h3>3. Initial Parameter Values</h3>
+                    <div class="compact-param-grid">
+                        <div class="param-input">
+                            <label>c1:</label>
+                            <input type="text" id="c1" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c2:</label>
+                            <input type="text" id="c2" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c3:</label>
+                            <input type="text" id="c3" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c4:</label>
+                            <input type="text" id="c4" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c5:</label>
+                            <input type="text" id="c5" value="1.0">
+                        </div>
                     </div>
+                    
+                    <div class="compact-param-grid">
+                        <div class="param-input">
+                            <label>c6:</label>
+                            <input type="text" id="c6" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c7:</label>
+                            <input type="text" id="c7" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c8:</label>
+                            <input type="text" id="c8" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c9:</label>
+                            <input type="text" id="c9" value="1.0">
+                        </div>
+                        <div class="param-input">
+                            <label>c10:</label>
+                            <input type="text" id="c10" value="1.0">
+                        </div>
+                    </div>
+                    
+                    <button class="run-regression-btn" onclick="runRegression()">Run Regression</button>
+                    <div id="functionError"></div>
                 </div>
             </div>
         </div>
         
-        <div class="export-section" style="margin-top: 20px; display: none;" id="fullExportSection">
-            <h3>
-                <span>📋 Complete Export Results to Excel</span>
-            </h3>
-            <p style="color: #666; margin-bottom: 12px; font-size: 13px;">
-                Copy the tables below and paste directly into Excel. Each section is formatted for easy Excel import.
-            </p>
-            
-            <div style="margin-top: 15px;">
-                <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Goodness of Fit Metrics</h4>
-                <table class="export-table" id="exportGoodnessTable">
-                    <thead>
-                        <tr>
-                            <th>Metric</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exportGoodnessBody">
-                        <!-- Will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style="margin-top: 15px;">
-                <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Parameter Statistics</h4>
-                <table class="export-table" id="exportParamTable">
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Value</th>
-                            <th>Std Error</th>
-                            <th>t-Statistic</th>
-                            <th>p-value</th>
-                            <th>Significance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exportParamBody">
-                        <!-- Will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style="margin-top: 15px;">
-                <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Regression Summary</h4>
-                <table class="export-table" id="exportSummaryTable">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exportSummaryBody">
-                        <!-- Will be populated by JavaScript -->
-                    </tbody>
-                </table>
+        <div class="plot-container" id="plotDiv"></div>
+        
+        <div id="resultsSection" style="display: none;">
+            <div class="results">
+                <h2>Optimized Parameters</h2>
+                <div class="results-grid" id="optimizedParams"></div>
+                
+                <h2 style="margin-top: 15px;">Goodness of Fit</h2>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-label">R (Correlation)</div>
+                        <div class="stat-value" id="rValue">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">R² (R-squared)</div>
+                        <div class="stat-value" id="r2Value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Adjusted R²</div>
+                        <div class="stat-value" id="adjR2Value">-</div>
+                    </div>
+                </div>
+                
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-label">RMSE</div>
+                        <div class="stat-value" id="rmseValue">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">MAE</div>
+                        <div class="stat-value" id="maeValue">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">AIC</div>
+                        <div class="stat-value" id="aicValue">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">F-Statistic</div>
+                        <div class="stat-value" id="fStatValue">-</div>
+                    </div>
+                </div>
+                
+                <div class="advanced-stats">
+                    <h3>Parameter Statistics</h3>
+                    <table class="param-table" id="paramStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                                <th>Std Error</th>
+                                <th>t-Statistic</th>
+                                <th>p-value</th>
+                                <th>Significance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paramStatsBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="export-section">
+                    <h3>
+                        <span>📋 Export Results to Excel</span>
+                    </h3>
+                    <p style="color: #666; margin-bottom: 12px; font-size: 13px;">
+                        Copy the tables below and paste directly into Excel. Each section is formatted for easy Excel import.
+                    </p>
+                    
+                    <div class="copy-buttons">
+                        <button class="copy-button" onclick="copyAllResults()">📋 Copy All Results</button>
+                        <button class="copy-button" onclick="copyGoodnessOfFit()">📊 Copy Goodness of Fit</button>
+                        <button class="copy-button" onclick="copyParameterStats()">🔢 Copy Parameter Statistics</button>
+                        <button class="copy-button" onclick="copyRegressionEquation()">📐 Copy Regression Equation</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Goodness of Fit Metrics</h4>
+                        <table class="export-table" id="exportGoodnessTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportGoodnessBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Parameter Statistics</h4>
+                        <table class="export-table" id="exportParamTable">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Std Error</th>
+                                    <th>t-Statistic</th>
+                                    <th>p-value</th>
+                                    <th>Significance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportParamBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #000; margin-bottom: 8px; font-size: 14px;">Regression Summary</h4>
+                        <table class="export-table" id="exportSummaryTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportSummaryBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -904,7 +849,7 @@
             const grid = document.getElementById('dataGrid');
             grid.innerHTML = '';
             
-            // Create 2 columns with 15 initial rows (reduced for compactness)
+            // Create 2 columns with 20 initial rows
             const xColumn = document.createElement('div');
             xColumn.className = 'data-column';
             
@@ -913,7 +858,7 @@
             
             dataCells = [];
             
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 const xCell = document.createElement('div');
                 xCell.className = 'data-cell empty';
                 xCell.contentEditable = 'true';
@@ -1169,8 +1114,8 @@
                 cellPair.y.classList.add('empty');
             });
             
-            // Keep only first 15 rows
-            while (dataCells.length > 15) {
+            // Keep only first 20 rows
+            while (dataCells.length > 20) {
                 const lastIndex = dataCells.length - 1;
                 dataCells[lastIndex].x.remove();
                 dataCells[lastIndex].y.remove();
@@ -1418,7 +1363,6 @@
             
             // Clear any existing results since data changed
             document.getElementById('resultsSection').style.display = 'none';
-            document.getElementById('fullExportSection').style.display = 'none';
         }
         
         // Initialize grid on page load
@@ -2223,6 +2167,9 @@
                 document.getElementById('r2Value').textContent = stats.r2.toFixed(6);
                 document.getElementById('adjR2Value').textContent = stats.adjR2.toFixed(6);
                 document.getElementById('rmseValue').textContent = stats.rmse.toFixed(6);
+                document.getElementById('maeValue').textContent = stats.mae.toFixed(6);
+                document.getElementById('aicValue').textContent = stats.aic.toFixed(2);
+                document.getElementById('fStatValue').textContent = stats.fStat.toFixed(4);
                 
                 // Display parameter statistics
                 if (stats.paramStats.length > 0) {
@@ -2230,8 +2177,7 @@
                 }
                 
                 document.getElementById('resultsSection').style.display = 'block';
-                document.getElementById('fullExportSection').style.display = 'block';
-                document.getElementById('functionError').innerHTML = '<div class="info">Regression completed successfully!</div>';
+                document.getElementById('functionError').innerHTML = '<div class="info">Regression completed successfully! All statistics calculated.</div>';
                 
             } catch (e) {
                 document.getElementById('functionError').innerHTML = '<div class="error">Regression failed: ' + e.message + '</div>';
@@ -2240,3 +2186,4 @@
     </script>
 </body>
 </html>
+
