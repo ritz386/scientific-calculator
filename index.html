@@ -64,6 +64,11 @@
                 font-size: 18px;
                 margin-bottom: 5px;
             }
+            
+            .download-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
         }
         
         .section {
@@ -630,11 +635,68 @@
             color: #d32f2f;
             font-weight: bold;
         }
+        
+        /* Download buttons container */
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .download-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .download-btn:hover {
+            background: #333;
+        }
+        
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .download-btn.excel {
+            background: #1d6f42;
+        }
+        
+        .download-btn.excel:hover {
+            background: #155d32;
+        }
+        
+        .download-btn.html {
+            background: #e34c26;
+        }
+        
+        .download-btn.html:hover {
+            background: #c0361f;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Nonlinear Regression Analysis</h1>
+        
+        <!-- Download Buttons -->
+        <div class="download-buttons">
+            <button class="download-btn excel" onclick="downloadExcel()">
+                <span>📊</span> Download Excel
+            </button>
+            <button class="download-btn html" onclick="downloadHTML()">
+                <span>📄</span> Download HTML
+            </button>
+        </div>
         
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
@@ -2131,6 +2193,358 @@
             copyToClipboard(output);
         }
         
+        // ====================================================
+        // NEW FUNCTIONS FOR DOWNLOADING
+        // ====================================================
+        
+        function downloadExcel() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                showCopyNotification('No data available for download');
+                return;
+            }
+            
+            // Collect all input data
+            const funcStr = document.getElementById('funcInput').value;
+            const constraints = document.getElementById('constraints').value;
+            const initialParams = getInitialParams();
+            
+            // Create CSV content
+            let csvContent = "Nonlinear Regression Analysis\n";
+            csvContent += "Generated on: " + new Date().toLocaleString() + "\n\n";
+            
+            // Input Data Section
+            csvContent += "INPUT DATA\n";
+            csvContent += "X Data,Y Data\n";
+            for (let i = 0; i < xData.length; i++) {
+                csvContent += `${xData[i]},${yData[i]}\n`;
+            }
+            csvContent += "\n";
+            
+            // Model Definition
+            csvContent += "MODEL DEFINITION\n";
+            csvContent += "Function," + funcStr + "\n";
+            csvContent += "Constraints," + (constraints || "None") + "\n";
+            csvContent += "\n";
+            
+            // Initial Parameters
+            csvContent += "INITIAL PARAMETER GUESSES\n";
+            csvContent += "Parameter,Value\n";
+            for (let i = 1; i <= 10; i++) {
+                if (usedParams.includes(i)) {
+                    csvContent += `c${i},${initialParams[i-1]}\n`;
+                }
+            }
+            csvContent += "\n";
+            
+            // Add regression results if available
+            if (currentRegressionResults) {
+                const { stats, optimizedParams } = currentRegressionResults;
+                
+                // Optimized Parameters
+                csvContent += "OPTIMIZED PARAMETERS\n";
+                csvContent += "Parameter,Value\n";
+                usedParams.forEach(i => {
+                    csvContent += `c${i},${optimizedParams[i-1]}\n`;
+                });
+                csvContent += "\n";
+                
+                // Goodness of Fit
+                csvContent += "GOODNESS OF FIT\n";
+                csvContent += "Metric,Value\n";
+                csvContent += `R (Correlation),${stats.r}\n`;
+                csvContent += `R² (R-squared),${stats.r2}\n`;
+                csvContent += `Adjusted R²,${stats.adjR2}\n`;
+                csvContent += `RMSE,${stats.rmse}\n`;
+                csvContent += `MAE,${stats.mae}\n`;
+                csvContent += `AIC,${stats.aic}\n`;
+                csvContent += `F-Statistic,${stats.fStat}\n`;
+                csvContent += `Data Points,${stats.n}\n`;
+                csvContent += `Fitted Parameters,${stats.p}\n`;
+                csvContent += `SS Residual,${stats.ssRes}\n`;
+                csvContent += `SS Total,${stats.ssTot}\n`;
+                csvContent += `SS Regression,${stats.ssReg}\n`;
+                csvContent += "\n";
+                
+                // Parameter Statistics
+                if (stats.paramStats.length > 0) {
+                    csvContent += "PARAMETER STATISTICS\n";
+                    csvContent += "Parameter,Value,Std Error,t-Statistic,p-value,Significance\n";
+                    stats.paramStats.forEach(stat => {
+                        let sigStars = '';
+                        if (stat.pValue < 0.001) sigStars = '***';
+                        else if (stat.pValue < 0.01) sigStars = '**';
+                        else if (stat.pValue < 0.05) sigStars = '*';
+                        else if (stat.pValue < 0.1) sigStars = '.';
+                        
+                        csvContent += `${stat.name},${stat.value},${stat.stdError},${stat.tStat},${stat.pValue},"${sigStars}"\n`;
+                    });
+                }
+            } else {
+                csvContent += "REGRESSION RESULTS\n";
+                csvContent += "Status,No regression performed yet\n";
+                csvContent += "Note,Run regression to see optimized parameters and statistics\n";
+            }
+            
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `nonlinear_regression_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showCopyNotification('Excel file downloaded!');
+        }
+        
+        function downloadHTML() {
+            // Get the current state of the application
+            const funcStr = document.getElementById('funcInput').value;
+            const constraints = document.getElementById('constraints').value;
+            
+            // Create a frozen version of the page
+            let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonlinear Regression Analysis - Frozen Report</title>
+    <style>
+        /* Include all the CSS from the original page */
+        ${document.querySelector('style').innerHTML}
+        
+        /* Additional styles for frozen report */
+        .frozen-report {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .frozen-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .frozen-plot {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="frozen-report">
+        <h1>Nonlinear Regression Analysis - Frozen Report</h1>
+        <div class="timestamp">Generated on: ${new Date().toLocaleString()}</div>
+        
+        <div class="frozen-section">
+            <h2>Input Data</h2>
+            <p><strong>Number of Data Points:</strong> ${xData.length}</p>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+                <tr style="background: #f5f5f5;">
+                    <th>X Data</th>
+                    <th>Y Data</th>
+                </tr>`;
+            
+            // Add data rows
+            for (let i = 0; i < xData.length; i++) {
+                htmlContent += `
+                <tr>
+                    <td>${xData[i]}</td>
+                    <td>${yData[i]}</td>
+                </tr>`;
+            }
+            
+            htmlContent += `
+            </table>
+        </div>
+        
+        <div class="frozen-section">
+            <h2>Model Definition</h2>
+            <p><strong>Function:</strong> y = ${funcStr}</p>
+            <p><strong>Constraints:</strong> ${constraints || "None"}</p>
+        </div>`;
+            
+            // Add initial parameters
+            if (usedParams.length > 0) {
+                const initialParams = getInitialParams();
+                htmlContent += `
+        <div class="frozen-section">
+            <h2>Initial Parameter Values</h2>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse;">
+                <tr style="background: #f5f5f5;">
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>`;
+                
+                usedParams.forEach(i => {
+                    htmlContent += `
+                <tr>
+                    <td><span style="color: #d32f2f; font-weight: bold;">c${i}</span></td>
+                    <td>${initialParams[i-1]}</td>
+                </tr>`;
+                });
+                
+                htmlContent += `
+            </table>
+        </div>`;
+            }
+            
+            // Add regression results if available
+            if (currentRegressionResults) {
+                const { stats, optimizedParams } = currentRegressionResults;
+                
+                htmlContent += `
+        <div class="frozen-section">
+            <h2>Optimized Parameters</h2>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse;">
+                <tr style="background: #f5f5f5;">
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>`;
+                
+                usedParams.forEach(i => {
+                    htmlContent += `
+                <tr>
+                    <td><span style="color: #d32f2f; font-weight: bold;">c${i}</span></td>
+                    <td>${optimizedParams[i-1].toExponential(6)}</td>
+                </tr>`;
+                });
+                
+                htmlContent += `
+            </table>
+        </div>
+        
+        <div class="frozen-section">
+            <h2>Goodness of Fit</h2>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+                <tr style="background: #f5f5f5;">
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>R (Correlation)</td>
+                    <td>${stats.r.toFixed(6)}</td>
+                </tr>
+                <tr>
+                    <td>R² (R-squared)</td>
+                    <td>${stats.r2.toFixed(6)}</td>
+                </tr>
+                <tr>
+                    <td>Adjusted R²</td>
+                    <td>${stats.adjR2.toFixed(6)}</td>
+                </tr>
+                <tr>
+                    <td>RMSE</td>
+                    <td>${stats.rmse.toFixed(6)}</td>
+                </tr>
+                <tr>
+                    <td>MAE</td>
+                    <td>${stats.mae.toFixed(6)}</td>
+                </tr>
+                <tr>
+                    <td>AIC</td>
+                    <td>${stats.aic.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>F-Statistic</td>
+                    <td>${stats.fStat.toFixed(4)}</td>
+                </tr>
+                <tr>
+                    <td>Data Points</td>
+                    <td>${stats.n}</td>
+                </tr>
+                <tr>
+                    <td>Fitted Parameters</td>
+                    <td>${stats.p}</td>
+                </tr>
+            </table>
+        </div>`;
+                
+                if (stats.paramStats.length > 0) {
+                    htmlContent += `
+        <div class="frozen-section">
+            <h2>Parameter Statistics</h2>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+                <tr style="background: #f5f5f5;">
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Std Error</th>
+                    <th>t-Statistic</th>
+                    <th>p-value</th>
+                    <th>Significance</th>
+                </tr>`;
+                    
+                    stats.paramStats.forEach(stat => {
+                        let sigStars = '';
+                        if (stat.pValue < 0.001) sigStars = '***';
+                        else if (stat.pValue < 0.01) sigStars = '**';
+                        else if (stat.pValue < 0.05) sigStars = '*';
+                        else if (stat.pValue < 0.1) sigStars = '.';
+                        
+                        htmlContent += `
+                <tr>
+                    <td><span style="color: #d32f2f; font-weight: bold;">${stat.name}</span></td>
+                    <td>${stat.value.toExponential(6)}</td>
+                    <td>${stat.stdError.toExponential(6)}</td>
+                    <td>${stat.tStat.toFixed(4)}</td>
+                    <td>${stat.pValue.toFixed(6)}</td>
+                    <td>${sigStars}</td>
+                </tr>`;
+                    });
+                    
+                    htmlContent += `
+            </table>
+        </div>`;
+                }
+            } else {
+                htmlContent += `
+        <div class="frozen-section">
+            <h2>Regression Results</h2>
+            <p><em>No regression has been performed yet. Run the regression in the application to see optimized parameters and statistics.</em></p>
+        </div>`;
+            }
+            
+            htmlContent += `
+        <div class="frozen-section">
+            <h2>Report Summary</h2>
+            <p>This is a frozen report of the Nonlinear Regression Analysis. All values are as they appeared at the time of generation.</p>
+            <p>To modify or re-run the analysis, please use the original web application.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+            
+            // Create and trigger download
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `regression_report_${new Date().toISOString().slice(0,10)}.html`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showCopyNotification('HTML report downloaded!');
+        }
+        
         function runRegression() {
             if (!parseDataFromGrid() || xData.length === 0) {
                 document.getElementById('functionError').innerHTML = '<div class="error">Please enter data first.</div>';
@@ -2273,4 +2687,3 @@
     </script>
 </body>
 </html>
-
