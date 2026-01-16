@@ -4,316 +4,638 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nonlinear Regression Analysis</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- iOS PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Regression App">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#000000">
-    
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
-    
     <style>
-        /* All existing CSS remains exactly the same, just add these new styles at the end: */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        /* PWA Header Styles */
-        .pwa-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 5px;
+        }
+        
+        .container {
+            max-width: 1050px;
+            margin: 0;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 7px;
+        }
+        
+        h1 {
+            color: #333;
             margin-bottom: 7px;
-            padding: 0 5px;
+            text-align: center;
+            font-size: 22px;
         }
         
-        .pwa-title {
-            display: flex;
-            align-items: center;
-            gap: 7px;
+        /* Desktop Layout - All in one row */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 20% 30% 50%;
+            gap: 6px;
+            margin-bottom: 7px;
+            align-items: stretch;
         }
         
-        .pwa-controls {
+        /* Mobile Layout - First two in row 1, graph in row 2 */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 5px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            body {
+                padding: 2px;
+            }
+            
+            h1 {
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
+        }
+        
+        .section {
+            background: #f9f9f9;
+            padding: 6px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
+            height: 100%;
             display: flex;
+            flex-direction: column;
+        }
+        
+        .section h2 {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 2px;
+        }
+        
+        .data-input-container {
+            display: flex;
+            flex-direction: column;
             gap: 5px;
-            align-items: center;
+            flex: 1;
         }
         
-        .pwa-button {
+        .data-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            font-weight: bold;
+            color: #333;
+            padding: 0 3px;
+            font-size: 13px;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            flex: 1;
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            background: white;
+        }
+        
+        .data-column {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .data-cell {
+            padding: 2px 3px;
+            border-bottom: 1px solid #f0f0f0;
+            border-right: 1px solid #f0f0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            min-height: 30px;
+            outline: none;
+            background: white;
+        }
+        
+        .data-cell:focus {
+            background: #f8f8f8;
+            outline: 2px solid #000;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .data-cell.empty {
+            color: #999;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #333;
+            font-size: 13px;
+        }
+        
+        input[type="text"] {
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            font-size: 13px;
+        }
+        
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            margin-top: 3px;
+        }
+        
+        .param-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .param-input label {
+            font-size: 10px;
+            text-align: center;
+            margin-bottom: 1px;
+        }
+        
+        .param-input input {
+            padding: 2px;
+            font-size: 11px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        button {
             background: #000;
             color: white;
             border: none;
-            padding: 4px 10px;
+            padding: 4px 7px;
+            border-radius: 2px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 3px;
+        }
+        
+        button:hover {
+            background: #333;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .plot-container {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+            background: white;
+        }
+        
+        @media (max-width: 768px) {
+            .plot-container {
+                min-height: 350px;
+            }
+        }
+        
+        .results {
+            background: #fff;
+            padding: 6px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
+            margin-top: 6px;
+        }
+        
+        .results h2 {
+            color: #000;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 2px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+        
+        @media (max-width: 1024px) {
+            .results-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .result-item {
+            background: #fff;
+            padding: 3px;
+            border-radius: 2px;
+            border: 1px solid #ddd;
+        }
+        
+        .result-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .result-value {
+            font-size: 13px;
+            color: #000;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-row {
+                gap: 4px;
+            }
+        }
+        
+        .stat-box {
+            background: #fff;
+            padding: 5px;
+            border-radius: 2px;
+            border: 1px solid #ddd;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 3px;
+            border-radius: 2px;
+            margin-top: 3px;
+            border-left: 2px solid #d32f2f;
+            font-size: 12px;
+        }
+        
+        .info {
+            color: #000;
+            background: #f5f5f5;
+            padding: 3px;
+            border-radius: 2px;
+            margin-top: 3px;
+            border-left: 2px solid #000;
+            font-size: 12px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+        }
+        
+        .data-controls {
+            display: flex;
+            gap: 3px;
+            margin-top: 3px;
+        }
+        
+        .data-controls button {
+            padding: 2px 5px;
+            font-size: 12px;
+            background: #000;
+        }
+        
+        .data-controls button:last-child {
+            background: #000;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3px;
+            padding: 2px 3px;
+            background: #f5f5f5;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+        
+        .point-count {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .plot-status {
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .param-input input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+        
+        .function-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3px;
+            padding: 2px 3px;
+            background: #f5f5f5;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+        
+        .function-valid {
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .function-invalid {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+        
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            font-size: 11px;
+        }
+        
+        .param-table th {
+            background: #f5f5f5;
+            padding: 3px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .param-table td {
+            padding: 3px;
+            border: 1px solid #ddd;
+            text-align: center;
+            background: white;
+        }
+        
+        .param-table .param-name {
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .param-table .sig-star {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .advanced-stats {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .advanced-stats h3 {
+            color: #000;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .export-section {
+            margin-top: 7px;
+            padding: 6px;
+            background: #f9f9f9;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        
+        .export-section h3 {
+            color: #000;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 15px;
+        }
+        
+        .export-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 11px;
+            background: white;
+        }
+        
+        .export-table th {
+            background: #f5f5f5;
+            padding: 3px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .export-table td {
+            padding: 3px;
+            border: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .export-table .category {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .copy-buttons {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .copy-button {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 2px 5px;
             border-radius: 2px;
             font-size: 12px;
             cursor: pointer;
             transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 3px;
         }
         
-        .pwa-button:hover {
+        .copy-button:hover {
             background: #333;
         }
         
-        .pwa-button:disabled {
-            background: #666;
-            cursor: not-allowed;
+        .copy-button.success {
+            background: #000;
         }
         
-        .pwa-button.install {
-            background: #4CAF50;
-        }
-        
-        .pwa-button.install:hover {
-            background: #45a049;
-        }
-        
-        .pwa-button.save {
-            background: #2196F3;
-        }
-        
-        .pwa-button.save:hover {
-            background: #1976D2;
-        }
-        
-        .pwa-button.delete {
-            background: #f44336;
-        }
-        
-        .pwa-button.delete:hover {
-            background: #d32f2f;
-        }
-        
-        /* Session Management Modal */
-        .session-modal {
-            display: none;
+        .copy-notification {
             position: fixed;
+            top: 7px;
+            right: 7px;
+            background: #000;
+            color: white;
+            padding: 4px 6px;
+            border-radius: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            animation: fadeInOut 2s ease-in-out;
         }
         
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 15px;
-            border-radius: 4px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
         }
         
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
-        
-        .modal-header h2 {
-            color: #333;
-            font-size: 18px;
-            margin: 0;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-        }
-        
-        .close-modal:hover {
-            color: #000;
-        }
-        
-        .session-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+        .compact-section {
+            margin-top: 6px;
+            padding: 5px;
+            background: #fff;
             border-radius: 3px;
+            border: 1px solid #e0e0e0;
         }
         
-        .session-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid #f0f0f0;
+        .compact-section h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 2px;
         }
         
-        .session-item:last-child {
-            border-bottom: none;
-        }
-        
-        .session-item:hover {
-            background-color: #f9f9f9;
-        }
-        
-        .session-info {
+        .compact-param-container {
             display: flex;
             flex-direction: column;
-            flex: 1;
+            gap: 3px;
         }
         
-        .session-name {
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        .session-date {
-            font-size: 11px;
-            color: #666;
-        }
-        
-        .session-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .load-session-btn, .delete-session-btn {
-            background: none;
-            border: 1px solid #ddd;
-            padding: 3px 8px;
-            border-radius: 2px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-        
-        .load-session-btn {
-            color: #2196F3;
-            border-color: #2196F3;
-        }
-        
-        .load-session-btn:hover {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .delete-session-btn {
-            color: #f44336;
-            border-color: #f44336;
-        }
-        
-        .delete-session-btn:hover {
-            background: #f44336;
-            color: white;
-        }
-        
-        .save-session-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .save-session-btn {
-            background: #4CAF50;
+        .run-regression-btn {
+            background: #000;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 3px;
+            padding: 4px 7px;
+            border-radius: 2px;
+            font-size: 13px;
             cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 5px;
             width: 100%;
-            font-size: 14px;
         }
         
-        .save-session-btn:hover {
-            background: #45a049;
+        .run-regression-btn:hover {
+            background: #333;
         }
         
-        .empty-sessions {
-            text-align: center;
-            padding: 20px;
+        .compact-param-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        @media (max-width: 1024px) {
+            .compact-param-grid,
+            .param-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .compact-param-grid,
+            .param-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .compact-param-grid,
+            .param-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        small {
             color: #666;
-            font-style: italic;
+            margin-top: 2px;
+            font-size: 11px;
         }
         
-        /* Offline Indicator */
-        .offline-indicator {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #ff9800;
-            color: white;
-            text-align: center;
-            padding: 5px;
-            font-size: 12px;
-            z-index: 1001;
-            display: none;
+        /* Make sure plot container takes full height */
+        .plot-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         
-        .offline-indicator.show {
-            display: block;
+        .plot-section h2 {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 2px;
+        }
+        
+        /* Red color for parameters */
+        .param-red {
+            color: #d32f2f;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <!-- Offline Indicator -->
-    <div id="offlineIndicator" class="offline-indicator">
-        ⚠️ You are currently offline. Some features may be limited.
-    </div>
-    
-    <!-- Session Management Modal -->
-    <div id="sessionModal" class="session-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Saved Sessions</h2>
-                <button class="close-modal" onclick="closeSessionModal()">×</button>
-            </div>
-            
-            <div class="session-list" id="sessionList">
-                <!-- Sessions will be loaded here -->
-            </div>
-            
-            <div style="border-top: 1px solid #ddd; padding-top: 15px;">
-                <h3 style="margin-bottom: 10px; font-size: 16px;">Save Current Session</h3>
-                <input type="text" id="sessionNameInput" class="save-session-input" 
-                       placeholder="Enter session name (e.g., 'Protein Binding Experiment')">
-                <button class="save-session-btn" onclick="saveCurrentSession()">💾 Save Current Session</button>
-            </div>
-        </div>
-    </div>
-    
     <div class="container">
-        <!-- PWA Header -->
-        <div class="pwa-header">
-            <div class="pwa-title">
-                <h1>Nonlinear Regression Analysis</h1>
-                <span id="appStatus" style="font-size: 11px; color: #666;"></span>
-            </div>
-            <div class="pwa-controls">
-                <button id="installButton" class="pwa-button install" style="display: none;">
-                    📱 Install App
-                </button>
-                <button id="saveButton" class="pwa-button save" style="display: none;" onclick="openSessionModal()">
-                    💾 Save Session
-                </button>
-            </div>
-        </div>
+        <h1>Nonlinear Regression Analysis</h1>
         
-        <!-- Rest of your existing HTML remains exactly the same -->
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
             <div class="section">
@@ -552,406 +874,8 @@
     <div id="copyNotification" class="copy-notification" style="display: none;"></div>
 
     <script>
-        // === PWA AND SESSION MANAGEMENT CODE ===
-        
-        // Check if app is installed as PWA
-        function isPWAInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true ||
-                   document.referrer.includes('android-app://');
-        }
-        
-        // Check if browser supports IndexedDB (for session storage)
-        const supportsIndexedDB = 'indexedDB' in window;
-        
-        // Session storage using IndexedDB
-        const DB_NAME = 'regressionAppDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'sessions';
-        
-        let db;
-        let deferredPrompt;
-        
-        // Initialize IndexedDB
-        function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                if (!supportsIndexedDB) {
-                    reject('IndexedDB not supported');
-                    return;
-                }
-                
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
-                request.onerror = (event) => {
-                    console.error('IndexedDB error:', event.target.error);
-                    reject(event.target.error);
-                };
-                
-                request.onsuccess = (event) => {
-                    db = event.target.result;
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    // Create object store if it doesn't exist
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                        store.createIndex('name', 'name', { unique: false });
-                        store.createIndex('date', 'date', { unique: false });
-                    }
-                };
-            });
-        }
-        
-        // Save session to IndexedDB
-        async function saveSession(sessionName) {
-            if (!supportsIndexedDB || !db) {
-                alert('Session saving is not supported in your browser.');
-                return;
-            }
-            
-            if (!sessionName || sessionName.trim() === '') {
-                alert('Please enter a session name.');
-                return;
-            }
-            
-            try {
-                // Collect all current data
-                const sessionData = {
-                    id: Date.now().toString(),
-                    name: sessionName.trim(),
-                    date: new Date().toISOString(),
-                    data: {
-                        xData: xData,
-                        yData: yData,
-                        funcInput: document.getElementById('funcInput').value,
-                        constraints: document.getElementById('constraints').value,
-                        parameters: {
-                            c1: document.getElementById('c1').value,
-                            c2: document.getElementById('c2').value,
-                            c3: document.getElementById('c3').value,
-                            c4: document.getElementById('c4').value,
-                            c5: document.getElementById('c5').value,
-                            c6: document.getElementById('c6').value,
-                            c7: document.getElementById('c7').value,
-                            c8: document.getElementById('c8').value,
-                            c9: document.getElementById('c9').value,
-                            c10: document.getElementById('c10').value
-                        },
-                        results: currentRegressionResults ? {
-                            stats: currentRegressionResults.stats,
-                            optimizedParams: currentRegressionResults.optimizedParams
-                        } : null
-                    }
-                };
-                
-                // Also save the data grid cells
-                sessionData.data.gridCells = dataCells.map(cell => ({
-                    x: cell.x.textContent,
-                    y: cell.y.textContent
-                }));
-                
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.add(sessionData);
-                
-                request.onsuccess = () => {
-                    console.log('Session saved:', sessionName);
-                    loadSessions(); // Refresh session list
-                    
-                    // Clear input and close modal
-                    document.getElementById('sessionNameInput').value = '';
-                    closeSessionModal();
-                    
-                    // Show success message
-                    showCopyNotification(`Session "${sessionName}" saved successfully!`);
-                };
-                
-                request.onerror = (event) => {
-                    console.error('Error saving session:', event.target.error);
-                    alert('Error saving session. Please try again.');
-                };
-                
-            } catch (error) {
-                console.error('Error saving session:', error);
-                alert('Error saving session. Please try again.');
-            }
-        }
-        
-        // Load all saved sessions
-        async function loadSessions() {
-            if (!supportsIndexedDB || !db) return [];
-            
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.getAll();
-                
-                request.onsuccess = (event) => {
-                    const sessions = event.target.result;
-                    displaySessions(sessions);
-                    resolve(sessions);
-                };
-                
-                request.onerror = (event) => {
-                    console.error('Error loading sessions:', event.target.error);
-                    reject(event.target.error);
-                };
-            });
-        }
-        
-        // Display sessions in modal
-        function displaySessions(sessions) {
-            const sessionList = document.getElementById('sessionList');
-            
-            if (!sessions || sessions.length === 0) {
-                sessionList.innerHTML = '<div class="empty-sessions">No saved sessions yet.</div>';
-                return;
-            }
-            
-            // Sort by date (newest first)
-            sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sessionList.innerHTML = sessions.map(session => `
-                <div class="session-item">
-                    <div class="session-info">
-                        <div class="session-name">${session.name}</div>
-                        <div class="session-date">${new Date(session.date).toLocaleString()}</div>
-                    </div>
-                    <div class="session-actions">
-                        <button class="load-session-btn" onclick="loadSession('${session.id}')">Load</button>
-                        <button class="delete-session-btn" onclick="deleteSession('${session.id}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Load a specific session
-        async function loadSession(sessionId) {
-            if (!supportsIndexedDB || !db) return;
-            
-            try {
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.get(sessionId);
-                
-                request.onsuccess = (event) => {
-                    const session = event.target.result;
-                    if (!session) return;
-                    
-                    // Restore data
-                    const data = session.data;
-                    
-                    // Restore X and Y data
-                    xData = data.xData || [];
-                    yData = data.yData || [];
-                    
-                    // Restore function and constraints
-                    document.getElementById('funcInput').value = data.funcInput || '';
-                    document.getElementById('constraints').value = data.constraints || '';
-                    
-                    // Restore parameters
-                    if (data.parameters) {
-                        for (let i = 1; i <= 10; i++) {
-                            document.getElementById('c' + i).value = data.parameters['c' + i] || '1.0';
-                        }
-                    }
-                    
-                    // Restore grid cells
-                    if (data.gridCells) {
-                        for (let i = 0; i < Math.min(dataCells.length, data.gridCells.length); i++) {
-                            dataCells[i].x.textContent = data.gridCells[i].x;
-                            dataCells[i].y.textContent = data.gridCells[i].y;
-                            
-                            if (data.gridCells[i].x) {
-                                dataCells[i].x.classList.remove('empty');
-                            } else {
-                                dataCells[i].x.classList.add('empty');
-                            }
-                            
-                            if (data.gridCells[i].y) {
-                                dataCells[i].y.classList.remove('empty');
-                            } else {
-                                dataCells[i].y.classList.add('empty');
-                            }
-                        }
-                    }
-                    
-                    // Restore regression results if they exist
-                    if (data.results) {
-                        currentRegressionResults = data.results;
-                        // You might want to re-run the regression or just display stored results
-                    }
-                    
-                    // Update UI
-                    parseDataFromGrid();
-                    updatePlot();
-                    checkFunctionAndUpdate();
-                    
-                    // Close modal
-                    closeSessionModal();
-                    
-                    // Show success message
-                    showCopyNotification(`Session "${session.name}" loaded successfully!`);
-                };
-                
-                request.onerror = (event) => {
-                    console.error('Error loading session:', event.target.error);
-                    alert('Error loading session. Please try again.');
-                };
-                
-            } catch (error) {
-                console.error('Error loading session:', error);
-                alert('Error loading session. Please try again.');
-            }
-        }
-        
-        // Delete a session
-        async function deleteSession(sessionId) {
-            if (!confirm('Are you sure you want to delete this session?')) return;
-            
-            if (!supportsIndexedDB || !db) return;
-            
-            try {
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.delete(sessionId);
-                
-                request.onsuccess = () => {
-                    console.log('Session deleted:', sessionId);
-                    loadSessions(); // Refresh list
-                    showCopyNotification('Session deleted successfully!');
-                };
-                
-                request.onerror = (event) => {
-                    console.error('Error deleting session:', event.target.error);
-                    alert('Error deleting session. Please try again.');
-                };
-                
-            } catch (error) {
-                console.error('Error deleting session:', error);
-                alert('Error deleting session. Please try again.');
-            }
-        }
-        
-        // Open session modal
-        function openSessionModal() {
-            if (!supportsIndexedDB) {
-                alert('Session management requires IndexedDB support. Your browser may not support this feature.');
-                return;
-            }
-            
-            document.getElementById('sessionModal').style.display = 'block';
-            loadSessions();
-        }
-        
-        // Close session modal
-        function closeSessionModal() {
-            document.getElementById('sessionModal').style.display = 'none';
-        }
-        
-        // Save current session
-        function saveCurrentSession() {
-            const sessionName = document.getElementById('sessionNameInput').value.trim();
-            if (sessionName) {
-                saveSession(sessionName);
-            }
-        }
-        
-        // PWA Installation
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            
-            // Show install button
-            const installButton = document.getElementById('installButton');
-            installButton.style.display = 'flex';
-            
-            installButton.addEventListener('click', () => {
-                // Show the install prompt
-                deferredPrompt.prompt();
-                
-                // Wait for the user to respond to the prompt
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                        installButton.style.display = 'none';
-                    } else {
-                        console.log('User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            });
-        });
-        
-        // Check if app is already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA installed successfully');
-            document.getElementById('installButton').style.display = 'none';
-            
-            // Show save button since PWA is installed
-            if (supportsIndexedDB) {
-                document.getElementById('saveButton').style.display = 'flex';
-            }
-        });
-        
-        // Online/Offline detection
-        function updateOnlineStatus() {
-            const offlineIndicator = document.getElementById('offlineIndicator');
-            const appStatus = document.getElementById('appStatus');
-            
-            if (navigator.onLine) {
-                offlineIndicator.classList.remove('show');
-                appStatus.textContent = isPWAInstalled() ? 'PWA · Online' : 'Online';
-            } else {
-                offlineIndicator.classList.add('show');
-                appStatus.textContent = isPWAInstalled() ? 'PWA · Offline' : 'Offline';
-            }
-        }
-        
-        // Initialize everything
-        async function initializeApp() {
-            // Check if PWA is installed
-            const isInstalled = isPWAInstalled();
-            
-            // Update UI based on installation status
-            if (isInstalled && supportsIndexedDB) {
-                document.getElementById('saveButton').style.display = 'flex';
-                document.getElementById('appStatus').textContent = 'PWA Installed';
-            }
-            
-            // Initialize IndexedDB if supported
-            if (supportsIndexedDB) {
-                try {
-                    await initIndexedDB();
-                    console.log('IndexedDB initialized successfully');
-                } catch (error) {
-                    console.warn('IndexedDB initialization failed:', error);
-                }
-            }
-            
-            // Set up online/offline listeners
-            updateOnlineStatus();
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', (event) => {
-                const modal = document.getElementById('sessionModal');
-                if (event.target === modal) {
-                    closeSessionModal();
-                }
-            });
-        }
-        
-        // === EXISTING REGRESSION CODE (ALL YOUR ORIGINAL FUNCTIONS) ===
-        // All your existing JavaScript code remains exactly the same here
-        // Only the variable declarations at the top need to be kept:
-        
+        // The entire JavaScript code remains exactly the same as before
+        // Only the CSS and HTML structure has been modified
         let xData = [];
         let yData = [];
         let usedParams = [];
@@ -966,7 +890,6 @@
         
         // Initialize data grid
         function initializeDataGrid() {
-            // ... (all your existing initializeDataGrid code)
             const grid = document.getElementById('dataGrid');
             grid.innerHTML = '';
             
@@ -1038,27 +961,1316 @@
             }, 100);
         }
         
-        // ... (ALL YOUR EXISTING FUNCTIONS CONTINUE HERE EXACTLY AS THEY WERE)
-        // handleCellInput, scheduleDataUpdate, handleCellKeydown, focusCell, handlePaste,
-        // addRow, clearData, parseDataFromGrid, checkFunctionAndUpdate, calculatePlotRange,
-        // updatePlot, jacobian, identifyUsedParams, evaluateFunction, convertFunction,
-        // getInitialParams, parseConstraints, checkConstraints, residuals, matrixMultiply,
-        // transpose, invertMatrix, calculateCovarianceMatrix, calculateTStatistic,
-        // calculatePValue, levenbergMarquardt, calculateAllStatistics, displayParameterStats,
-        // showCopyNotification, copyToClipboard, formatForExcel, generateExportTables,
-        // copyAllResults, copyGoodnessOfFit, copyParameterStats, copyRegressionEquation,
-        // runRegression
+        function handleCellInput(event) {
+            const cell = event.target;
+            if (cell.textContent.trim() === '') {
+                cell.classList.add('empty');
+            } else {
+                cell.classList.remove('empty');
+            }
+            
+            // Schedule data update
+            scheduleDataUpdate();
+        }
         
-        // I've omitted the full code for brevity, but ALL your existing functions
-        // should be included here exactly as they were in your original file.
+        function scheduleDataUpdate() {
+            // Clear any existing timeout
+            if (plotUpdateTimeout) {
+                clearTimeout(plotUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay (debouncing)
+            plotUpdateTimeout = setTimeout(() => {
+                parseDataFromGrid();
+                updatePlot();
+            }, 300);
+        }
         
-        // The only changes needed are adding the PWA initialization at the end:
+        function scheduleFunctionUpdate() {
+            // Clear any existing timeout
+            if (functionUpdateTimeout) {
+                clearTimeout(functionUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay
+            functionUpdateTimeout = setTimeout(() => {
+                checkFunctionAndUpdate();
+            }, 500);
+        }
+        
+        function scheduleParamUpdate() {
+            // Clear any existing timeout
+            if (paramUpdateTimeout) {
+                clearTimeout(paramUpdateTimeout);
+            }
+            
+            // Schedule update after a short delay
+            paramUpdateTimeout = setTimeout(() => {
+                updatePlot();
+            }, 500);
+        }
+        
+        function handleCellKeydown(event) {
+            const cell = event.target;
+            const row = parseInt(cell.dataset.row);
+            const col = cell.dataset.col;
+            
+            switch(event.key) {
+                case 'Tab':
+                    event.preventDefault();
+                    const nextCol = col === 'x' ? 'y' : 'x';
+                    const nextRow = event.shiftKey ? Math.max(0, row - 1) : row;
+                    focusCell(nextRow, nextCol);
+                    break;
+                    
+                case 'Enter':
+                    event.preventDefault();
+                    focusCell(row + 1, col);
+                    break;
+                    
+                case 'ArrowUp':
+                    event.preventDefault();
+                    focusCell(Math.max(0, row - 1), col);
+                    break;
+                    
+                case 'ArrowDown':
+                    event.preventDefault();
+                    focusCell(row + 1, col);
+                    break;
+                    
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    focusCell(row, 'x');
+                    break;
+                    
+                case 'ArrowRight':
+                    event.preventDefault();
+                    focusCell(row, 'y');
+                    break;
+            }
+        }
+        
+        function focusCell(row, col) {
+            if (row >= dataCells.length) {
+                addRow();
+            }
+            
+            const cell = col === 'x' ? dataCells[row].x : dataCells[row].y;
+            cell.focus();
+            
+            // Select all text
+            const range = document.createRange();
+            range.selectNodeContents(cell);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        
+        function handlePaste(event) {
+            event.preventDefault();
+            const pasteData = event.clipboardData.getData('text');
+            const rows = pasteData.trim().split('\n');
+            
+            // Find the target cell
+            const targetCell = event.target;
+            const startRow = parseInt(targetCell.dataset.row);
+            const startCol = targetCell.dataset.col;
+            
+            let currentRow = startRow;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const columns = rows[i].split('\t');
+                
+                if (columns.length >= 2) {
+                    // Two columns pasted
+                    if (currentRow >= dataCells.length) {
+                        addRow();
+                    }
+                    
+                    dataCells[currentRow].x.textContent = columns[0].trim();
+                    dataCells[currentRow].y.textContent = columns[1].trim();
+                    dataCells[currentRow].x.classList.remove('empty');
+                    dataCells[currentRow].y.classList.remove('empty');
+                    
+                } else if (columns.length === 1) {
+                    // Single column pasted
+                    if (currentRow >= dataCells.length) {
+                        addRow();
+                    }
+                    
+                    if (startCol === 'x') {
+                        dataCells[currentRow].x.textContent = columns[0].trim();
+                        dataCells[currentRow].x.classList.remove('empty');
+                    } else {
+                        dataCells[currentRow].y.textContent = columns[0].trim();
+                        dataCells[currentRow].y.classList.remove('empty');
+                    }
+                }
+                
+                currentRow++;
+            }
+            
+            // Focus the last edited cell
+            setTimeout(() => {
+                focusCell(startRow, startCol);
+                // Trigger plot update immediately after paste
+                parseDataFromGrid();
+                updatePlot();
+            }, 10);
+        }
+        
+        function addRow() {
+            const lastRow = dataCells.length;
+            const grid = document.getElementById('dataGrid');
+            
+            // Add to X column
+            const xCell = document.createElement('div');
+            xCell.className = 'data-cell empty';
+            xCell.contentEditable = 'true';
+            xCell.dataset.row = lastRow;
+            xCell.dataset.col = 'x';
+            xCell.addEventListener('input', handleCellInput);
+            xCell.addEventListener('keydown', handleCellKeydown);
+            xCell.addEventListener('paste', handlePaste);
+            xCell.addEventListener('blur', scheduleDataUpdate);
+            grid.children[0].appendChild(xCell);
+            
+            // Add to Y column
+            const yCell = document.createElement('div');
+            yCell.className = 'data-cell empty';
+            yCell.contentEditable = 'true';
+            yCell.dataset.row = lastRow;
+            yCell.dataset.col = 'y';
+            yCell.addEventListener('input', handleCellInput);
+            yCell.addEventListener('keydown', handleCellKeydown);
+            yCell.addEventListener('paste', handlePaste);
+            yCell.addEventListener('blur', scheduleDataUpdate);
+            grid.children[1].appendChild(yCell);
+            
+            dataCells.push({x: xCell, y: yCell});
+        }
+        
+        function clearData() {
+            dataCells.forEach(cellPair => {
+                cellPair.x.textContent = '';
+                cellPair.y.textContent = '';
+                cellPair.x.classList.add('empty');
+                cellPair.y.classList.add('empty');
+            });
+            
+            // Keep only first 20 rows
+            while (dataCells.length > 20) {
+                const lastIndex = dataCells.length - 1;
+                dataCells[lastIndex].x.remove();
+                dataCells[lastIndex].y.remove();
+                dataCells.pop();
+            }
+            
+            // Reset to sample data
+            setSampleData();
+        }
+        
+        function parseDataFromGrid() {
+            xData = [];
+            yData = [];
+            
+            for (let i = 0; i < dataCells.length; i++) {
+                const xVal = parseFloat(dataCells[i].x.textContent.trim());
+                const yVal = parseFloat(dataCells[i].y.textContent.trim());
+                
+                if (!isNaN(xVal) && !isNaN(yVal)) {
+                    xData.push(xVal);
+                    yData.push(yVal);
+                }
+            }
+            
+            // Update point count display
+            document.getElementById('pointCount').textContent = xData.length;
+            
+            return xData.length > 0;
+        }
+        
+        function checkFunctionAndUpdate() {
+            const funcStr = document.getElementById('funcInput').value;
+            const funcHash = funcStr;
+            
+            // Only update if function changed
+            if (funcHash === lastFunctionHash && xData.length > 0) {
+                return;
+            }
+            
+            lastFunctionHash = funcHash;
+            usedParams = identifyUsedParams(funcStr);
+            
+            // Update function status
+            const statusElement = document.getElementById('functionValidStatus');
+            if (usedParams.length === 0) {
+                statusElement.textContent = 'No parameters found';
+                statusElement.className = 'function-invalid';
+            } else {
+                try {
+                    // Test if function can be evaluated
+                    const testParams = Array(10).fill(1);
+                    evaluateFunction(0, testParams);
+                    statusElement.textContent = `Valid (using c${usedParams.join(', c')})`;
+                    statusElement.className = 'function-valid';
+                } catch (e) {
+                    statusElement.textContent = 'Invalid function';
+                    statusElement.className = 'function-invalid';
+                }
+            }
+            
+            // Update plot if we have data
+            if (xData.length > 0) {
+                updatePlot();
+            }
+        }
+        
+        function calculatePlotRange(xDataVals, yDataVals, functionYVals) {
+            // Combine all Y values to determine range
+            const allYVals = [...yDataVals, ...functionYVals];
+            
+            // Calculate min and max with padding
+            const xMin = Math.min(...xDataVals);
+            const xMax = Math.max(...xDataVals);
+            const yMin = Math.min(...allYVals);
+            const yMax = Math.max(...allYVals);
+            
+            // Add 10% padding to ranges
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+            const xPadding = xRange * 0.1;
+            const yPadding = yRange * 0.1;
+            
+            return {
+                x: [xMin - xPadding, xMax + xPadding],
+                y: [yMin - yPadding, yMax + yPadding]
+            };
+        }
+        
+        function updatePlot() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                // Show empty plot or placeholder
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { title: 'X', range: [0, 10] },
+                    yaxis: { title: 'Y', range: [0, 10] },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    },
+                    annotations: [{
+                        text: 'No data to display',
+                        xref: 'paper',
+                        yref: 'paper',
+                        x: 0.5,
+                        y: 0.5,
+                        showarrow: false,
+                        font: { size: 16, color: '#999' }
+                    }]
+                };
+                
+                Plotly.newPlot('plotDiv', [], layout);
+                document.getElementById('plotStatus').textContent = 'No data plotted';
+                document.getElementById('plotStatus').style.color = '#999';
+                return;
+            }
+            
+            const errorDiv = document.getElementById('dataError');
+            errorDiv.innerHTML = '';
+            
+            if (xData.length !== yData.length) {
+                errorDiv.innerHTML = '<div class="error">X and Y data must have the same length.</div>';
+                document.getElementById('plotStatus').textContent = 'Error: Data length mismatch';
+                document.getElementById('plotStatus').style.color = '#d32f2f';
+                return;
+            }
+            
+            // Get current function and parameters
+            const funcStr = document.getElementById('funcInput').value;
+            usedParams = identifyUsedParams(funcStr);
+            
+            if (usedParams.length === 0) {
+                // Just show data points if no function defined
+                const trace = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { 
+                        title: 'X',
+                        range: calculatePlotRange(xData, yData, []).x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: calculatePlotRange(xData, yData, []).y
+                    },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
+                };
+                
+                Plotly.newPlot('plotDiv', [trace], layout);
+                document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points)`;
+                document.getElementById('plotStatus').style.color = '#000';
+                return;
+            }
+            
+            // Try to plot with initial parameters
+            try {
+                const params = getInitialParams();
+                const xMin = Math.min(...xData);
+                const xMax = Math.max(...xData);
+                const xRange = xMax - xMin;
+                const step = xRange / (xData.length * 10);
+                
+                const xContinuous = [];
+                const yContinuous = [];
+                
+                // Generate function values
+                for (let x = xMin; x <= xMax; x += step) {
+                    xContinuous.push(x);
+                    yContinuous.push(evaluateFunction(x, params));
+                }
+                
+                // Ensure we include the exact endpoint
+                xContinuous.push(xMax);
+                yContinuous.push(evaluateFunction(xMax, params));
+                
+                // Calculate plot range that includes both data and function
+                const plotRange = calculatePlotRange(xData, yData, yContinuous);
+                
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const traceInitial = {
+                    x: xContinuous,
+                    y: yContinuous,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Initial Fit',
+                    line: { color: '#FF9800', width: 2 }
+                };
+                
+                const layout = {
+                    title: 'Data with Initial Function Fit',
+                    xaxis: { 
+                        title: 'X',
+                        range: plotRange.x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: plotRange.y
+                    },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData, traceInitial], layout);
+                document.getElementById('plotStatus').textContent = `Data with initial fit (${xData.length} points)`;
+                document.getElementById('plotStatus').style.color = '#000';
+                
+            } catch (e) {
+                // If function evaluation fails, just show data
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const layout = {
+                    title: 'Data Visualization',
+                    xaxis: { 
+                        title: 'X',
+                        range: calculatePlotRange(xData, yData, []).x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: calculatePlotRange(xData, yData, []).y
+                    },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData], layout);
+                document.getElementById('plotStatus').textContent = `Data plotted (${xData.length} points) - Function error`;
+                document.getElementById('plotStatus').style.color = '#FF9800';
+            }
+            
+            // Clear any existing results since data changed
+            document.getElementById('resultsSection').style.display = 'none';
+        }
         
         // Initialize grid on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeDataGrid();
-            initializeApp(); // Initialize PWA features
-        });
+        document.addEventListener('DOMContentLoaded', initializeDataGrid);
+        
+        // ====================================================
+        // IMPROVEMENT #1: BETTER JACOBIAN (Central Difference)
+        // ====================================================
+        function jacobian(params) {
+            const jac = [];
+            for (let i = 0; i < xData.length; i++) {
+                const row = [];
+                for (let j = 0; j < usedParams.length; j++) {
+                    const paramIdx = usedParams[j] - 1;
+                    const paramValue = params[paramIdx];
+                    
+                    // Adaptive step size - much more stable
+                    const h = Math.max(1e-8, Math.abs(paramValue) * 1e-6);
+                    
+                    // Central difference (more accurate than forward difference)
+                    const paramsPlus = [...params];
+                    const paramsMinus = [...params];
+                    
+                    paramsPlus[paramIdx] = paramValue + h;
+                    paramsMinus[paramIdx] = paramValue - h;
+                    
+                    try {
+                        const fPlus = evaluateFunction(xData[i], paramsPlus);
+                        const fMinus = evaluateFunction(xData[i], paramsMinus);
+                        
+                        // Central difference formula
+                        const derivative = (fPlus - fMinus) / (2 * h);
+                        
+                        // Handle edge cases
+                        if (!isFinite(derivative)) {
+                            // Fallback to forward difference if central fails
+                            const f = evaluateFunction(xData[i], params);
+                            row.push((fPlus - f) / h);
+                        } else {
+                            row.push(derivative);
+                        }
+                    } catch (e) {
+                        // If evaluation fails, use a safe default
+                        row.push(1.0);
+                    }
+                }
+                jac.push(row);
+            }
+            return jac;
+        }
+        
+        function identifyUsedParams(funcStr) {
+            const params = [];
+            for (let i = 1; i <= 10; i++) {
+                if (funcStr.includes('c' + i)) {
+                    params.push(i);
+                }
+            }
+            return params;
+        }
+        
+        // ====================================================
+        // IMPROVEMENT #2: SAFER FUNCTION EVALUATION (Math.js)
+        // ====================================================
+        function evaluateFunction(x, params) {
+            const funcStr = document.getElementById('funcInput').value;
+            
+            // First try using Math.js (much safer than eval)
+            try {
+                // Create scope with all variables
+                const scope = {
+                    x: x,
+                    c1: params[0] || 0,
+                    c2: params[1] || 0,
+                    c3: params[2] || 0,
+                    c4: params[3] || 0,
+                    c5: params[4] || 0,
+                    c6: params[5] || 0,
+                    c7: params[6] || 0,
+                    c8: params[7] || 0,
+                    c9: params[8] || 0,
+                    c10: params[9] || 0  // FIXED: Changed from params[10] to params[9]
+                };
+                
+                // Evaluate using Math.js (already included in your <head>!)
+                return math.evaluate(funcStr, scope);
+            } catch (mathError) {
+                // Fallback to original method for compatibility
+                try {
+                    const converted = convertFunction(funcStr);
+                    const c1 = params[0] || 0;
+                    const c2 = params[1] || 0;
+                    const c3 = params[2] || 0;
+                    const c4 = params[3] || 0;
+                    const c5 = params[4] || 0;
+                    const c6 = params[5] || 0;
+                    const c7 = params[6] || 0;
+                    const c8 = params[7] || 0;
+                    const c9 = params[8] || 0;
+                    const c10 = params[9] || 0;
+                    
+                    return eval(converted);
+                } catch (evalError) {
+                    throw new Error('Function error: ' + mathError.message);
+                }
+            }
+        }
+        
+        function convertFunction(funcStr) {
+            let converted = funcStr.replace(/\^/g, '**');
+            
+            const mathFuncs = ['exp', 'log', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'pow'];
+            mathFuncs.forEach(func => {
+                const regex = new RegExp('\\b' + func + '\\(', 'g');
+                converted = converted.replace(regex, 'Math.' + func + '(');
+            });
+            
+            return converted;
+        }
+        
+        function getInitialParams() {
+            const params = [];
+            for (let i = 1; i <= 10; i++) {
+                const val = document.getElementById('c' + i).value.trim();
+                params.push(val === '' ? 1.0 : parseFloat(val));
+            }
+            return params;
+        }
+        
+        function parseConstraints() {
+            const constraintStr = document.getElementById('constraints').value.trim();
+            if (!constraintStr) return [];
+            
+            const constraints = [];
+            const parts = constraintStr.split(',');
+            
+            for (let part of parts) {
+                part = part.trim();
+                if (!part) continue;
+                
+                let match = part.match(/c(\d+)\s*(>=|<=|>|<)\s*(-?\d+\.?\d*)/);
+                if (match) {
+                    constraints.push({
+                        param: parseInt(match[1]) - 1,
+                        operator: match[2],
+                        value: parseFloat(match[3])
+                    });
+                }
+            }
+            
+            return constraints;
+        }
+        
+        function checkConstraints(params, constraints) {
+            for (let c of constraints) {
+                const val = params[c.param];
+                switch (c.operator) {
+                    case '>':
+                        if (!(val > c.value)) return false;
+                        break;
+                    case '<':
+                        if (!(val < c.value)) return false;
+                        break;
+                    case '>=':
+                        if (!(val >= c.value)) return false;
+                        break;
+                    case '<=':
+                        if (!(val <= c.value)) return false;
+                        break;
+                }
+            }
+            return true;
+        }
+        
+        function residuals(params) {
+            const res = [];
+            for (let i = 0; i < xData.length; i++) {
+                try {
+                    const predicted = evaluateFunction(xData[i], params);
+                    // Check for invalid predictions
+                    if (!isFinite(predicted)) {
+                        res.push(1e10); // Large penalty for invalid predictions
+                    } else {
+                        res.push(yData[i] - predicted);
+                    }
+                } catch (e) {
+                    res.push(1e10); // Large penalty for evaluation errors
+                }
+            }
+            return res;
+        }
+        
+        function matrixMultiply(A, B) {
+            const result = [];
+            for (let i = 0; i < A.length; i++) {
+                result[i] = [];
+                for (let j = 0; j < B[0].length; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < A[0].length; k++) {
+                        sum += A[i][k] * B[k][j];
+                    }
+                    result[i][j] = sum;
+                }
+            }
+            return result;
+        }
+        
+        function transpose(A) {
+            return A[0].map((_, i) => A.map(row => row[i]));
+        }
+        
+        function invertMatrix(A) {
+            const n = A.length;
+            const I = Array(n).fill().map((_, i) => Array(n).fill(0).map((_, j) => i === j ? 1 : 0));
+            const M = A.map((row, i) => [...row, ...I[i]]);
+            
+            for (let i = 0; i < n; i++) {
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                [M[i], M[maxRow]] = [M[maxRow], M[i]];
+                
+                if (Math.abs(M[i][i]) < 1e-10) {
+                    throw new Error('Matrix is singular');
+                }
+                
+                const pivot = M[i][i];
+                for (let j = 0; j < 2 * n; j++) {
+                    M[i][j] /= pivot;
+                }
+                
+                for (let k = 0; k < n; k++) {
+                    if (k !== i) {
+                        const factor = M[k][i];
+                        for (let j = 0; j < 2 * n; j++) {
+                            M[k][j] -= factor * M[i][j];
+                        }
+                    }
+                }
+            }
+            
+            return M.map(row => row.slice(n));
+        }
+        
+        function calculateCovarianceMatrix(J, residuals, params) {
+            // Calculate covariance matrix: Cov = (J'J)^(-1) * sigma^2
+            // where sigma^2 = SSE / (n - p)
+            const JT = transpose(J);
+            const JTJ = matrixMultiply(JT, J);
+            
+            try {
+                const JTJinv = invertMatrix(JTJ);
+                
+                // Calculate mean squared error (sigma^2)
+                const n = residuals.length;
+                const p = params.length;
+                const sse = residuals.reduce((sum, r) => sum + r * r, 0);
+                const mse = sse / (n - p);
+                
+                // Scale inverse by MSE
+                const cov = JTJinv.map(row => row.map(val => val * mse));
+                return cov;
+            } catch (e) {
+                // If matrix inversion fails, return diagonal matrix
+                const p = params.length;
+                const n = residuals.length;
+                const sse = residuals.reduce((sum, r) => sum + r * r, 0);
+                const mse = sse / (n - p);
+                
+                // Return diagonal matrix with variances
+                const cov = Array(p).fill().map(() => Array(p).fill(0));
+                for (let i = 0; i < p; i++) {
+                    cov[i][i] = mse;
+                }
+                return cov;
+            }
+        }
+        
+        function calculateTStatistic(paramValue, stdError) {
+            return paramValue / stdError;
+        }
+        
+        function calculatePValue(tStat, df) {
+            // Using two-tailed t-test
+            // Simplified approximation - in practice use proper t-distribution
+            const absT = Math.abs(tStat);
+            
+            // Very rough approximation for p-value
+            if (absT > 12) return 0.00001;
+            if (absT > 8) return 0.0001;
+            if (absT > 6) return 0.001;
+            if (absT > 4) return 0.01;
+            if (absT > 2) return 0.05;
+            if (absT > 1.5) return 0.1;
+            return 0.2;
+        }
+        
+        function levenbergMarquardt(initialParams, constraints, maxIter = 100, tolerance = 1e-6) {
+            // FIXED: Filter parameters correctly based on usedParams
+            // usedParams contains indices like [1, 2, 3], so we need to subtract 1
+            let params = initialParams.filter((_, i) => usedParams.includes(i + 1));
+            let lambda = 0.01;
+            let iteration = 0;
+            let finalJ = null;
+            let finalResiduals = null;
+            
+            while (iteration < maxIter) {
+                const res = residuals(initialParams);
+                const J = jacobian(initialParams);
+                const JT = transpose(J);
+                const JTJ = matrixMultiply(JT, J);
+                
+                const n = JTJ.length;
+                for (let i = 0; i < n; i++) {
+                    JTJ[i][i] *= (1 + lambda);
+                }
+                
+                const JTr = matrixMultiply(JT, res.map(r => [r]));
+                
+                let delta;
+                try {
+                    const JTJinv = invertMatrix(JTJ);
+                    delta = matrixMultiply(JTJinv, JTr).map(row => row[0]);
+                } catch (e) {
+                    lambda *= 10;
+                    iteration++;
+                    continue;
+                }
+                
+                const newParamsReduced = params.map((p, i) => p + delta[i]);
+                const newParams = [...initialParams];
+                
+                // Map reduced parameters back to full parameter array
+                usedParams.forEach((paramIdx, i) => {
+                    newParams[paramIdx - 1] = newParamsReduced[i];
+                });
+                
+                if (constraints.length > 0 && !checkConstraints(newParams, constraints)) {
+                    lambda *= 10;
+                    iteration++;
+                    continue;
+                }
+                
+                const newRes = residuals(newParams);
+                const oldSSE = res.reduce((sum, r) => sum + r * r, 0);
+                const newSSE = newRes.reduce((sum, r) => sum + r * r, 0);
+                
+                if (newSSE < oldSSE) {
+                    initialParams = newParams;
+                    params = newParamsReduced;
+                    finalJ = J;
+                    finalResiduals = res;
+                    lambda /= 10;
+                    
+                    if (Math.max(...delta.map(Math.abs)) < tolerance) {
+                        break;
+                    }
+                } else {
+                    lambda *= 10;
+                }
+                
+                iteration++;
+            }
+            
+            // Return both optimized parameters and Jacobian for covariance calculation
+            return {
+                params: initialParams,
+                jacobian: finalJ,
+                residuals: finalResiduals
+            };
+        }
+        
+        function calculateAllStatistics(optimizedParams, regressionResult) {
+            const n = yData.length;
+            const p = usedParams.length;
+            const predicted = xData.map((x, i) => evaluateFunction(x, optimizedParams));
+            
+            // Calculate R²
+            const yMean = yData.reduce((a, b) => a + b, 0) / n;
+            const ssRes = yData.reduce((sum, y, i) => sum + Math.pow(y - predicted[i], 2), 0);
+            const ssTot = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+            const r2 = 1 - (ssRes / ssTot);
+            const adjR2 = 1 - ((1 - r2) * (n - 1) / (n - p - 1));
+            const r = Math.sqrt(Math.abs(r2)) * (r2 >= 0 ? 1 : -1);
+            
+            // Calculate error metrics
+            let sae = 0;  // Sum of absolute errors
+            for (let i = 0; i < n; i++) {
+                sae += Math.abs(yData[i] - predicted[i]);
+            }
+            
+            const mse = ssRes / n;
+            const rmse = Math.sqrt(mse);
+            const mae = sae / n;
+            
+            // Calculate AIC
+            const aic = n * Math.log(ssRes / n) + 2 * p;
+            
+            // Calculate F-statistic
+            const ssReg = ssTot - ssRes;
+            const msReg = ssReg / p;
+            const msRes = ssRes / (n - p - 1);
+            const fStat = msReg / msRes;
+            
+            // Calculate parameter statistics
+            const paramStats = [];
+            if (regressionResult.jacobian && regressionResult.residuals) {
+                const covMatrix = calculateCovarianceMatrix(
+                    regressionResult.jacobian, 
+                    regressionResult.residuals, 
+                    optimizedParams.filter((_, i) => usedParams.includes(i + 1))
+                );
+                
+                const df = n - p - 1;
+                
+                for (let i = 0; i < usedParams.length; i++) {
+                    const paramIdx = usedParams[i] - 1;
+                    const paramValue = optimizedParams[paramIdx];
+                    const stdError = Math.sqrt(Math.abs(covMatrix[i][i]));
+                    const tStat = calculateTStatistic(paramValue, stdError);
+                    const pValue = calculatePValue(tStat, df);
+                    
+                    paramStats.push({
+                        name: `c${usedParams[i]}`,
+                        value: paramValue,
+                        stdError: stdError,
+                        tStat: tStat,
+                        pValue: pValue
+                    });
+                }
+            }
+            
+            return {
+                r: r,
+                r2: r2,
+                adjR2: adjR2,
+                rmse: rmse,
+                mae: mae,
+                aic: aic,
+                fStat: fStat,
+                paramStats: paramStats,
+                n: n,
+                p: p,
+                ssRes: ssRes,
+                ssTot: ssTot,
+                ssReg: ssReg
+            };
+        }
+        
+        function displayParameterStats(paramStats) {
+            const tbody = document.getElementById('paramStatsBody');
+            tbody.innerHTML = '';
+            
+            for (const stat of paramStats) {
+                const row = document.createElement('tr');
+                
+                // Determine significance stars
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                row.innerHTML = `
+                    <td class="param-name"><span class="param-red">${stat.name}</span></td>
+                    <td>${stat.value.toExponential(6)}</td>
+                    <td>${stat.stdError.toExponential(6)}</td>
+                    <td>${stat.tStat.toFixed(4)}</td>
+                    <td>${stat.pValue.toFixed(6)}</td>
+                    <td class="sig-star">${sigStars}</td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+        
+        function showCopyNotification(message) {
+            const notification = document.getElementById('copyNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyNotification('Copied to clipboard! Ready to paste into Excel.');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopyNotification('Copied to clipboard! Ready to paste into Excel.');
+            });
+        }
+        
+        function formatForExcel(value) {
+            if (typeof value === 'number') {
+                // Use scientific notation for very small/large numbers
+                if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
+                    return value.toExponential(6);
+                } else {
+                    return value.toFixed(6);
+                }
+            }
+            return value;
+        }
+        
+        function generateExportTables(stats, optimizedParams) {
+            // Generate Goodness of Fit table
+            const goodnessBody = document.getElementById('exportGoodnessBody');
+            goodnessBody.innerHTML = '';
+            
+            const goodnessData = [
+                ['R (Correlation)', formatForExcel(stats.r)],
+                ['R² (R-squared)', formatForExcel(stats.r2)],
+                ['Adjusted R²', formatForExcel(stats.adjR2)],
+                ['RMSE', formatForExcel(stats.rmse)],
+                ['MAE', formatForExcel(stats.mae)],
+                ['AIC', formatForExcel(stats.aic)],
+                ['F-Statistic', formatForExcel(stats.fStat)],
+                ['Data Points', stats.n],
+                ['Parameters', stats.p],
+                ['SS Residual', formatForExcel(stats.ssRes)],
+                ['SS Total', formatForExcel(stats.ssTot)],
+                ['SS Regression', formatForExcel(stats.ssReg)]
+            ];
+            
+            goodnessData.forEach(([metric, value]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${metric}</td><td>${value}</td>`;
+                goodnessBody.appendChild(row);
+            });
+            
+            // Generate Parameter Statistics table
+            const paramBody = document.getElementById('exportParamBody');
+            paramBody.innerHTML = '';
+            
+            stats.paramStats.forEach(stat => {
+                const row = document.createElement('tr');
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                row.innerHTML = `
+                    <td><span class="param-red">${stat.name}</span></td>
+                    <td>${formatForExcel(stat.value)}</td>
+                    <td>${formatForExcel(stat.stdError)}</td>
+                    <td>${formatForExcel(stat.tStat)}</td>
+                    <td>${formatForExcel(stat.pValue)}</td>
+                    <td>${sigStars}</td>
+                `;
+                paramBody.appendChild(row);
+            });
+            
+            // Generate Summary table
+            const summaryBody = document.getElementById('exportSummaryBody');
+            summaryBody.innerHTML = '';
+            
+            const funcStr = document.getElementById('funcInput').value;
+            const date = new Date().toLocaleString();
+            
+            // Highlight parameters in the used parameters string
+            const usedParamsStr = usedParams.map(p => `<span class="param-red">c${p}</span>`).join(', ');
+            
+            const summaryData = [
+                ['Regression Function', funcStr],
+                ['Analysis Date', date],
+                ['Data Points', stats.n],
+                ['Fitted Parameters', stats.p],
+                ['Used Parameters', usedParamsStr],
+                ['R² Value', formatForExcel(stats.r2)],
+                ['Adjusted R²', formatForExcel(stats.adjR2)],
+                ['RMSE', formatForExcel(stats.rmse)]
+            ];
+            
+            summaryData.forEach(([item, value]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${item}</td><td>${value}</td>`;
+                summaryBody.appendChild(row);
+            });
+            
+            return {
+                goodnessData,
+                paramStats: stats.paramStats,
+                summaryData
+            };
+        }
+        
+        function copyAllResults() {
+            if (!currentRegressionResults) return;
+            
+            const { goodnessData, paramStats, summaryData } = currentRegressionResults;
+            
+            let output = "NONLINEAR REGRESSION ANALYSIS RESULTS\n";
+            output += "=".repeat(50) + "\n\n";
+            
+            output += "SUMMARY\n";
+            output += "=".repeat(50) + "\n";
+            summaryData.forEach(([item, value]) => {
+                output += `${item}\t${value}\n`;
+            });
+            
+            output += "\n\nGOODNESS OF FIT\n";
+            output += "=".repeat(50) + "\n";
+            goodnessData.forEach(([metric, value]) => {
+                output += `${metric}\t${value}\n`;
+            });
+            
+            output += "\n\nPARAMETER STATISTICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Parameter\tValue\tStd Error\tt-Statistic\tp-value\tSignificance\n";
+            paramStats.forEach(stat => {
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                output += `${stat.name}\t${formatForExcel(stat.value)}\t${formatForExcel(stat.stdError)}\t${formatForExcel(stat.tStat)}\t${formatForExcel(stat.pValue)}\t${sigStars}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyGoodnessOfFit() {
+            if (!currentRegressionResults) return;
+            
+            const { goodnessData } = currentRegressionResults;
+            
+            let output = "GOODNESS OF FIT METRICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Metric\tValue\n";
+            
+            goodnessData.forEach(([metric, value]) => {
+                output += `${metric}\t${value}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyParameterStats() {
+            if (!currentRegressionResults) return;
+            
+            const { paramStats } = currentRegressionResults;
+            
+            let output = "PARAMETER STATISTICS\n";
+            output += "=".repeat(50) + "\n";
+            output += "Parameter\tValue\tStd Error\tt-Statistic\tp-value\tSignificance\n";
+            
+            paramStats.forEach(stat => {
+                let sigStars = '';
+                if (stat.pValue < 0.001) sigStars = '***';
+                else if (stat.pValue < 0.01) sigStars = '**';
+                else if (stat.pValue < 0.05) sigStars = '*';
+                else if (stat.pValue < 0.1) sigStars = '.';
+                
+                output += `${stat.name}\t${formatForExcel(stat.value)}\t${formatForExcel(stat.stdError)}\t${formatForExcel(stat.tStat)}\t${formatForExcel(stat.pValue)}\t${sigStars}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function copyRegressionEquation() {
+            const funcStr = document.getElementById('funcInput').value;
+            const optimizedParams = currentRegressionResults?.optimizedParams;
+            
+            if (!optimizedParams) return;
+            
+            let output = "REGRESSION EQUATION\n";
+            output += "=".repeat(50) + "\n\n";
+            output += `Function: y = ${funcStr}\n\n`;
+            output += "Optimized Parameters:\n";
+            
+            usedParams.forEach(i => {
+                const paramIdx = i - 1;
+                output += `c${i} = ${formatForExcel(optimizedParams[paramIdx])}\n`;
+            });
+            
+            copyToClipboard(output);
+        }
+        
+        function runRegression() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                document.getElementById('functionError').innerHTML = '<div class="error">Please enter data first.</div>';
+                return;
+            }
+            
+            const funcStr = document.getElementById('funcInput').value;
+            usedParams = identifyUsedParams(funcStr);
+            
+            if (usedParams.length === 0) {
+                document.getElementById('functionError').innerHTML = '<div class="error">No parameters found in function.</div>';
+                return;
+            }
+            
+            const initialParams = getInitialParams();
+            const constraints = parseConstraints();
+            
+            try {
+                const regressionResult = levenbergMarquardt(initialParams, constraints);
+                const optimizedParams = regressionResult.params;
+                
+                // Calculate all statistics
+                const stats = calculateAllStatistics(optimizedParams, regressionResult);
+                
+                // Store results for export
+                currentRegressionResults = {
+                    stats: stats,
+                    optimizedParams: optimizedParams,
+                    ...generateExportTables(stats, optimizedParams)
+                };
+                
+                const xMin = Math.min(...xData);
+                const xMax = Math.max(...xData);
+                const xRange = xMax - xMin;
+                
+                const xStart = xMin;
+                const xEnd = xMax;
+                const step = xRange / (xData.length * 10);
+                
+                const xContinuous = [];
+                const yInitial = [];
+                const yFitted = [];
+                
+                for (let x = xStart; x <= xEnd; x += step) {
+                    xContinuous.push(x);
+                    yInitial.push(evaluateFunction(x, initialParams));
+                    yFitted.push(evaluateFunction(x, optimizedParams));
+                }
+                
+                xContinuous.push(xMax);
+                yInitial.push(evaluateFunction(xMax, initialParams));
+                yFitted.push(evaluateFunction(xMax, optimizedParams));
+                
+                // Calculate plot range that includes data and both fits
+                const plotRange = calculatePlotRange(xData, yData, [...yInitial, ...yFitted]);
+                
+                const traceData = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data Points',
+                    marker: { size: 8, color: '#2196F3' }
+                };
+                
+                const traceInitial = {
+                    x: xContinuous,
+                    y: yInitial,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Initial Fit',
+                    line: { color: '#FF9800', width: 2, dash: 'dash' }
+                };
+                
+                const traceFitted = {
+                    x: xContinuous,
+                    y: yFitted,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Optimized Fit',
+                    line: { color: '#4CAF50', width: 3 }
+                };
+                
+                const layout = {
+                    title: 'Regression Results (Within Data Range)',
+                    xaxis: { 
+                        title: 'X',
+                        range: plotRange.x
+                    },
+                    yaxis: { 
+                        title: 'Y',
+                        range: plotRange.y
+                    },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#ddd',
+                        borderwidth: 1,
+                        font: { size: 12 }
+                    }
+                };
+                
+                Plotly.newPlot('plotDiv', [traceData, traceInitial, traceFitted], layout);
+                
+                // Display optimized parameters with red color
+                const resultsHTML = usedParams.map(i => {
+                    return `
+                        <div class="result-item">
+                            <div class="result-label"><span class="param-red">c${i}</span></div>
+                            <div class="result-value">${optimizedParams[i-1].toExponential(6)}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('optimizedParams').innerHTML = resultsHTML;
+                
+                // Display all statistics
+                document.getElementById('rValue').textContent = stats.r.toFixed(6);
+                document.getElementById('r2Value').textContent = stats.r2.toFixed(6);
+                document.getElementById('adjR2Value').textContent = stats.adjR2.toFixed(6);
+                document.getElementById('rmseValue').textContent = stats.rmse.toFixed(6);
+                document.getElementById('maeValue').textContent = stats.mae.toFixed(6);
+                document.getElementById('aicValue').textContent = stats.aic.toFixed(2);
+                document.getElementById('fStatValue').textContent = stats.fStat.toFixed(4);
+                
+                // Display parameter statistics
+                if (stats.paramStats.length > 0) {
+                    displayParameterStats(stats.paramStats);
+                }
+                
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('functionError').innerHTML = '<div class="info">Regression completed successfully! All statistics calculated.</div>';
+                
+            } catch (e) {
+                document.getElementById('functionError').innerHTML = '<div class="error">Regression failed: ' + e.message + '</div>';
+            }
+        }
     </script>
 </body>
 </html>
+
