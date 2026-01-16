@@ -682,6 +682,14 @@
         .download-btn.html:hover {
             background: #c0361f;
         }
+        
+        .download-btn.txt {
+            background: #0066cc;
+        }
+        
+        .download-btn.txt:hover {
+            background: #0055aa;
+        }
     </style>
 </head>
 <body>
@@ -695,6 +703,9 @@
             </button>
             <button class="download-btn html" onclick="downloadHTML()">
                 <span>📄</span> Download HTML
+            </button>
+            <button class="download-btn txt" onclick="downloadTXT()">
+                <span>📝</span> Download TXT
             </button>
         </div>
         
@@ -2543,6 +2554,155 @@
             document.body.removeChild(link);
             
             showCopyNotification('HTML report downloaded!');
+        }
+        
+        function downloadTXT() {
+            if (!parseDataFromGrid() || xData.length === 0) {
+                showCopyNotification('No data available for download');
+                return;
+            }
+            
+            // Collect all input data
+            const funcStr = document.getElementById('funcInput').value;
+            const constraints = document.getElementById('constraints').value;
+            const initialParams = getInitialParams();
+            
+            // Create TXT content with ASCII formatting
+            let txtContent = "=".repeat(70) + "\n";
+            txtContent += "NONLINEAR REGRESSION ANALYSIS REPORT\n";
+            txtContent += "=".repeat(70) + "\n\n";
+            
+            // Timestamp
+            txtContent += "Generated on: " + new Date().toLocaleString() + "\n";
+            txtContent += "\n" + "=".repeat(70) + "\n\n";
+            
+            // Input Data Section
+            txtContent += "1. INPUT DATA\n";
+            txtContent += "-".repeat(70) + "\n";
+            txtContent += "Number of data points: " + xData.length + "\n\n";
+            txtContent += "X Data\t\tY Data\n";
+            txtContent += "-".repeat(40) + "\n";
+            for (let i = 0; i < xData.length; i++) {
+                txtContent += xData[i].toString().padEnd(15) + "\t" + yData[i] + "\n";
+            }
+            txtContent += "\n" + "=".repeat(70) + "\n\n";
+            
+            // Model Definition
+            txtContent += "2. MODEL DEFINITION\n";
+            txtContent += "-".repeat(70) + "\n";
+            txtContent += "Regression function: y = " + funcStr + "\n";
+            txtContent += "Constraints: " + (constraints || "None") + "\n\n";
+            
+            // Initial Parameters
+            if (usedParams.length > 0) {
+                txtContent += "Initial parameter guesses:\n";
+                txtContent += "-".repeat(40) + "\n";
+                usedParams.forEach(i => {
+                    txtContent += "c" + i + " = " + initialParams[i-1] + "\n";
+                });
+            }
+            txtContent += "\n" + "=".repeat(70) + "\n\n";
+            
+            // Add regression results if available
+            if (currentRegressionResults) {
+                const { stats, optimizedParams } = currentRegressionResults;
+                
+                // Optimized Parameters
+                txtContent += "3. OPTIMIZED PARAMETERS\n";
+                txtContent += "-".repeat(70) + "\n";
+                usedParams.forEach(i => {
+                    const value = optimizedParams[i-1];
+                    txtContent += "c" + i + " = " + value.toExponential(6) + "\n";
+                });
+                txtContent += "\n" + "=".repeat(70) + "\n\n";
+                
+                // Goodness of Fit
+                txtContent += "4. GOODNESS OF FIT METRICS\n";
+                txtContent += "-".repeat(70) + "\n";
+                txtContent += "R (Correlation):\t\t" + stats.r.toFixed(6) + "\n";
+                txtContent += "R² (R-squared):\t\t\t" + stats.r2.toFixed(6) + "\n";
+                txtContent += "Adjusted R²:\t\t\t" + stats.adjR2.toFixed(6) + "\n";
+                txtContent += "RMSE (Root Mean Square Error):\t" + stats.rmse.toFixed(6) + "\n";
+                txtContent += "MAE (Mean Absolute Error):\t" + stats.mae.toFixed(6) + "\n";
+                txtContent += "AIC (Akaike Info Criterion):\t" + stats.aic.toFixed(2) + "\n";
+                txtContent += "F-Statistic:\t\t\t" + stats.fStat.toFixed(4) + "\n";
+                txtContent += "Data Points:\t\t\t" + stats.n + "\n";
+                txtContent += "Fitted Parameters:\t\t" + stats.p + "\n";
+                txtContent += "SS Residual:\t\t\t" + stats.ssRes.toExponential(6) + "\n";
+                txtContent += "SS Total:\t\t\t" + stats.ssTot.toExponential(6) + "\n";
+                txtContent += "SS Regression:\t\t\t" + stats.ssReg.toExponential(6) + "\n";
+                txtContent += "\n" + "=".repeat(70) + "\n\n";
+                
+                // Parameter Statistics
+                if (stats.paramStats.length > 0) {
+                    txtContent += "5. PARAMETER STATISTICS\n";
+                    txtContent += "-".repeat(70) + "\n";
+                    txtContent += "Parameter\tValue\t\tStd Error\t\tt-Statistic\tp-value\t\tSig.\n";
+                    txtContent += "-".repeat(70) + "\n";
+                    
+                    stats.paramStats.forEach(stat => {
+                        let sigStars = '';
+                        if (stat.pValue < 0.001) sigStars = '***';
+                        else if (stat.pValue < 0.01) sigStars = '**';
+                        else if (stat.pValue < 0.05) sigStars = '*';
+                        else if (stat.pValue < 0.1) sigStars = '.';
+                        
+                        // Format each column with proper spacing
+                        const paramName = stat.name.padEnd(8);
+                        const value = stat.value.toExponential(6).padEnd(15);
+                        const stdError = stat.stdError.toExponential(6).padEnd(15);
+                        const tStat = stat.tStat.toFixed(4).padEnd(10);
+                        const pValue = stat.pValue.toFixed(6).padEnd(10);
+                        
+                        txtContent += paramName + "\t" + value + "\t" + stdError + "\t" + tStat + "\t" + pValue + "\t" + sigStars + "\n";
+                    });
+                    txtContent += "\n" + "=".repeat(70) + "\n\n";
+                }
+                
+                // Final Summary
+                txtContent += "6. REGRESSION SUMMARY\n";
+                txtContent += "-".repeat(70) + "\n";
+                txtContent += "Regression completed successfully.\n";
+                txtContent += "Function: y = " + funcStr + "\n";
+                txtContent += "Data points: " + stats.n + "\n";
+                txtContent += "Fitted parameters: " + stats.p + "\n";
+                txtContent += "R² value: " + stats.r2.toFixed(6) + "\n";
+                txtContent += "RMSE: " + stats.rmse.toFixed(6) + "\n";
+                txtContent += "\n" + "=".repeat(70) + "\n\n";
+                
+                // Significance Legend
+                txtContent += "Significance codes:\n";
+                txtContent += "*** p < 0.001 (highly significant)\n";
+                txtContent += "**  p < 0.01  (very significant)\n";
+                txtContent += "*   p < 0.05  (significant)\n";
+                txtContent += ".   p < 0.1   (marginally significant)\n";
+                txtContent += "    p >= 0.1  (not significant)\n";
+                
+            } else {
+                txtContent += "3. REGRESSION RESULTS\n";
+                txtContent += "-".repeat(70) + "\n";
+                txtContent += "No regression has been performed yet.\n";
+                txtContent += "To get optimized parameters and statistics, run the regression.\n";
+            }
+            
+            txtContent += "\n" + "=".repeat(70) + "\n";
+            txtContent += "END OF REPORT\n";
+            txtContent += "=".repeat(70) + "\n";
+            
+            // Create and trigger download
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `regression_report_${new Date().toISOString().slice(0,10)}.txt`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showCopyNotification('TXT file downloaded!');
         }
         
         function runRegression() {
