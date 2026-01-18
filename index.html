@@ -32,7 +32,31 @@
             color: #FFFFFF;
             margin-bottom: 7px;
             text-align: left;
-            font-size: 22px;
+            font-size: 25px;
+        }
+        
+        /* Download buttons container */
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 7px;
+        }
+        
+        .download-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: 1px solid #FFFFFF;
+        }
+        
+        .download-btn:hover {
+            background: #333;
         }
         
         /* Desktop Layout - All in one row */
@@ -42,6 +66,7 @@
             gap: 6px;
             margin-bottom: 7px;
             align-items: stretch;
+            height: 600px; /* FIXED: Set fixed height for the grid */
         }
         
         /* Mobile Layout - First two in row 1, graph in row 2 */
@@ -50,6 +75,7 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: auto auto auto;
                 gap: 5px;
+                height: auto; /* Allow auto height on mobile */
             }
             
             .container {
@@ -64,6 +90,16 @@
                 font-size: 18px;
                 margin-bottom: 5px;
             }
+            
+            .download-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .download-btn {
+                width: 100%;
+                padding: 5px 10px;
+            }
         }
         
         .section {
@@ -71,9 +107,10 @@
             padding: 6px;
             border-radius: 3px;
             border: 1px solid #e0e0e0;
-            height: 100%;
+            height: 100%; /* Keep 100% of parent grid height */
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* FIXED: Prevent content from expanding container */
         }
         
         .section h2 {
@@ -82,6 +119,7 @@
             margin-bottom: 5px;
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
+            flex-shrink: 0; /* FIXED: Prevent header from shrinking */
         }
         
         .data-input-container {
@@ -89,6 +127,8 @@
             flex-direction: column;
             gap: 5px;
             flex: 1;
+            min-height: 0; /* FIXED: Allow container to shrink properly */
+            overflow: hidden; /* FIXED: Prevent overflow issues */
         }
         
         .data-header {
@@ -99,6 +139,7 @@
             color: #333;
             padding: 0 3px;
             font-size: 16px;
+            flex-shrink: 0; /* FIXED: Keep header fixed */
         }
         
         .data-grid {
@@ -117,6 +158,7 @@
         .data-column {
             display: flex;
             flex-direction: column;
+            min-height: 0; /* FIXED: Allow proper flex behavior */
         }
         
         .data-cell {
@@ -128,6 +170,7 @@
             min-height: 20px;
             outline: none;
             background: white;
+            flex-shrink: 0; /* FIXED: Prevent cells from shrinking */
         }
         
         .data-cell:focus {
@@ -144,6 +187,7 @@
         .input-group {
             display: flex;
             flex-direction: column;
+            flex-shrink: 0; /* FIXED: Prevent input groups from expanding */
         }
         
         label {
@@ -213,6 +257,8 @@
             border: 1px solid #e0e0e0;
             border-radius: 3px;
             background: white;
+            flex: 1;
+            min-height: 0; /* FIXED: Critical for flex container */
         }
         
         @media (max-width: 768px) {
@@ -222,7 +268,7 @@
         }
         
         .results {
-            background: #fff;
+            background: ##000000;
             padding: 6px;
             border-radius: 3px;
             border: 1px solid #e0e0e0;
@@ -230,7 +276,7 @@
         }
         
         .results h2 {
-            color: #000;
+            color: #FFFFFF;
             margin-bottom: 5px;
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
@@ -263,13 +309,13 @@
         }
         
         .result-label {
-            font-size: 10px;
+            font-size: 16px;
             color: #666;
             font-weight: 600;
         }
         
         .result-value {
-            font-size: 13px;
+            font-size: 16px;
             color: #000;
             font-weight: bold;
             font-family: 'Courier New', monospace;
@@ -548,6 +594,10 @@
             background: #fff;
             border-radius: 3px;
             border: 1px solid #e0e0e0;
+            flex: 1; /* FIXED: Allow this section to take available space */
+            min-height: 0; /* FIXED: Critical for flex container */
+            display: flex;
+            flex-direction: column;
         }
         
         .compact-section h3 {
@@ -562,6 +612,8 @@
             display: flex;
             flex-direction: column;
             gap: 3px;
+            flex: 1; /* FIXED: Take available space */
+            min-height: 0; /* FIXED: Allow proper flex behavior */
         }
         
         .run-regression-btn {
@@ -628,6 +680,7 @@
             margin-bottom: 5px;
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
+            flex-shrink: 0; /* FIXED: Keep header fixed */
         }
         
         /* Red color for parameters */
@@ -640,6 +693,13 @@
 <body>
     <div class="container">
         <h1>Nonlinear Regression Analysis</h1>
+        
+        <!-- Download buttons added here -->
+        <div class="download-buttons">
+            <button class="download-btn" onclick="downloadTXT()">Download TXT</button>
+            <button class="download-btn" onclick="downloadExcel()">Download Excel</button>
+        </div>
+        
         <br>
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
@@ -692,54 +752,56 @@
                 <br>
                 <div class="compact-section">
                     <h2>3. Initial Parameter Values</h2>
-                    <div class="compact-param-grid">
-                        <div class="param-input">
-                            <label><span class="param-red">c1</span>:</label>
-                            <input type="text" id="c1" value="1.0">
+                    <div class="compact-param-container">
+                        <div class="compact-param-grid">
+                            <div class="param-input">
+                                <label><span class="param-red">c1</span>:</label>
+                                <input type="text" id="c1" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c2</span>:</label>
+                                <input type="text" id="c2" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c3</span>:</label>
+                                <input type="text" id="c3" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c4</span>:</label>
+                                <input type="text" id="c4" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c5</span>:</label>
+                                <input type="text" id="c5" value="1.0">
+                            </div>
                         </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c2</span>:</label>
-                            <input type="text" id="c2" value="1.0">
+                        
+                        <div class="compact-param-grid">
+                            <div class="param-input">
+                                <label><span class="param-red">c6</span>:</label>
+                                <input type="text" id="c6" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c7</span>:</label>
+                                <input type="text" id="c7" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c8</span>:</label>
+                                <input type="text" id="c8" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c9</span>:</label>
+                                <input type="text" id="c9" value="1.0">
+                            </div>
+                            <div class="param-input">
+                                <label><span class="param-red">c10</span>:</label>
+                                <input type="text" id="c10" value="1.0">
+                            </div>
                         </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c3</span>:</label>
-                            <input type="text" id="c3" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c4</span>:</label>
-                            <input type="text" id="c4" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c5</span>:</label>
-                            <input type="text" id="c5" value="1.0">
-                        </div>
+                        
+                        <button class="run-regression-btn" onclick="runRegression()">Run Regression</button>
+                        <div id="functionError" style="flex-shrink: 0;"></div>
                     </div>
-                    
-                    <div class="compact-param-grid">
-                        <div class="param-input">
-                            <label><span class="param-red">c6</span>:</label>
-                            <input type="text" id="c6" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c7</span>:</label>
-                            <input type="text" id="c7" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c8</span>:</label>
-                            <input type="text" id="c8" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c9</span>:</label>
-                            <input type="text" id="c9" value="1.0">
-                        </div>
-                        <div class="param-input">
-                            <label><span class="param-red">c10</span>:</label>
-                            <input type="text" id="c10" value="1.0">
-                        </div>
-                    </div>
-                    
-                    <button class="run-regression-btn" onclick="runRegression()">Run Regression</button>
-                    <div id="functionError"></div>
                 </div>
             </div>
             
@@ -894,6 +956,9 @@
         let lastDataHash = '';
         let currentRegressionResults = null;
         
+        // Track the last focused cell for paste operations
+        let lastFocusedCell = null;
+        
         // Initialize data grid
         function initializeDataGrid() {
             const grid = document.getElementById('dataGrid');
@@ -918,6 +983,9 @@
                 xCell.addEventListener('keydown', handleCellKeydown);
                 xCell.addEventListener('paste', handlePaste);
                 xCell.addEventListener('blur', scheduleDataUpdate);
+                xCell.addEventListener('focus', () => {
+                    lastFocusedCell = xCell; // Track last focused cell
+                });
                 xColumn.appendChild(xCell);
                 
                 const yCell = document.createElement('div');
@@ -929,6 +997,9 @@
                 yCell.addEventListener('keydown', handleCellKeydown);
                 yCell.addEventListener('paste', handlePaste);
                 yCell.addEventListener('blur', scheduleDataUpdate);
+                yCell.addEventListener('focus', () => {
+                    lastFocusedCell = yCell; // Track last focused cell
+                });
                 yColumn.appendChild(yCell);
                 
                 dataCells.push({x: xCell, y: yCell});
@@ -945,8 +1016,45 @@
                 document.getElementById('c' + i).addEventListener('input', scheduleParamUpdate);
             }
             
+            // Add global paste handler for when no cell is focused
+            document.addEventListener('paste', handleGlobalPaste);
+            
             // Add sample data
             setSampleData();
+        }
+        
+        // Global paste handler for when user pastes without a cell focused
+        function handleGlobalPaste(event) {
+            // If no cell is focused, try to paste into the first cell
+            if (!lastFocusedCell) {
+                event.preventDefault();
+                
+                // Try to find the first cell that's not being edited
+                const firstXCell = dataCells[0].x;
+                const pasteData = event.clipboardData.getData('text');
+                
+                if (pasteData.trim()) {
+                    // Simulate paste into first cell
+                    simulatePaste(firstXCell, pasteData);
+                }
+            }
+        }
+        
+        function simulatePaste(targetCell, pasteData) {
+            // Set the target cell as last focused
+            lastFocusedCell = targetCell;
+            
+            // Create a synthetic paste event
+            const syntheticEvent = {
+                target: targetCell,
+                clipboardData: {
+                    getData: () => pasteData
+                },
+                preventDefault: () => {}
+            };
+            
+            // Call the actual paste handler
+            handlePaste(syntheticEvent);
         }
         
         function setSampleData() {
@@ -1070,18 +1178,34 @@
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
+            
+            // Track last focused cell
+            lastFocusedCell = cell;
         }
         
         function handlePaste(event) {
             event.preventDefault();
             const pasteData = event.clipboardData.getData('text');
-            const rows = pasteData.trim().split('\n');
             
-            // Find the target cell
-            const targetCell = event.target;
+            // Get the target cell - use event.target or lastFocusedCell as fallback
+            let targetCell = event.target;
+            
+            // If event.target is not a data cell (might be the grid container), use lastFocusedCell
+            if (!targetCell.classList || !targetCell.classList.contains('data-cell')) {
+                targetCell = lastFocusedCell;
+            }
+            
+            // If still no target cell, use first cell
+            if (!targetCell && dataCells.length > 0) {
+                targetCell = dataCells[0].x;
+            }
+            
+            if (!targetCell) return;
+            
             const startRow = parseInt(targetCell.dataset.row);
             const startCol = targetCell.dataset.col;
             
+            const rows = pasteData.trim().split('\n');
             let currentRow = startRow;
             
             for (let i = 0; i < rows.length; i++) {
@@ -1093,10 +1217,16 @@
                         addRow();
                     }
                     
-                    dataCells[currentRow].x.textContent = columns[0].trim();
-                    dataCells[currentRow].y.textContent = columns[1].trim();
-                    dataCells[currentRow].x.classList.remove('empty');
-                    dataCells[currentRow].y.classList.remove('empty');
+                    // Clean and validate data
+                    const xVal = columns[0].trim();
+                    const yVal = columns[1].trim();
+                    
+                    if (xVal !== '' && yVal !== '') {
+                        dataCells[currentRow].x.textContent = xVal;
+                        dataCells[currentRow].y.textContent = yVal;
+                        dataCells[currentRow].x.classList.remove('empty');
+                        dataCells[currentRow].y.classList.remove('empty');
+                    }
                     
                 } else if (columns.length === 1) {
                     // Single column pasted
@@ -1104,12 +1234,15 @@
                         addRow();
                     }
                     
-                    if (startCol === 'x') {
-                        dataCells[currentRow].x.textContent = columns[0].trim();
-                        dataCells[currentRow].x.classList.remove('empty');
-                    } else {
-                        dataCells[currentRow].y.textContent = columns[0].trim();
-                        dataCells[currentRow].y.classList.remove('empty');
+                    const value = columns[0].trim();
+                    if (value !== '') {
+                        if (startCol === 'x') {
+                            dataCells[currentRow].x.textContent = value;
+                            dataCells[currentRow].x.classList.remove('empty');
+                        } else {
+                            dataCells[currentRow].y.textContent = value;
+                            dataCells[currentRow].y.classList.remove('empty');
+                        }
                     }
                 }
                 
@@ -1118,7 +1251,16 @@
             
             // Focus the last edited cell
             setTimeout(() => {
-                focusCell(startRow, startCol);
+                if (targetCell) {
+                    targetCell.focus();
+                    // Select all text in the target cell
+                    const range = document.createRange();
+                    range.selectNodeContents(targetCell);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+                
                 // Trigger plot update immediately after paste
                 parseDataFromGrid();
                 updatePlot();
@@ -1139,6 +1281,9 @@
             xCell.addEventListener('keydown', handleCellKeydown);
             xCell.addEventListener('paste', handlePaste);
             xCell.addEventListener('blur', scheduleDataUpdate);
+            xCell.addEventListener('focus', () => {
+                lastFocusedCell = xCell; // Track last focused cell
+            });
             grid.children[0].appendChild(xCell);
             
             // Add to Y column
@@ -1151,6 +1296,9 @@
             yCell.addEventListener('keydown', handleCellKeydown);
             yCell.addEventListener('paste', handlePaste);
             yCell.addEventListener('blur', scheduleDataUpdate);
+            yCell.addEventListener('focus', () => {
+                lastFocusedCell = yCell; // Track last focused cell
+            });
             grid.children[1].appendChild(yCell);
             
             dataCells.push({x: xCell, y: yCell});
@@ -2276,7 +2424,247 @@
                 document.getElementById('functionError').innerHTML = '<div class="error">Regression failed: ' + e.message + '</div>';
             }
         }
+        
+        // ====================================================
+        // NEW DOWNLOAD FUNCTIONS
+        // ====================================================
+        
+        function downloadTXT() {
+            // Get current date and time for filename
+            const date = new Date();
+            const timestamp = date.toISOString().slice(0, 19).replace(/[:T]/g, '-');
+            const filename = `regression_results_${timestamp}.txt`;
+            
+            // Collect all inputs and outputs
+            let content = "NONLINEAR REGRESSION ANALYSIS - COMPLETE RESULTS\n";
+            content += "=".repeat(60) + "\n\n";
+            
+            // Section 1: Input Data
+            content += "1. INPUT DATA\n";
+            content += "=".repeat(60) + "\n";
+            content += "X Data\tY Data\n";
+            
+            // Get valid data pairs from grid
+            const dataPairs = [];
+            for (let i = 0; i < dataCells.length; i++) {
+                const xVal = dataCells[i].x.textContent.trim();
+                const yVal = dataCells[i].y.textContent.trim();
+                if (xVal !== '' && yVal !== '') {
+                    dataPairs.push([xVal, yVal]);
+                }
+            }
+            
+            // Add data pairs to content
+            dataPairs.forEach(pair => {
+                content += `${pair[0]}\t${pair[1]}\n`;
+            });
+            
+            content += `\nTotal Data Points: ${dataPairs.length}\n\n`;
+            
+            // Section 2: Function Definition and Parameters
+            content += "2. FUNCTION DEFINITION AND INITIAL PARAMETERS\n";
+            content += "=".repeat(60) + "\n";
+            content += `Function: ${document.getElementById('funcInput').value}\n`;
+            content += `Constraints: ${document.getElementById('constraints').value || 'None'}\n\n`;
+            
+            content += "Initial Parameter Values:\n";
+            for (let i = 1; i <= 10; i++) {
+                const paramValue = document.getElementById('c' + i).value;
+                content += `c${i} = ${paramValue}\n`;
+            }
+            content += "\n";
+            
+            // Section 3: Regression Results (if available)
+            if (currentRegressionResults) {
+                content += "3. REGRESSION RESULTS\n";
+                content += "=".repeat(60) + "\n";
+                
+                // Optimized Parameters
+                content += "Optimized Parameters:\n";
+                const optimizedParams = currentRegressionResults.optimizedParams;
+                usedParams.forEach(i => {
+                    const paramIdx = i - 1;
+                    content += `c${i} = ${optimizedParams[paramIdx].toExponential(6)}\n`;
+                });
+                content += "\n";
+                
+                // Goodness of Fit
+                const stats = currentRegressionResults.stats;
+                content += "Goodness of Fit:\n";
+                content += `R (Correlation): ${stats.r.toFixed(6)}\n`;
+                content += `R² (R-squared): ${stats.r2.toFixed(6)}\n`;
+                content += `Adjusted R²: ${stats.adjR2.toFixed(6)}\n`;
+                content += `RMSE: ${stats.rmse.toFixed(6)}\n`;
+                content += `MAE: ${stats.mae.toFixed(6)}\n`;
+                content += `AIC: ${stats.aic.toFixed(2)}\n`;
+                content += `F-Statistic: ${stats.fStat.toFixed(4)}\n\n`;
+                
+                // Parameter Statistics
+                if (stats.paramStats.length > 0) {
+                    content += "Parameter Statistics:\n";
+                    content += "Parameter\tValue\tStd Error\tt-Statistic\tp-value\tSignificance\n";
+                    
+                    stats.paramStats.forEach(stat => {
+                        let sigStars = '';
+                        if (stat.pValue < 0.001) sigStars = '***';
+                        else if (stat.pValue < 0.01) sigStars = '**';
+                        else if (stat.pValue < 0.05) sigStars = '*';
+                        else if (stat.pValue < 0.1) sigStars = '.';
+                        
+                        content += `${stat.name}\t${formatForExcel(stat.value)}\t${formatForExcel(stat.stdError)}\t${formatForExcel(stat.tStat)}\t${formatForExcel(stat.pValue)}\t${sigStars}\n`;
+                    });
+                }
+                
+                content += "\n";
+                content += `Data Points: ${stats.n}\n`;
+                content += `Parameters: ${stats.p}\n`;
+                content += `SS Residual: ${formatForExcel(stats.ssRes)}\n`;
+                content += `SS Total: ${formatForExcel(stats.ssTot)}\n`;
+                content += `SS Regression: ${formatForExcel(stats.ssReg)}\n`;
+            } else {
+                content += "3. REGRESSION RESULTS\n";
+                content += "=".repeat(60) + "\n";
+                content += "No regression results available. Run regression first.\n";
+            }
+            
+            // Section 4: Metadata
+            content += "\n4. ANALYSIS METADATA\n";
+            content += "=".repeat(60) + "\n";
+            content += `Analysis Date: ${date.toLocaleString()}\n`;
+            content += "Tool: Nonlinear Regression Analysis Web App\n";
+            
+            // Create and trigger download
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show notification
+            showCopyNotification('TXT file downloaded successfully!');
+        }
+        
+        function downloadExcel() {
+            // Get current date and time for filename
+            const date = new Date();
+            const timestamp = date.toISOString().slice(0, 19).replace(/[:T]/g, '-');
+            const filename = `regression_results_${timestamp}.csv`;
+            
+            // Create CSV content
+            let csvContent = "";
+            
+            // Section 1: Input Data
+            csvContent += "INPUT DATA\n";
+            csvContent += "X Data,Y Data\n";
+            
+            // Get valid data pairs from grid
+            const dataPairs = [];
+            for (let i = 0; i < dataCells.length; i++) {
+                const xVal = dataCells[i].x.textContent.trim();
+                const yVal = dataCells[i].y.textContent.trim();
+                if (xVal !== '' && yVal !== '') {
+                    dataPairs.push([xVal, yVal]);
+                }
+            }
+            
+            // Add data pairs to CSV
+            dataPairs.forEach(pair => {
+                csvContent += `${pair[0]},${pair[1]}\n`;
+            });
+            
+            csvContent += `\nTotal Data Points,${dataPairs.length}\n\n`;
+            
+            // Section 2: Function Definition and Parameters
+            csvContent += "FUNCTION DEFINITION AND INITIAL PARAMETERS\n";
+            csvContent += `Function,${document.getElementById('funcInput').value}\n`;
+            csvContent += `Constraints,${document.getElementById('constraints').value || 'None'}\n`;
+            csvContent += "\nInitial Parameter Values\n";
+            csvContent += "Parameter,Value\n";
+            
+            for (let i = 1; i <= 10; i++) {
+                const paramValue = document.getElementById('c' + i).value;
+                csvContent += `c${i},${paramValue}\n`;
+            }
+            
+            csvContent += "\n";
+            
+            // Section 3: Regression Results (if available)
+            if (currentRegressionResults) {
+                csvContent += "REGRESSION RESULTS\n";
+                
+                // Optimized Parameters
+                csvContent += "\nOptimized Parameters\n";
+                csvContent += "Parameter,Value\n";
+                const optimizedParams = currentRegressionResults.optimizedParams;
+                usedParams.forEach(i => {
+                    const paramIdx = i - 1;
+                    csvContent += `c${i},${optimizedParams[paramIdx].toExponential(6)}\n`;
+                });
+                
+                // Goodness of Fit
+                const stats = currentRegressionResults.stats;
+                csvContent += "\nGoodness of Fit\n";
+                csvContent += "Metric,Value\n";
+                csvContent += `R (Correlation),${stats.r.toFixed(6)}\n`;
+                csvContent += `R² (R-squared),${stats.r2.toFixed(6)}\n`;
+                csvContent += `Adjusted R²,${stats.adjR2.toFixed(6)}\n`;
+                csvContent += `RMSE,${stats.rmse.toFixed(6)}\n`;
+                csvContent += `MAE,${stats.mae.toFixed(6)}\n`;
+                csvContent += `AIC,${stats.aic.toFixed(2)}\n`;
+                csvContent += `F-Statistic,${stats.fStat.toFixed(4)}\n`;
+                
+                // Parameter Statistics
+                if (stats.paramStats.length > 0) {
+                    csvContent += "\nParameter Statistics\n";
+                    csvContent += "Parameter,Value,Std Error,t-Statistic,p-value,Significance\n";
+                    
+                    stats.paramStats.forEach(stat => {
+                        let sigStars = '';
+                        if (stat.pValue < 0.001) sigStars = '***';
+                        else if (stat.pValue < 0.01) sigStars = '**';
+                        else if (stat.pValue < 0.05) sigStars = '*';
+                        else if (stat.pValue < 0.1) sigStars = '.';
+                        
+                        csvContent += `${stat.name},${formatForExcel(stat.value)},${formatForExcel(stat.stdError)},${formatForExcel(stat.tStat)},${formatForExcel(stat.pValue)},${sigStars}\n`;
+                    });
+                }
+                
+                csvContent += "\nSummary Statistics\n";
+                csvContent += "Statistic,Value\n";
+                csvContent += `Data Points,${stats.n}\n`;
+                csvContent += `Parameters,${stats.p}\n`;
+                csvContent += `SS Residual,${formatForExcel(stats.ssRes)}\n`;
+                csvContent += `SS Total,${formatForExcel(stats.ssTot)}\n`;
+                csvContent += `SS Regression,${formatForExcel(stats.ssReg)}\n`;
+            } else {
+                csvContent += "REGRESSION RESULTS\n";
+                csvContent += "Status,No regression results available. Run regression first.\n";
+            }
+            
+            // Section 4: Metadata
+            csvContent += "\nANALYSIS METADATA\n";
+            csvContent += "Item,Value\n";
+            csvContent += `Analysis Date,${date.toLocaleString()}\n`;
+            csvContent += "Tool,Nonlinear Regression Analysis Web App\n";
+            
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show notification
+            showCopyNotification('CSV file downloaded successfully!');
+        }
     </script>
 </body>
 </html>
-
