@@ -22,23 +22,23 @@
         .container {
             max-width: 1050px;
             margin: 0;
-            background: white;
+            background: black;
             border-radius: 4px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 7px;
+            padding: 3px;
         }
         
         h1 {
-            color: #333;
+            color: #FFFFFF;
             margin-bottom: 7px;
-            text-align: center;
+            text-align: left;
             font-size: 22px;
         }
         
         /* Desktop Layout - All in one row */
         .main-grid {
             display: grid;
-            grid-template-columns: 20% 30% 50%;
+            grid-template-columns: 20% 30% 48.8%;
             gap: 6px;
             margin-bottom: 7px;
             align-items: stretch;
@@ -78,7 +78,7 @@
         
         .section h2 {
             color: #333;
-            font-size: 15px;
+            font-size: 16px;
             margin-bottom: 5px;
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
@@ -98,7 +98,7 @@
             font-weight: bold;
             color: #333;
             padding: 0 3px;
-            font-size: 13px;
+            font-size: 16px;
         }
         
         .data-grid {
@@ -124,15 +124,15 @@
             border-bottom: 1px solid #f0f0f0;
             border-right: 1px solid #f0f0f0;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            min-height: 30px;
+            font-size: 16px;
+            min-height: 20px;
             outline: none;
             background: white;
         }
         
         .data-cell:focus {
             background: #f8f8f8;
-            outline: 2px solid #000;
+            outline: 3px solid #000;
             z-index: 1;
             position: relative;
         }
@@ -148,16 +148,16 @@
         
         label {
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 6px;
             color: #333;
-            font-size: 13px;
+            font-size: 16px;
         }
         
         input[type="text"] {
             padding: 3px;
             border: 1px solid #ddd;
             border-radius: 2px;
-            font-size: 13px;
+            font-size: 16px;
         }
         
         .param-grid {
@@ -173,14 +173,14 @@
         }
         
         .param-input label {
-            font-size: 10px;
+            font-size: 16px;
             text-align: center;
             margin-bottom: 1px;
         }
         
         .param-input input {
             padding: 2px;
-            font-size: 11px;
+            font-size: 14px;
             text-align: center;
             width: 100%;
         }
@@ -191,7 +191,7 @@
             border: none;
             padding: 4px 7px;
             border-radius: 2px;
-            font-size: 13px;
+            font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
             margin-top: 3px;
@@ -344,7 +344,7 @@
         
         .data-controls button {
             padding: 2px 5px;
-            font-size: 12px;
+            font-size: 16px;
             background: #000;
         }
         
@@ -361,16 +361,20 @@
             background: #f5f5f5;
             border-radius: 2px;
             font-size: 11px;
+               
         }
         
         .point-count {
             color: #333;
             font-weight: 600;
+            color: #9ACD32;
+
         }
         
         .plot-status {
             color: #000;
             font-weight: 600;
+            color: #9ACD32;
         }
         
         .param-input input:focus {
@@ -388,10 +392,11 @@
             background: #f5f5f5;
             border-radius: 2px;
             font-size: 11px;
+            color: #9ACD32;
         }
         
         .function-valid {
-            color: #000;
+            color: #9ACD32;
             font-weight: 600;
         }
         
@@ -404,7 +409,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 6px;
-            font-size: 11px;
+            font-size: 16px;
         }
         
         .param-table th {
@@ -565,7 +570,7 @@
             border: none;
             padding: 4px 7px;
             border-radius: 2px;
-            font-size: 13px;
+            font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
             margin-top: 5px;
@@ -619,7 +624,7 @@
         
         .plot-section h2 {
             color: #333;
-            font-size: 15px;
+            font-size: 16px;
             margin-bottom: 5px;
             border-bottom: 2px solid #000;
             padding-bottom: 2px;
@@ -635,7 +640,7 @@
 <body>
     <div class="container">
         <h1>Nonlinear Regression Analysis</h1>
-        
+        <br>
         <div class="main-grid">
             <!-- 1. Input Data (X and Y) - 20% width -->
             <div class="section">
@@ -683,9 +688,10 @@
                     <div>Function Status:</div>
                     <div class="function-valid" id="functionValidStatus">Ready</div>
                 </div>
-                
+                <br>
+                <br>
                 <div class="compact-section">
-                    <h3>3. Initial Parameter Values</h3>
+                    <h2>3. Initial Parameter Values</h2>
                     <div class="compact-param-grid">
                         <div class="param-input">
                             <label><span class="param-red">c1</span>:</label>
@@ -805,17 +811,17 @@
                 
                 <div class="export-section">
                     <h3>
-                        <span>📋 Export Results to Excel</span>
+                        <span>Export Results to Excel</span>
                     </h3>
                     <p style="color: #666; margin-bottom: 5px; font-size: 12px;">
                         Copy the tables below and paste directly into Excel. Each section is formatted for easy Excel import.
                     </p>
                     
                     <div class="copy-buttons">
-                        <button class="copy-button" onclick="copyAllResults()">📋 Copy All Results</button>
-                        <button class="copy-button" onclick="copyGoodnessOfFit()">📊 Copy Goodness of Fit</button>
-                        <button class="copy-button" onclick="copyParameterStats()">🔢 Copy Parameter Statistics</button>
-                        <button class="copy-button" onclick="copyRegressionEquation()">📐 Copy Regression Equation</button>
+                        <button class="copy-button" onclick="copyAllResults()">Copy All Results</button>
+                        <button class="copy-button" onclick="copyGoodnessOfFit()">Copy Goodness of Fit</button>
+                        <button class="copy-button" onclick="copyParameterStats()">Copy Parameter Statistics</button>
+                        <button class="copy-button" onclick="copyRegressionEquation()">Copy Regression Equation</button>
                     </div>
                     
                     <div style="margin-top: 6px;">
