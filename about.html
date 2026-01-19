@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonlinear Regression Analysis</title>
+
+
+    <style>
+       
+        
+        .container {
+            max-width: 1050px;
+            margin: 0;
+            background: black;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 3px;
+        }
+        
+        h1 {
+            color: #FFFFFF;
+            margin-bottom: 7px;
+            text-align: left;
+            font-size: 25px;
+        }
+        
+
+        #text {
+            width: 1050px;
+             text-align: justify;
+ 
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Regressiontool: for Linear and Nonlinear Regression Analysis</h1>
+
+    </div>
+<div id="text">
+<h3>Help</h3>
+
+The Levenberg–Marquardt algorithm is one of the most popular algorithms in nonlinear regression to fit a nonlinear function or model to a data set. This algorithm is very efficient in finding the solution of nonlinear least squares problems set-up for the regression analysis. Under suitable assumptions, the algorithm achieves global convergence, a competitive worst-case iteration complexity rate, and a guaranteed rate of local convergence for both zero and nonzero small residual problems.[1] It is to be noted that the initial parameter guesses are important for finding well optimized parameter values as the Levenberg–Marquardt algorithm or in short LM is a local optimizer. LM does not find the global minima of the sum of squared errors. Instead, it finds a local minima guided by the initial guesses. The LM algorithm is also used in commercial data analysis software such as Origin, Sigmaplot, etc.
+<br>
+The users may use this webapp as per their own understanding of a regression work-flow to reach optimized values of the parameters. Regressiontool.com recommens the following steps towards finding optimized parameter values for a function fitted to a given data set: 
+<br>
+<br>
+<b>Step 1.</b> Copy and paste the (x,y) data to see vizualize the data on the plotting window.
+<br><br>
+
+<b>Step 2.</b> If there is no predetermined model or function, the user has to guess a suitable function or combination of functions that can form a shape or trend similar to the data.
+<br><br>
+
+<b>Step 3.</b> The user should use initial parameter values that yields (x,y) values that are not far away from the data set in terms of both absoulute values and the trend.
+<br><br>
+
+<b>Step 4.</b> After having vizualization of the input data and the function plot with initial parameter values, the run regression button will optimize the parameters as per the Levenberg–Marquardt algorithm.   
+<br>
+<h3>References</h3>
+[1] Bergou, E.H., Diouane, Y. & Kungurtsev, V. Convergence and Complexity Analysis of a Levenberg–Marquardt Algorithm for Inverse Problems. J Optim Theory Appl 185, 927–944 (2020). https://doi.org/10.1007/s10957-020-01666-1                  
+
+
+
+</div>
+        
+</body>
+</html>
