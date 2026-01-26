@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genetic Algorithm Regression Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            max-width: 1000px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1100px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .data-table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .table-header {
+            background: linear-gradient(to right, #1e40af, #3b82f6);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .row-count {
+            font-size: 1rem;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .table-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .table-container {
+            position: relative;
+            overflow: auto;
+            max-height: 400px;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .excel-table thead {
+            background-color: #f1f5f9;
+        }
+        
+        .excel-table th {
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #475569;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 2px solid #cbd5e1;
+            user-select: none;
+        }
+        
+        .excel-table th:first-child {
+            width: 60px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .excel-table th:nth-child(2) {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border-bottom: 2px solid #fecaca;
+        }
+        
+        .excel-table th:nth-child(3) {
+            background-color: #f0f9ff;
+            color: #0284c7;
+            border-bottom: 2px solid #bae6fd;
+        }
+        
+        .excel-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.15s;
+        }
+        
+        .excel-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .excel-table td {
+            padding: 12px;
+            border-right: 1px solid #e2e8f0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .excel-table td:first-child {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.95rem;
+            user-select: none;
+        }
+        
+        .excel-table td:nth-child(2) {
+            background-color: #fef2f2;
+        }
+        
+        .excel-table td:nth-child(3) {
+            background-color: #f0f9ff;
+        }
+        
+        .excel-table input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1rem;
+            color: #1e293b;
+            padding: 8px;
+            outline: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .excel-table input:focus {
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .function-panel, .parameters-panel, .results-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .function-input-container {
+            margin-bottom: 20px;
+        }
+        
+        .function-input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .function-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: 'Courier New', monospace;
+            background-color: #f8fafc;
+            transition: border-color 0.3s;
+        }
+        
+        .function-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: white;
+        }
+        
+        .function-examples {
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .function-examples h4 {
+            color: #0369a1;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .parameters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .parameter-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .parameter-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .parameter-value {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            background-color: #f8fafc;
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+        
+        .algorithm-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .setting-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .setting-input label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .setting-input input, .setting-input select {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .setting-input input:focus, .setting-input select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        /* Results Panel */
+        .results-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .fitted-parameters {
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .parameter-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .parameter-result {
+            text-align: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .parameter-name {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .parameter-value-result {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0369a1;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .r-value {
+            color: #10b981;
+        }
+        
+        .r2-value {
+            color: #3b82f6;
+        }
+        
+        .adjr2-value {
+            color: #8b5cf6;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            height: 400px;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-wrapper {
+            height: 320px;
+            position: relative;
+        }
+        
+        /* Controls */
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            min-width: 160px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(to right, #10b981, #34d399);
+            color: white;
+        }
+        
+        .primary-btn:hover:not(:disabled) {
+            background: linear-gradient(to right, #0da271, #2dc08d);
+        }
+        
+        .secondary-btn {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .secondary-btn:hover:not(:disabled) {
+            background-color: #e2e8f0;
+        }
+        
+        .status-message {
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .status-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .status-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .status-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            color: #64748b;
+            font-size: 0.95rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #10b981, #34d399);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .generation-info {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .algorithm-settings, .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            button {
+                min-width: 140px;
+                padding: 12px 20px;
+            }
+            
+            .excel-table th, 
+            .excel-table td {
+                padding: 10px 6px;
+            }
+        }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            <i class="fas fa-dna"></i> 
+            Genetic Algorithm Regression
+        </h1>
+        <p class="subtitle">
+            Fit custom functions to your data using genetic algorithm optimization. 
+            Enter your (x,y) data in the table, define a function with parameters c1-c10, 
+            and run the genetic algorithm to find the best fit.
+        </p>
+    </header>
+    
+    <div class="app-container">
+        <div class="main-content">
+            <div class="data-table-container">
+                <div class="table-header">
+                    <div class="table-title">
+                        <i class="fas fa-spreadsheet"></i>
+                        Data Table (X, Y)
+                        <span class="row-count" id="row-count">10 rows</span>
+                    </div>
+                    <div class="table-controls">
+                        <button class="icon-btn" id="add-row-btn" title="Add Row">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="icon-btn" id="remove-row-btn" title="Remove Last Row">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="excel-table" id="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>X Values</th>
+                                <th>Y Values</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows will be generated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Regression Fit
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="regression-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="controls-container">
+                <button id="process-btn" class="primary-btn">
+                    <i class="fas fa-play"></i> Run Regression
+                </button>
+                <button id="clear-btn" class="secondary-btn">
+                    <i class="fas fa-broom"></i> Clear Data
+                </button>
+                <button id="sample-btn" class="secondary-btn">
+                    <i class="fas fa-vial"></i> Load Sample Data
+                </button>
+            </div>
+            
+            <div id="status-message" class="status-message">
+                <i class="fas fa-info-circle"></i>
+                <span id="status-text">Ready to analyze data</span>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="function-panel">
+                <div class="panel-title">
+                    <i class="fas fa-function"></i>
+                    Custom Function
+                </div>
+                <div class="function-input-container">
+                    <label class="function-input-label">Function f(x) =</label>
+                    <input type="text" class="function-input" id="function-input" 
+                           placeholder="c1*x + c2" 
+                           value="c1*x + c2">
+                    <div class="function-examples">
+                        <h4><i class="fas fa-lightbulb"></i> Function Examples</h4>
+                        <ul class="example-list">
+                            <li>c1*x + c2 (Linear)</li>
+                            <li>c1*x^2 + c2*x + c3 (Quadratic)</li>
+                            <li>c1*exp(c2*x) (Exponential)</li>
+                            <li>c1*sin(c2*x + c3) (Sinusoidal)</li>
+                            <li>c1/(1 + exp(-c2*(x-c3))) (Logistic)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parameters-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders-h"></i>
+                    Algorithm Settings
+                </div>
+                <div class="algorithm-settings">
+                    <div class="setting-input">
+                        <label for="population-size">Population Size</label>
+                        <input type="number" id="population-size" min="20" max="1000" value="100">
+                    </div>
+                    <div class="setting-input">
+                        <label for="max-generations">Max Generations</label>
+                        <input type="number" id="max-generations" min="10" max="1000" value="100">
+                    </div>
+                    <div class="setting-input">
+                        <label for="mutation-rate">Mutation Rate</label>
+                        <input type="number" id="mutation-rate" min="0" max="1" step="0.01" value="0.1">
+                    </div>
+                    <div class="setting-input">
+                        <label for="crossover-rate">Crossover Rate</label>
+                        <input type="number" id="crossover-rate" min="0" max="1" step="0.01" value="0.8">
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="generation-info" id="generation-info">
+                    Click "Run Regression" to start
+                </div>
+            </div>
+            
+            <div class="results-panel">
+                <div class="panel-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Results
+                </div>
+                <div class="results-content">
+                    <div class="fitted-parameters">
+                        <h4>Fitted Parameters</h4>
+                        <div class="parameter-results" id="parameter-results">
+                            <!-- Parameter results will be inserted here -->
+                            <div class="parameter-result">
+                                <div class="parameter-name">c1</div>
+                                <div class="parameter-value-result">-</div>
+                            </div>
+                            <div class="parameter-result">
+                                <div class="parameter-name">c2</div>
+                                <div class="parameter-value-result">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <div class="stat-label">Correlation (R)</div>
+                            <div class="stat-value r-value" id="r-value">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">R²</div>
+                            <div class="stat-value r2-value" id="r2-value">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Adjusted R²</div>
+                            <div class="stat-value adjr2-value" id="adjr2-value">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Genetic Algorithm Regression Analysis &copy; 2023 | Non-linear curve fitting using evolutionary computation</p>
+        <p style="margin-top: 8px;">Define your function using parameters c1 through c10, then run the genetic algorithm to find optimal parameter values.</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const INITIAL_ROWS = 10;
+        const MAX_ROWS = 100;
+        const MAX_PARAMS = 10;
+        
+        // DOM Elements
+        const tableBody = document.getElementById('table-body');
+        const rowCountElement = document.getElementById('row-count');
+        const statusMessage = document.getElementById('status-message');
+        const statusText = document.getElementById('status-text');
+        const processBtn = document.getElementById('process-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const sampleBtn = document.getElementById('sample-btn');
+        const addRowBtn = document.getElementById('add-row-btn');
+        const removeRowBtn = document.getElementById('remove-row-btn');
+        const functionInput = document.getElementById('function-input');
+        const progressBar = document.getElementById('progress-bar');
+        const generationInfo = document.getElementById('generation-info');
+        const parameterResults = document.getElementById('parameter-results');
+        const rValue = document.getElementById('r-value');
+        const r2Value = document.getElementById('r2-value');
+        const adjr2Value = document.getElementById('adjr2-value');
+        
+        // Chart initialization
+        let regressionChart = null;
+        const chartCtx = document.getElementById('regression-chart').getContext('2d');
+        
+        // State
+        let dataRows = INITIAL_ROWS;
+        let isRunning = false;
+        let currentGeneration = 0;
+        
+        // Genetic Algorithm Parameters
+        let populationSize = 100;
+        let maxGenerations = 100;
+        let mutationRate = 0.1;
+        let crossoverRate = 0.8;
+        
+        // Initialize table with rows
+        function initializeTable() {
+            tableBody.innerHTML = '';
+            for (let i = 0; i < INITIAL_ROWS; i++) {
+                addTableRow(i);
+            }
+            updateRowCount();
+            showStatus('Table ready. Define your function and run regression.', 'info');
+            
+            // Initialize chart
+            initializeChart();
+            
+            // Initialize parameter results display
+            updateParameterResults([]);
+        }
+        
+        // Initialize the chart
+        function initializeChart() {
+            if (regressionChart) {
+                regressionChart.destroy();
+            }
+            
+            regressionChart = new Chart(chartCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Original Data',
+                            data: [],
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#1e40af',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Fitted Curve',
+                            data: [],
+                            backgroundColor: 'transparent',
+                            borderColor: '#10b981',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'X Values',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Y Values',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Add a new row to the table
+        function addTableRow(rowIndex, xValue = '', yValue = '') {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${rowIndex + 1}</td>
+                <td>
+                    <input type="number" step="any" class="x-input" value="${xValue}" data-row="${rowIndex}">
+                </td>
+                <td>
+                    <input type="number" step="any" class="y-input" value="${yValue}" data-row="${rowIndex}">
+                </td>
+            `;
+            
+            // Add event listeners to inputs
+            const xInput = row.querySelector('.x-input');
+            const yInput = row.querySelector('.y-input');
+            
+            [xInput, yInput].forEach(input => {
+                input.addEventListener('focus', handleCellFocus);
+                input.addEventListener('paste', handlePaste);
+                input.addEventListener('keydown', handleKeyNavigation);
+                input.addEventListener('input', updateRowCount);
+            });
+            
+            tableBody.appendChild(row);
+        }
+        
+        // Handle cell focus for paste operations
+        function handleCellFocus(e) {
+            // Could be used for advanced paste handling
+        }
+        
+        // Handle paste event
+        function handlePaste(e) {
+            e.preventDefault();
+            
+            // Get clipboard data
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const pastedData = clipboardData.getData('text');
+            
+            // Parse the pasted data (Excel data is typically tab-separated with rows separated by newlines)
+            const rows = pastedData.trim().split(/\r\n|\n|\r/);
+            const grid = rows.map(row => row.split('\t'));
+            
+            // Determine where to start pasting
+            const startCell = e.target;
+            const startRow = parseInt(startCell.getAttribute('data-row'));
+            const isXColumn = startCell.classList.contains('x-input');
+            const startCol = isXColumn ? 0 : 1;
+            
+            // Clear any existing selection
+            clearSelection();
+            
+            // Paste data into table
+            let maxRowUpdated = startRow;
+            
+            for (let i = 0; i < grid.length; i++) {
+                const rowData = grid[i];
+                
+                for (let j = 0; j < Math.min(rowData.length, 2); j++) {
+                    const targetRow = startRow + i;
+                    const targetCol = startCol + j;
+                    
+                    // Ensure we have enough rows
+                    if (targetRow >= dataRows && dataRows < MAX_ROWS) {
+                        addTableRow(dataRows);
+                        dataRows++;
+                    }
+                    
+                    // Only proceed if we're within row limit
+                    if (targetRow < dataRows && targetCol < 2) {
+                        const cellSelector = targetCol === 0 ? '.x-input' : '.y-input';
+                        const rowInputs = tableBody.querySelectorAll(`tr:nth-child(${targetRow + 1}) ${cellSelector}`);
+                        
+                        if (rowInputs.length > 0) {
+                            const cell = rowInputs[0];
+                            cell.value = rowData[j].trim();
+                            cell.dispatchEvent(new Event('input', { bubbles: true }));
+                            maxRowUpdated = Math.max(maxRowUpdated, targetRow);
+                        }
+                    }
+                }
+            }
+            
+            updateRowCount();
+            showStatus(`Pasted ${grid.length} row(s) of data`, 'success');
+        }
+        
+        // Handle keyboard navigation (Tab, Enter, Arrow keys)
+        function handleKeyNavigation(e) {
+            const currentInput = e.target;
+            const currentRow = parseInt(currentInput.getAttribute('data-row'));
+            const isXColumn = currentInput.classList.contains('x-input');
+            
+            let nextInput = null;
+            
+            switch(e.key) {
+                case 'Tab':
+                    e.preventDefault();
+                    if (isXColumn) {
+                        // Move to Y column in same row
+                        nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 1}) .y-input`);
+                    } else if (!e.shiftKey) {
+                        // Move to X column in next row
+                        if (currentRow + 1 < dataRows) {
+                            nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 2}) .x-input`);
+                        } else if (dataRows < MAX_ROWS) {
+                            addTableRow(dataRows);
+                            dataRows++;
+                            updateRowCount();
+                            nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 2}) .x-input`);
+                        }
+                    } else if (e.shiftKey) {
+                        // Move to X column in same row when shift+tab from Y column
+                        if (isXColumn === false) {
+                            nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 1}) .x-input`);
+                        }
+                    }
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    // Move to X column in next row
+                    if (currentRow + 1 < dataRows) {
+                        nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 2}) .x-input`);
+                    } else if (dataRows < MAX_ROWS) {
+                        addTableRow(dataRows);
+                        dataRows++;
+                        updateRowCount();
+                        nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 2}) .x-input`);
+                    }
+                    break;
+                    
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (currentRow + 1 < dataRows) {
+                        nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 2}) ${isXColumn ? '.x-input' : '.y-input'}`);
+                    }
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (currentRow > 0) {
+                        nextInput = tableBody.querySelector(`tr:nth-child(${currentRow}) ${isXColumn ? '.x-input' : '.y-input'}`);
+                    }
+                    break;
+                    
+                case 'ArrowRight':
+                    if (!isXColumn) break;
+                    e.preventDefault();
+                    nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 1}) .y-input`);
+                    break;
+                    
+                case 'ArrowLeft':
+                    if (isXColumn) break;
+                    e.preventDefault();
+                    nextInput = tableBody.querySelector(`tr:nth-child(${currentRow + 1}) .x-input`);
+                    break;
+            }
+            
+            if (nextInput) {
+                nextInput.focus();
+                nextInput.select();
+            }
+        }
+        
+        // Clear any text selection
+        function clearSelection() {
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            } else if (document.selection) {
+                document.selection.empty();
+            }
+        }
+        
+        // Update the row count display
+        function updateRowCount() {
+            // Count non-empty rows
+            let nonEmptyRows = 0;
+            const xInputs = tableBody.querySelectorAll('.x-input');
+            const yInputs = tableBody.querySelectorAll('.y-input');
+            
+            for (let i = 0; i < xInputs.length; i++) {
+                if (xInputs[i].value.trim() !== '' || yInputs[i].value.trim() !== '') {
+                    nonEmptyRows++;
+                }
+            }
+            
+            rowCountElement.textContent = `${dataRows} rows (${nonEmptyRows} with data)`;
+        }
+        
+        // Show status message
+        function showStatus(message, type = 'info') {
+            statusText.textContent = message;
+            
+            // Reset classes
+            statusMessage.className = 'status-message';
+            
+            // Add appropriate class
+            if (type === 'success') {
+                statusMessage.classList.add('status-success');
+            } else if (type === 'error') {
+                statusMessage.classList.add('status-error');
+            } else if (type === 'info') {
+                statusMessage.classList.add('status-info');
+            }
+            
+            // Show the message
+            statusMessage.classList.add('show');
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        // Get data from table
+        function getDataFromTable() {
+            const xValues = [];
+            const yValues = [];
+            
+            const xInputs = tableBody.querySelectorAll('.x-input');
+            const yInputs = tableBody.querySelectorAll('.y-input');
+            
+            for (let i = 0; i < xInputs.length; i++) {
+                const xVal = xInputs[i].value.trim();
+                const yVal = yInputs[i].value.trim();
+                
+                if (xVal !== '' && yVal !== '') {
+                    const xNum = parseFloat(xVal);
+                    const yNum = parseFloat(yVal);
+                    
+                    if (!isNaN(xNum) && !isNaN(yNum)) {
+                        xValues.push(xNum);
+                        yValues.push(yNum);
+                    }
+                }
+            }
+            
+            return { x: xValues, y: yValues };
+        }
+        
+        // Parse function string to identify parameters
+        function parseFunctionString(funcStr) {
+            // Extract parameters (c1 through c10)
+            const paramPattern = /c([1-9]|10)(?!\d)/g;
+            const matches = funcStr.match(paramPattern);
+            
+            if (!matches) {
+                return [];
+            }
+            
+            // Get unique parameters and sort them
+            const uniqueParams = [...new Set(matches)];
+            uniqueParams.sort((a, b) => {
+                return parseInt(a.substring(1)) - parseInt(b.substring(1));
+            });
+            
+            return uniqueParams;
+        }
+        
+        // Create a function from string with parameters
+        function createFunctionFromString(funcStr, params) {
+            // Replace ^ with ** for exponentiation
+            let processedStr = funcStr.replace(/\^/g, '**');
+            
+            // Create parameter string for function
+            const paramNames = params.map(p => p);
+            const paramString = paramNames.join(', ');
+            
+            // Create the function
+            try {
+                // Use Function constructor to create the function
+                const func = new Function('x', ...paramNames, `return ${processedStr};`);
+                return func;
+            } catch (error) {
+                console.error('Error creating function:', error);
+                return null;
+            }
+        }
+        
+        // Genetic Algorithm Implementation
+        class GeneticAlgorithm {
+            constructor(populationSize, paramCount, func, dataX, dataY) {
+                this.populationSize = populationSize;
+                this.paramCount = paramCount;
+                this.func = func;
+                this.dataX = dataX;
+                this.dataY = dataY;
+                this.population = [];
+                this.bestSolution = null;
+                this.bestFitness = Infinity;
+                
+                // Initialize population
+                this.initializePopulation();
+            }
+            
+            // Initialize random population
+            initializePopulation() {
+                this.population = [];
+                for (let i = 0; i < this.populationSize; i++) {
+                    const individual = [];
+                    for (let j = 0; j < this.paramCount; j++) {
+                        // Initialize with random values between -10 and 10
+                        individual.push((Math.random() * 20) - 10);
+                    }
+                    this.population.push(individual);
+                }
+            }
+            
+            // Calculate fitness (Mean Squared Error)
+            calculateFitness(individual) {
+                let error = 0;
+                
+                for (let i = 0; i < this.dataX.length; i++) {
+                    const x = this.dataX[i];
+                    const yActual = this.dataY[i];
+                    const yPredicted = this.func(x, ...individual);
+                    
+                    // Handle cases where function returns NaN or undefined
+                    if (isNaN(yPredicted) || !isFinite(yPredicted)) {
+                        return Infinity;
+                    }
+                    
+                    error += Math.pow(yPredicted - yActual, 2);
+                }
+                
+                // Mean Squared Error
+                return error / this.dataX.length;
+            }
+            
+            // Evaluate entire population
+            evaluatePopulation() {
+                let bestIdx = 0;
+                let bestFit = Infinity;
+                
+                for (let i = 0; i < this.population.length; i++) {
+                    const fitness = this.calculateFitness(this.population[i]);
+                    
+                    if (fitness < bestFit) {
+                        bestFit = fitness;
+                        bestIdx = i;
+                    }
+                }
+                
+                // Update best solution if needed
+                if (bestFit < this.bestFitness) {
+                    this.bestFitness = bestFit;
+                    this.bestSolution = [...this.population[bestIdx]];
+                }
+                
+                return { bestIdx, bestFit };
+            }
+            
+            // Tournament selection
+            tournamentSelection(k = 3) {
+                let bestIdx = Math.floor(Math.random() * this.populationSize);
+                let bestFitness = this.calculateFitness(this.population[bestIdx]);
+                
+                for (let i = 1; i < k; i++) {
+                    const idx = Math.floor(Math.random() * this.populationSize);
+                    const fitness = this.calculateFitness(this.population[idx]);
+                    
+                    if (fitness < bestFitness) {
+                        bestIdx = idx;
+                        bestFitness = fitness;
+                    }
+                }
+                
+                return this.population[bestIdx];
+            }
+            
+            // Crossover (single point)
+            crossover(parent1, parent2) {
+                if (Math.random() > crossoverRate) {
+                    return [parent1, parent2];
+                }
+                
+                const crossoverPoint = Math.floor(Math.random() * this.paramCount);
+                const child1 = [];
+                const child2 = [];
+                
+                for (let i = 0; i < this.paramCount; i++) {
+                    if (i < crossoverPoint) {
+                        child1.push(parent1[i]);
+                        child2.push(parent2[i]);
+                    } else {
+                        child1.push(parent2[i]);
+                        child2.push(parent1[i]);
+                    }
+                }
+                
+                return [child1, child2];
+            }
+            
+            // Mutation
+            mutate(individual) {
+                const mutated = [...individual];
+                
+                for (let i = 0; i < this.paramCount; i++) {
+                    if (Math.random() < mutationRate) {
+                        // Add small random change
+                        mutated[i] += (Math.random() - 0.5) * 2;
+                        
+                        // Optional: Keep values in reasonable range
+                        if (mutated[i] > 100) mutated[i] = 100;
+                        if (mutated[i] < -100) mutated[i] = -100;
+                    }
+                }
+                
+                return mutated;
+            }
+            
+            // Create next generation
+            createNextGeneration() {
+                const newPopulation = [];
+                const eliteCount = Math.floor(this.populationSize * 0.1); // Keep top 10%
+                
+                // Sort population by fitness
+                const sortedPopulation = [...this.population].sort((a, b) => {
+                    return this.calculateFitness(a) - this.calculateFitness(b);
+                });
+                
+                // Keep elite individuals
+                for (let i = 0; i < eliteCount; i++) {
+                    newPopulation.push(sortedPopulation[i]);
+                }
+                
+                // Fill the rest with crossover and mutation
+                while (newPopulation.length < this.populationSize) {
+                    const parent1 = this.tournamentSelection();
+                    const parent2 = this.tournamentSelection();
+                    
+                    const [child1, child2] = this.crossover(parent1, parent2);
+                    
+                    newPopulation.push(this.mutate(child1));
+                    
+                    if (newPopulation.length < this.populationSize) {
+                        newPopulation.push(this.mutate(child2));
+                    }
+                }
+                
+                this.population = newPopulation;
+            }
+            
+            // Run for specified generations
+            run(generations, progressCallback) {
+                for (let gen = 0; gen < generations; gen++) {
+                    this.evaluatePopulation();
+                    this.createNextGeneration();
+                    
+                    // Call progress callback
+                    if (progressCallback) {
+                        progressCallback(gen + 1, generations, this.bestFitness);
+                    }
+                }
+                
+                // Final evaluation
+                this.evaluatePopulation();
+                
+                return {
+                    parameters: this.bestSolution,
+                    mse: this.bestFitness
+                };
+            }
+        }
+        
+        // Calculate regression statistics
+        function calculateStatistics(actualY, predictedY, paramCount) {
+            const n = actualY.length;
+            
+            // Means
+            const meanY = actualY.reduce((sum, val) => sum + val, 0) / n;
+            const meanPredicted = predictedY.reduce((sum, val) => sum + val, 0) / n;
+            
+            // Sums of squares
+            let ssTotal = 0;
+            let ssResidual = 0;
+            let ssRegression = 0;
+            
+            for (let i = 0; i < n; i++) {
+                ssTotal += Math.pow(actualY[i] - meanY, 2);
+                ssResidual += Math.pow(actualY[i] - predictedY[i], 2);
+                ssRegression += Math.pow(predictedY[i] - meanY, 2);
+            }
+            
+            // R²
+            const rSquared = 1 - (ssResidual / ssTotal);
+            
+            // Adjusted R²
+            const adjustedRSquared = 1 - ((1 - rSquared) * (n - 1) / (n - paramCount - 1));
+            
+            // R (correlation coefficient)
+            const r = Math.sqrt(rSquared);
+            
+            return {
+                r: r,
+                rSquared: rSquared,
+                adjustedRSquared: adjustedRSquared,
+                mse: ssResidual / n
+            };
+        }
+        
+        // Update parameter results display
+        function updateParameterResults(parameters) {
+            parameterResults.innerHTML = '';
+            
+            // Get parameters from function string
+            const funcStr = functionInput.value;
+            const params = parseFunctionString(funcStr);
+            
+            if (params.length === 0) {
+                const paramResult = document.createElement('div');
+                paramResult.className = 'parameter-result';
+                paramResult.innerHTML = `
+                    <div class="parameter-name">No params</div>
+                    <div class="parameter-value-result">-</div>
+                `;
+                parameterResults.appendChild(paramResult);
+                return;
+            }
+            
+            // Display each parameter
+            params.forEach((param, index) => {
+                const paramResult = document.createElement('div');
+                paramResult.className = 'parameter-result';
+                
+                const value = parameters[index] !== undefined ? parameters[index].toFixed(6) : '-';
+                
+                paramResult.innerHTML = `
+                    <div class="parameter-name">${param}</div>
+                    <div class="parameter-value-result">${value}</div>
+                `;
+                parameterResults.appendChild(paramResult);
+            });
+        }
+        
+        // Update chart with data and fitted curve
+        function updateChart(dataX, dataY, fittedFunc, parameters) {
+            // Clear previous data
+            regressionChart.data.datasets[0].data = [];
+            regressionChart.data.datasets[1].data = [];
+            
+            // Add original data points
+            const originalData = [];
+            for (let i = 0; i < dataX.length; i++) {
+                originalData.push({ x: dataX[i], y: dataY[i] });
+            }
+            regressionChart.data.datasets[0].data = originalData;
+            
+            // Generate fitted curve
+            if (fittedFunc && parameters.length > 0) {
+                // Find min and max x values
+                const minX = Math.min(...dataX);
+                const maxX = Math.max(...dataX);
+                const range = maxX - minX;
+                
+                // Generate points for smooth curve
+                const curveData = [];
+                const steps = 100;
+                
+                for (let i = 0; i <= steps; i++) {
+                    const x = minX + (i / steps) * range;
+                    try {
+                        const y = fittedFunc(x, ...parameters);
+                        if (!isNaN(y) && isFinite(y)) {
+                            curveData.push({ x: x, y: y });
+                        }
+                    } catch (e) {
+                        // Skip points where function fails
+                    }
+                }
+                
+                regressionChart.data.datasets[1].data = curveData;
+            }
+            
+            regressionChart.update();
+        }
+        
+        // Run regression analysis
+        async function runRegression() {
+            // Get algorithm settings
+            populationSize = parseInt(document.getElementById('population-size').value);
+            maxGenerations = parseInt(document.getElementById('max-generations').value);
+            mutationRate = parseFloat(document.getElementById('mutation-rate').value);
+            crossoverRate = parseFloat(document.getElementById('crossover-rate').value);
+            
+            // Get data from table
+            const data = getDataFromTable();
+            
+            if (data.x.length < 2) {
+                showStatus('Please enter at least 2 data points', 'error');
+                return;
+            }
+            
+            // Get function string
+            const funcStr = functionInput.value.trim();
+            if (!funcStr) {
+                showStatus('Please enter a function', 'error');
+                return;
+            }
+            
+            // Parse function to get parameters
+            const params = parseFunctionString(funcStr);
+            if (params.length === 0) {
+                showStatus('Function must contain at least one parameter (c1, c2, ...)', 'error');
+                return;
+            }
+            
+            // Create function from string
+            const func = createFunctionFromString(funcStr, params);
+            if (!func) {
+                showStatus('Error in function syntax. Please check your function.', 'error');
+                return;
+            }
+            
+            // Test function with sample values
+            try {
+                const testResult = func(0, ...params.map(() => 0));
+                if (isNaN(testResult) || !isFinite(testResult)) {
+                    showStatus('Function returns invalid values. Please check your function.', 'error');
+                    return;
+                }
+            } catch (e) {
+                showStatus('Error in function: ' + e.message, 'error');
+                return;
+            }
+            
+            // Disable button while running
+            isRunning = true;
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+            
+            // Show initial status
+            showStatus(`Running genetic algorithm with ${populationSize} individuals...`, 'info');
+            
+            // Create genetic algorithm
+            const ga = new GeneticAlgorithm(populationSize, params.length, func, data.x, data.y);
+            
+            // Run the algorithm with progress updates
+            const result = ga.run(maxGenerations, (currentGen, totalGens, bestFitness) => {
+                // Update progress bar
+                const progressPercent = (currentGen / totalGens) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                
+                // Update generation info
+                generationInfo.textContent = `Generation ${currentGen}/${totalGens}, Best MSE: ${bestFitness.toExponential(4)}`;
+                
+                // Update UI every 10 generations for performance
+                if (currentGen % 10 === 0 || currentGen === totalGens) {
+                    // Calculate predictions with current best solution
+                    const predictedY = data.x.map(x => func(x, ...ga.bestSolution));
+                    
+                    // Update chart with current best fit
+                    updateChart(data.x, data.y, func, ga.bestSolution);
+                    
+                    // Update parameter display
+                    updateParameterResults(ga.bestSolution);
+                }
+            });
+            
+            // Algorithm finished
+            const bestParams = result.parameters;
+            const mse = result.mse;
+            
+            // Calculate predictions with best parameters
+            const predictedY = data.x.map(x => func(x, ...bestParams));
+            
+            // Calculate statistics
+            const stats = calculateStatistics(data.y, predictedY, params.length);
+            
+            // Update results display
+            rValue.textContent = stats.r.toFixed(6);
+            r2Value.textContent = stats.rSquared.toFixed(6);
+            adjr2Value.textContent = stats.adjustedRSquared.toFixed(6);
+            
+            // Update parameter results
+            updateParameterResults(bestParams);
+            
+            // Update chart with final fit
+            updateChart(data.x, data.y, func, bestParams);
+            
+            // Show success message
+            showStatus(`Regression completed! MSE: ${mse.toExponential(4)}, R²: ${stats.rSquared.toFixed(6)}`, 'success');
+            
+            // Re-enable button
+            isRunning = false;
+            processBtn.disabled = false;
+            processBtn.innerHTML = '<i class="fas fa-play"></i> Run Regression';
+        }
+        
+        // Clear all table data
+        function clearTable() {
+            const xInputs = tableBody.querySelectorAll('.x-input');
+            const yInputs = tableBody.querySelectorAll('.y-input');
+            
+            xInputs.forEach(input => input.value = '');
+            yInputs.forEach(input => input.value = '');
+            
+            updateRowCount();
+            
+            // Clear results
+            rValue.textContent = '-';
+            r2Value.textContent = '-';
+            adjr2Value.textContent = '-';
+            updateParameterResults([]);
+            generationInfo.textContent = 'Click "Run Regression" to start';
+            progressBar.style.width = '0%';
+            
+            // Clear chart
+            regressionChart.data.datasets[0].data = [];
+            regressionChart.data.datasets[1].data = [];
+            regressionChart.update();
+            
+            showStatus('Table cleared. Ready for new data.', 'success');
+        }
+        
+        // Load sample data
+        function loadSampleData() {
+            // Clear existing data first
+            clearTable();
+            
+            // Sample data (quadratic function with noise)
+            const sampleX = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const sampleY = [2.1, 4.2, 9.8, 16.5, 25.3, 36.1, 49.2, 64.5, 81.3, 100.2];
+            
+            // Set function to quadratic
+            functionInput.value = 'c1*x^2 + c2*x + c3';
+            
+            const xInputs = tableBody.querySelectorAll('.x-input');
+            const yInputs = tableBody.querySelectorAll('.y-input');
+            
+            for (let i = 0; i < Math.min(sampleX.length, xInputs.length); i++) {
+                xInputs[i].value = sampleX[i];
+                yInputs[i].value = sampleY[i];
+            }
+            
+            updateRowCount();
+            showStatus('Sample quadratic data loaded. Try running regression!', 'success');
+        }
+        
+        // Add a new row
+        function addRow() {
+            if (dataRows < MAX_ROWS) {
+                addTableRow(dataRows);
+                dataRows++;
+                updateRowCount();
+            } else {
+                showStatus(`Maximum row limit reached (${MAX_ROWS})`, 'error');
+            }
+        }
+        
+        // Remove the last row
+        function removeRow() {
+            if (dataRows > 1) {
+                const lastRow = tableBody.lastElementChild;
+                if (lastRow) {
+                    tableBody.removeChild(lastRow);
+                    dataRows--;
+                    updateRowCount();
+                }
+            } else {
+                showStatus('Cannot remove the last row', 'error');
+            }
+        }
+        
+        // Event Listeners
+        processBtn.addEventListener('click', runRegression);
+        clearBtn.addEventListener('click', clearTable);
+        sampleBtn.addEventListener('click', loadSampleData);
+        addRowBtn.addEventListener('click', addRow);
+        removeRowBtn.addEventListener('click', removeRow);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initializeTable);
+    </script>
+</body>
+</html>
