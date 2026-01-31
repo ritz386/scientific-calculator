@@ -1,0 +1,3652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matplotlib Web Plotter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            height: 100vh;
+            width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100%;
+            width: 100%;
+        }
+
+        /* Part 1 - Data Entry (Left - now an overlay) */
+        .part1 {
+            width: 40px;
+            background: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            position: relative;
+        }
+
+        .part1.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: #f5f5f5;
+        }
+
+        .part1-header {
+            background: #2c3e50;
+            color: white;
+            padding: 2px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 36px;
+        }
+
+        .part1.expanded .part1-header {
+            background: #2c3e50;
+            width: 100%;
+        }
+
+        .collapse-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 3px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.7em;
+        }
+
+        .collapse-btn:hover {
+            background: #4a6278;
+        }
+
+        .data-grid-container {
+            display: none;
+            flex: 1;
+            overflow: auto;
+            padding: 8px;
+        }
+
+        .part1.expanded .data-grid-container {
+            display: block;
+        }
+
+        .data-grid {
+            display: table;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .data-row {
+            display: table-row;
+        }
+
+        .data-cell {
+            display: table-cell;
+            border: 1px solid #ddd;
+            padding: 2px;
+            min-width: 80px;
+            height: 24px;
+        }
+
+        .data-cell input {
+            width: 100%;
+            border: none;
+            padding: 2px;
+            background: transparent;
+            font-size: 0.7em;
+        }
+
+        .data-cell input:focus {
+            outline: 2px solid #3498db;
+            background: white;
+        }
+
+        /* NEW: Position Controls Panel (between Part 4 and Part 2) */
+        .position-controls-panel {
+            width: 150px; /* Reduced from 180px */
+            background: #ecf0f1;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 8px; /* Reduced from 12px */
+        }
+
+        .position-controls-panel h3 {
+            font-size: 0.75em; /* Slightly smaller */
+            color: #2c3e50;
+            margin-bottom: 8px; /* Reduced from 12px */
+            padding-bottom: 4px; /* Reduced from 6px */
+            border-bottom: 2px solid #3498db;
+        }
+
+        .position-control-group {
+            background: white;
+            padding: 6px; /* Reduced from 10px */
+            border-radius: 4px; /* Slightly smaller */
+            border: 1px solid #ddd;
+            margin-bottom: 8px; /* Reduced from 12px */
+        }
+
+        .position-control-group h4 {
+            font-size: 0.65em; /* Smaller */
+            color: #2c3e50;
+            margin-bottom: 4px; /* Reduced from 8px */
+            text-align: center;
+        }
+
+        /* Middle Section (Part 4 and Part 3) */
+        .middle-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        /* Part 4 - Plot Display - UPDATED: Now scrollable */
+        .part4 {
+            background: white;
+            padding: 16px;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .part4-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .part4-buttons button {
+            margin-left: 8px;
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7em;
+        }
+
+        .part4-buttons button:hover {
+            background: #2980b9;
+        }
+
+        /* UPDATED: Plot container now scrollable */
+        .plot-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            background: white;
+            overflow: auto; /* Added for scrolling */
+            position: relative; /* For canvas positioning */
+        }
+
+        #plotCanvas {
+            display: block;
+            /* Size will be set dynamically */
+        }
+
+        /* Part 3 - Global Settings (UPDATED: Now shows buttons to open floating panels) */
+        .part3 {
+            background: #ecf0f1;
+            padding: 16px;
+            overflow-y: auto;
+            position: relative; /* For floating panels positioning */
+            min-height: 300px; /* Minimum height for the area */
+        }
+
+        .part3-header {
+            background: #34495e;
+            color: white;
+            padding: 8px 16px;
+            margin: -16px -16px 16px -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .update-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.7em;
+        }
+
+        .update-btn:hover {
+            background: #229954;
+        }
+
+        /* NEW: Floating Panel Styling */
+        .floating-panel {
+            position: fixed;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 400px;
+            overflow: hidden;
+            display: none;
+            resize: both;
+            overflow: auto;
+        }
+
+        /* Secondary Y Axis panels have different border color */
+        .floating-panel.secondary-axis {
+            border-color: #e67e22;
+        }
+
+        .floating-panel-header {
+            background: #3498db;
+            color: white;
+            padding: 8px 12px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        /* Secondary Y Axis panel header has different color */
+        .floating-panel.secondary-axis .floating-panel-header {
+            background: #e67e22;
+        }
+
+        .floating-panel-header h3 {
+            margin: 0;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .close-panel-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .close-panel-btn:hover {
+            color: #ffdddd;
+        }
+
+        .floating-panel-content {
+            padding: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Settings Grid for the main panel (UPDATED) */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .setting-group-btn {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .setting-group-btn:hover {
+            background: #f0f7ff;
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .setting-group-btn.secondary-axis-btn {
+            border-color: #e67e22;
+        }
+
+        .setting-group-btn.secondary-axis-btn:hover {
+            border-color: #e67e22;
+            background: #fff7f0;
+            box-shadow: 0 3px 10px rgba(230, 126, 34, 0.2);
+        }
+
+        .setting-group-btn h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 0.85em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-group-btn .open-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            cursor: pointer;
+        }
+
+        .setting-group-btn .open-btn:hover {
+            background: #2980b9;
+        }
+
+        .setting-group-btn.secondary-axis-btn .open-btn {
+            background: #e67e22;
+        }
+
+        .setting-group-btn.secondary-axis-btn .open-btn:hover {
+            background: #d35400;
+        }
+
+        /* Setting items inside floating panels */
+        .setting-item {
+            margin-bottom: 8px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.75em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .setting-item input,
+        .setting-item select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .setting-item input:focus,
+        .setting-item select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .add-axis-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-size: 0.8em;
+            width: 100%;
+        }
+
+        .add-axis-btn:hover {
+            background: #d35400;
+        }
+
+        /* Part 2 - Plot Management (Right) */
+        .part2 {
+            width: 280px; /* Slightly reduced from 300px */
+            background: #f5f5f5;
+            border-left: 2px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .part2-header {
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+        }
+
+        .add-plot-section {
+            padding: 10px; /* Reduced from 12px */
+            background: white;
+            margin: 6px; /* Reduced from 8px */
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .add-plot-section h3 {
+            margin-bottom: 6px; /* Reduced from 8px */
+            color: #2c3e50;
+            font-size: 0.8em; /* Smaller */
+        }
+
+        .plot-item {
+            background: white;
+            margin: 6px; /* Reduced from 8px */
+            padding: 6px; /* Reduced from 8px */
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .plot-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px; /* Reduced from 8px */
+            padding-bottom: 2px; /* Reduced from 4px */
+            border-bottom: 2px solid #3498db;
+        }
+
+        .plot-item-header h4 {
+            font-size: 0.72em; /* Smaller */
+            color: #2c3e50;
+        }
+
+        .edit-plot-btn,
+        .delete-plot-btn {
+            padding: 2px 4px; /* Reduced from 3px 6px */
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.55em; /* Smaller */
+            margin-left: 2px; /* Reduced from 3px */
+        }
+
+        .edit-plot-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .edit-plot-btn:hover {
+            background: #2980b9;
+        }
+
+        .delete-plot-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-plot-btn:hover {
+            background: #c0392b;
+        }
+
+        .plot-editor {
+            display: none;
+            margin-top: 6px; /* Reduced from 8px */
+            padding-top: 6px; /* Reduced from 8px */
+            border-top: 1px solid #eee;
+        }
+
+        .plot-editor.active {
+            display: block;
+        }
+
+        .add-plot-btn {
+            width: 100%;
+            padding: 6px; /* Reduced from 8px */
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 6px; /* Reduced from 8px */
+            font-size: 0.65em; /* Smaller */
+        }
+
+        .add-plot-btn:hover {
+            background: #229954;
+        }
+        
+        /* New styles for pattern preview */
+        .pattern-preview {
+            width: 100%;
+            height: 20px; /* Reduced from 24px */
+            border: 1px solid #ddd;
+            margin-top: 2px; /* Reduced from 4px */
+            background-color: #f8f8f8;
+        }
+        
+        /* Styles for position controls (now in the new panel) - REDUCED SIZE */
+        .position-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* Reduced from 4px */
+        }
+        
+        .position-row {
+            display: flex;
+            justify-content: center;
+            gap: 2px; /* Reduced from 4px */
+        }
+        
+        .pos-btn {
+            width: 20px; /* Reduced from 28px (28 * 0.25 = 7, but 20px is more reasonable) */
+            height: 20px; /* Reduced from 28px */
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 2px; /* Reduced from 3px */
+            cursor: pointer;
+            font-size: 0.5em; /* Smaller */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .pos-btn:hover {
+            background: #2980b9;
+        }
+        
+        .pos-center-btn {
+            width: 20px; /* Reduced from 28px */
+            height: 20px; /* Reduced from 28px */
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 2px; /* Reduced from 3px */
+            cursor: pointer;
+            font-size: 0.45em; /* Smaller */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .pos-center-btn:hover {
+            background: #34495e;
+        }
+        
+        /* New: Plot editor collapse button */
+        .plot-collapse-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 1px 4px; /* Reduced from 2px 6px */
+            border-radius: 2px; /* Reduced from 3px */
+            cursor: pointer;
+            font-size: 0.55em; /* Smaller */
+            margin-left: 2px; /* Reduced from 4px */
+        }
+        
+        .plot-collapse-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        /* New style for position labels in secondary axis controls */
+        .position-label {
+            font-size: 0.5em; /* Smaller */
+            color: #666;
+            margin-bottom: 2px; /* Reduced from 4px */
+            text-align: center;
+        }
+
+        /* NEW: Secondary axis floating panel delete button */
+        .delete-axis-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7em;
+            margin-left: 10px;
+        }
+
+        .delete-axis-btn:hover {
+            background: #c0392b;
+        }
+
+        /* NEW: Tick settings sub-section styling */
+        .tick-sub-section {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #eee;
+        }
+        
+        .tick-sub-section h4 {
+            font-size: 0.75em;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* NEW: Color picker styles */
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-box:hover {
+            border-color: #3498db;
+        }
+        
+        .color-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1) 100%);
+            background-size: 8px 8px;
+            pointer-events: none;
+        }
+        
+        .color-input {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .color-preview {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        /* NEW: Color palette styles */
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        
+        .color-palette-title {
+            font-size: 0.7em;
+            color: #666;
+            margin-bottom: 4px;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border: 2px solid transparent;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .color-swatch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .color-swatch.selected {
+            border-color: #333;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+        }
+        
+        .color-palette-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <!-- Part 1: Data Entry (Now an overlay) -->
+            <div class="part1" id="part1">
+                <div class="part1-header">
+                    <h2 style="font-size: 0.84em;">Data Entry</h2>
+                    <button class="collapse-btn" onclick="togglePart1()">▶</button>
+                </div>
+                <div class="data-grid-container">
+                    <div class="data-grid" id="dataGrid">
+                        <!-- Data grid will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Section: Part 4 and Part 3 -->
+            <div class="middle-section">
+                <!-- Part 4: Plot Display -->
+                <div class="part4">
+                    <div class="part4-header">
+                        <h2 style="font-size: 0.84em;">Plot</h2>
+                        <div class="part4-buttons">
+                            <button onclick="copyImage()">Copy Image</button>
+                            <button onclick="downloadPNG()">Download PNG</button>
+                            <button onclick="downloadJPG()">Download JPG</button>
+                        </div>
+                    </div>
+                    <div class="plot-container">
+                        <canvas id="plotCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Part 3: Global Settings (UPDATED: Now shows buttons to open floating panels) -->
+                <div class="part3">
+                    <div class="part3-header">
+                        <h2 style="font-size: 0.84em;">Global Plot Settings</h2>
+                        <button class="update-btn" onclick="updatePlot()">Update Plot</button>
+                    </div>
+                    <div class="settings-grid">
+                        <!-- Plot Dimensions Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('plot-dimensions')">
+                            <h3>
+                                Plot Dimensions
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+
+                        <!-- X Axis Settings Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('x-axis')">
+                            <h3>
+                                X Axis
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+
+                        <!-- Y Axis Settings Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('y-axis')">
+                            <h3>
+                                Y Axis
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+
+                        <!-- Tick Settings Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('tick-settings')">
+                            <h3>
+                                Tick Settings
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+
+                        <!-- Legend Settings Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('legend-settings')">
+                            <h3>
+                                Legend Settings
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+
+                        <!-- Background Settings Button -->
+                        <div class="setting-group-btn" onclick="openFloatingPanel('background-settings')">
+                            <h3>
+                                Background & Boundary
+                                <button class="open-btn">Open</button>
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW: Container for Secondary Y Axis buttons -->
+                    <div id="secondary-y-axes-buttons-container" style="margin-top: 16px;"></div>
+                </div>
+            </div>
+
+            <!-- NEW: Position Controls Panel (between Part 4 and Part 2) -->
+            <div class="position-controls-panel" id="positionControlsPanel">
+                <h3>Position Controls</h3>
+                <!-- Boundary Position Controls -->
+                <div class="position-control-group" id="boundary-controls">
+                    <h4>Boundary Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustBoundary('top', -5)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustBoundary('left', -5)">←</button>
+                            <button class="pos-center-btn" onclick="resetBoundary()">R</button>
+                            <button class="pos-btn" onclick="adjustBoundary('right', 5)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustBoundary('bottom', 5)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- X Label Position Controls -->
+                <div class="position-control-group" id="xlabel-controls">
+                    <h4>X Label Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXLabelPosition('y', -2)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXLabelPosition('x', -2)">←</button>
+                            <button class="pos-center-btn" onclick="resetXLabelPosition()">R</button>
+                            <button class="pos-btn" onclick="adjustXLabelPosition('x', 2)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXLabelPosition('y', 2)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Y Label Position Controls -->
+                <div class="position-control-group" id="ylabel-controls">
+                    <h4>Y Label Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYLabelPosition('y', -2)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYLabelPosition('x', -2)">←</button>
+                            <button class="pos-center-btn" onclick="resetYLabelPosition()">R</button>
+                            <button class="pos-btn" onclick="adjustYLabelPosition('x', 2)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYLabelPosition('y', 2)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- X Tick Position Controls -->
+                <div class="position-control-group" id="xtick-controls">
+                    <h4>X Tick Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXTickPosition('y', -1)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXTickPosition('x', -1)">←</button>
+                            <button class="pos-center-btn" onclick="resetXTickPosition()">R</button>
+                            <button class="pos-btn" onclick="adjustXTickPosition('x', 1)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustXTickPosition('y', 1)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Y Tick Position Controls -->
+                <div class="position-control-group" id="ytick-controls">
+                    <h4>Y Tick Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYTickPosition('y', -1)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYTickPosition('x', -1)">←</button>
+                            <button class="pos-center-btn" onclick="resetYTickPosition()">R</button>
+                            <button class="pos-btn" onclick="adjustYTickPosition('x', 1)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYTickPosition('y', 1)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend Position Controls -->
+                <div class="position-control-group" id="legend-controls">
+                    <h4>Legend Position</h4>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustLegendPosition('y', -5)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustLegendPosition('x', -5)">←</button>
+                            <button class="pos-center-btn" onclick="resetLegendPosition()">R</button>
+                            <button class="pos-btn" onclick="adjustLegendPosition('x', 5)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustLegendPosition('y', 5)">↓</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Y Axis Controls will be added here dynamically -->
+                <div id="secondary-axis-controls-container"></div>
+            </div>
+
+            <!-- Part 2: Plot Management -->
+            <div class="part2">
+                <div class="part2-header">
+                    <h2 style="font-size: 0.84em;">Plot Management</h2>
+                </div>
+                
+                <!-- Add Plot Section -->
+                <div class="add-plot-section">
+                    <h3>Add New Plot</h3>
+                    <div class="setting-item">
+                        <label>X Data Column:</label>
+                        <select id="newPlotXCol"></select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Y Data Column:</label>
+                        <select id="newPlotYCol"></select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Plot Type:</label>
+                        <select id="newPlotType">
+                            <option value="scatter">Scatter</option>
+                            <option value="line">Line</option>
+                            <option value="line+scatter">Line + Scatter</option>
+                            <option value="bar">Bar</option>
+                            <option value="area">Area</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Legend Name:</label>
+                        <input type="text" id="newPlotLegend" placeholder="Plot name">
+                    </div>
+                    <button class="add-plot-btn" onclick="addPlot()">Add Plot</button>
+                </div>
+
+                <!-- Added Plots List -->
+                <div id="plotsList">
+                    <!-- Plot items will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Panels (Initially hidden) -->
+    
+    <!-- Plot Dimensions Panel -->
+    <div class="floating-panel" id="floating-plot-dimensions">
+        <div class="floating-panel-header">
+            <h3>Plot Dimensions</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('plot-dimensions')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <div class="setting-item">
+                <label>Plot Width (px):</label>
+                <input type="number" id="plotWidth" value="800" min="400" max="2000" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Plot Height (px):</label>
+                <input type="number" id="plotHeight" value="500" min="300" max="1500" onchange="updatePlot()">
+            </div>
+        </div>
+    </div>
+
+    <!-- X Axis Panel -->
+    <div class="floating-panel" id="floating-x-axis">
+        <div class="floating-panel-header">
+            <h3>X Axis Settings</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('x-axis')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <div class="setting-item">
+                <label>X Min:</label>
+                <input type="number" id="xMin" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>X Max:</label>
+                <input type="number" id="xMax" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Major Tick Interval:</label>
+                <input type="number" id="xTickInterval" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>X Label:</label>
+                <input type="text" id="xLabel" value="X Axis" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Label Font Family:</label>
+                <select id="xLabelFont" onchange="updatePlot()">
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Palatino">Palatino</option>
+                    <option value="Garamond">Garamond</option>
+                    <option value="Bookman">Bookman</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Century Gothic">Century Gothic</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Label Font Size:</label>
+                <input type="number" id="xLabelSize" value="12" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>X Label Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #000000;" onclick="openColorPicker('xLabelColor')"></div>
+                    <input type="text" class="color-input" id="xLabelColor" value="#000000" onchange="updateColorBox('xLabelColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for X label -->
+                <div class="color-palette" id="xLabelColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Y Axis Panel -->
+    <div class="floating-panel" id="floating-y-axis">
+        <div class="floating-panel-header">
+            <h3>Y Axis Settings</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('y-axis')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <div class="setting-item">
+                <label>Y Min:</label>
+                <input type="number" id="yMin" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Y Max:</label>
+                <input type="number" id="yMax" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Major Tick Interval:</label>
+                <input type="number" id="yTickInterval" step="any" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Y Label:</label>
+                <input type="text" id="yLabel" value="Y Axis" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Label Font Family:</label>
+                <select id="yLabelFont" onchange="updatePlot()">
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Palatino">Palatino</option>
+                    <option value="Garamond">Garamond</option>
+                    <option value="Bookman">Bookman</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Century Gothic">Century Gothic</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Label Font Size:</label>
+                <input type="number" id="yLabelSize" value="12" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Y Label Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #000000;" onclick="openColorPicker('yLabelColor')"></div>
+                    <input type="text" class="color-input" id="yLabelColor" value="#000000" onchange="updateColorBox('yLabelColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for Y label -->
+                <div class="color-palette" id="yLabelColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+            <button class="add-axis-btn" onclick="addYAxis()">Add Secondary Y Axis</button>
+        </div>
+    </div>
+
+    <!-- Tick Settings Panel - UPDATED with separate X and Y tick label colors -->
+    <div class="floating-panel" id="floating-tick-settings">
+        <div class="floating-panel-header">
+            <h3>Tick Settings</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('tick-settings')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <!-- General Tick Settings -->
+            <div class="setting-item">
+                <label>Tick Label Font Family:</label>
+                <select id="tickLabelFont" onchange="updatePlot()">
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Palatino">Palatino</option>
+                    <option value="Garamond">Garamond</option>
+                    <option value="Bookman">Bookman</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Century Gothic">Century Gothic</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Tick Label Font Size:</label>
+                <input type="number" id="tickLabelSize" value="10" onchange="updatePlot()">
+            </div>
+            
+            <!-- NEW: Separate X Axis Tick Label Color -->
+            <div class="setting-item">
+                <label>X Axis Tick Label Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #000000;" onclick="openColorPicker('xTickLabelColor')"></div>
+                    <input type="text" class="color-input" id="xTickLabelColor" value="#000000" onchange="updateColorBox('xTickLabelColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for X tick labels -->
+                <div class="color-palette" id="xTickLabelColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+            
+            <!-- NEW: Separate Y Axis Tick Label Color -->
+            <div class="setting-item">
+                <label>Y Axis Tick Label Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #000000;" onclick="openColorPicker('yTickLabelColor')"></div>
+                    <input type="text" class="color-input" id="yTickLabelColor" value="#000000" onchange="updateColorBox('yTickLabelColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for Y tick labels -->
+                <div class="color-palette" id="yTickLabelColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+            
+            <!-- NEW: Bottom X Axis Tick Settings -->
+            <div class="tick-sub-section">
+                <h4>Bottom X Axis Ticks</h4>
+                <div class="setting-item">
+                    <label>Show Major Ticks:</label>
+                    <input type="checkbox" id="showBottomXMajorTicks" checked onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Show Minor Ticks:</label>
+                    <input type="checkbox" id="showBottomXMinorTicks" checked onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Ticks per Major:</label>
+                    <input type="number" id="bottomXMinorTicksPerMajor" value="5" min="1" max="20" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Tick Direction:</label>
+                    <select id="bottomXTickDirection" onchange="updatePlot()">
+                        <option value="out">Outward</option>
+                        <option value="in">Inward</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Major Tick Size:</label>
+                    <input type="number" id="bottomXMajorTickSize" value="6" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Tick Size:</label>
+                    <input type="number" id="bottomXMinorTickSize" value="3" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+            </div>
+            
+            <!-- NEW: Top X Axis Tick Settings -->
+            <div class="tick-sub-section">
+                <h4>Top X Axis Ticks</h4>
+                <div class="setting-item">
+                    <label>Show Major Ticks:</label>
+                    <input type="checkbox" id="showTopXMajorTicks" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Show Minor Ticks:</label>
+                    <input type="checkbox" id="showTopXMinorTicks" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Ticks per Major:</label>
+                    <input type="number" id="topXMinorTicksPerMajor" value="5" min="1" max="20" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Tick Direction:</label>
+                    <select id="topXTickDirection" onchange="updatePlot()">
+                        <option value="out">Outward</option>
+                        <option value="in">Inward</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Major Tick Size:</label>
+                    <input type="number" id="topXMajorTickSize" value="6" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Tick Size:</label>
+                    <input type="number" id="topXMinorTickSize" value="3" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+            </div>
+            
+            <!-- NEW: Left Y Axis Tick Settings -->
+            <div class="tick-sub-section">
+                <h4>Left Y Axis Ticks</h4>
+                <div class="setting-item">
+                    <label>Show Major Ticks:</label>
+                    <input type="checkbox" id="showLeftYMajorTicks" checked onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Show Minor Ticks:</label>
+                    <input type="checkbox" id="showLeftYMinorTicks" checked onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Ticks per Major:</label>
+                    <input type="number" id="leftYMinorTicksPerMajor" value="5" min="1" max="20" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Tick Direction:</label>
+                    <select id="leftYTickDirection" onchange="updatePlot()">
+                        <option value="out">Outward</option>
+                        <option value="in">Inward</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Major Tick Size:</label>
+                    <input type="number" id="leftYMajorTickSize" value="6" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Tick Size:</label>
+                    <input type="number" id="leftYMinorTickSize" value="3" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+            </div>
+            
+            <!-- NEW: Right Y Axis Tick Settings -->
+            <div class="tick-sub-section">
+                <h4>Right Y Axis Ticks</h4>
+                <div class="setting-item">
+                    <label>Show Major Ticks:</label>
+                    <input type="checkbox" id="showRightYMajorTicks" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Show Minor Ticks:</label>
+                    <input type="checkbox" id="showRightYMinorTicks" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Ticks per Major:</label>
+                    <input type="number" id="rightYMinorTicksPerMajor" value="5" min="1" max="20" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Tick Direction:</label>
+                    <select id="rightYTickDirection" onchange="updatePlot()">
+                        <option value="out">Outward</option>
+                        <option value="in">Inward</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Major Tick Size:</label>
+                    <input type="number" id="rightYMajorTickSize" value="6" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+                <div class="setting-item">
+                    <label>Minor Tick Size:</label>
+                    <input type="number" id="rightYMinorTickSize" value="3" min="1" max="20" step="0.5" onchange="updatePlot()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend Settings Panel -->
+    <div class="floating-panel" id="floating-legend-settings">
+        <div class="floating-panel-header">
+            <h3>Legend Settings</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('legend-settings')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <div class="setting-item">
+                <label>Show Legend:</label>
+                <input type="checkbox" id="showLegend" checked onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Legend Font Family:</label>
+                <select id="legendFont" onchange="updatePlot()">
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Palatino">Palatino</option>
+                    <option value="Garamond">Garamond</option>
+                    <option value="Bookman">Bookman</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Century Gothic">Century Gothic</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Legend Font Size:</label>
+                <input type="number" id="legendFontSize" value="10" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Legend Position:</label>
+                <select id="legendPosition" onchange="updatePlot()">
+                    <option value="upper right">Upper Right</option>
+                    <option value="upper left">Upper Left</option>
+                    <option value="lower right">Lower Right</option>
+                    <option value="lower left">Lower Left</option>
+                    <option value="center">Center</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Settings Panel - UPDATED with grid color control -->
+    <div class="floating-panel" id="floating-background-settings">
+        <div class="floating-panel-header">
+            <h3>Background & Boundary</h3>
+            <button class="close-panel-btn" onclick="closeFloatingPanel('background-settings')">×</button>
+        </div>
+        <div class="floating-panel-content">
+            <div class="setting-item">
+                <label>Plot Background Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #ffffff;" onclick="openColorPicker('plotBgColor')"></div>
+                    <input type="text" class="color-input" id="plotBgColor" value="#ffffff" onchange="updateColorBox('plotBgColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for plot background -->
+                <div class="color-palette" id="plotBgColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+            <div class="setting-item">
+                <label>Boundary Line Width:</label>
+                <input type="number" id="boundaryWidth" value="2" min="0" step="0.5" onchange="updatePlot()">
+            </div>
+            <div class="setting-item">
+                <label>Boundary Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #000000;" onclick="openColorPicker('boundaryColor')"></div>
+                    <input type="text" class="color-input" id="boundaryColor" value="#000000" onchange="updateColorBox('boundaryColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for boundary -->
+                <div class="color-palette" id="boundaryColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+            <!-- NEW: Grid Line Color Control -->
+            <div class="setting-item">
+                <label>Grid Line Color:</label>
+                <div class="color-picker-container">
+                    <div class="color-box" style="background-color: #dddddd;" onclick="openColorPicker('gridLineColor')"></div>
+                    <input type="text" class="color-input" id="gridLineColor" value="#dddddd" onchange="updateColorBox('gridLineColor'); updatePlot()">
+                </div>
+                <!-- NEW: Color palette for grid lines -->
+                <div class="color-palette" id="gridLineColorPalette">
+                    <div class="color-palette-title">Quick Colors:</div>
+                    <!-- Color palette will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let dataTable = [];
+        let plots = [];
+        let columnNames = [];
+        let plotIdCounter = 0;
+        let yAxes = []; // Secondary Y axes
+        let yAxisCounter = 0;
+
+        // New global variables for positioning adjustments
+        let margin = { left: 80, right: 60, top: 40, bottom: 60 };
+        let defaultMargin = { left: 80, right: 60, top: 40, bottom: 60 };
+        let xLabelOffset = { x: 0, y: 0 };
+        let yLabelOffset = { x: 0, y: 0 };
+        let xTickOffset = { x: 0, y: 0 };
+        let yTickOffset = { x: 0, y: 0 };
+        let legendOffset = { x: 0, y: 0 };
+        
+        // Store canvas dimensions
+        let canvasWidth = 800;
+        let canvasHeight = 500;
+        
+        // Device pixel ratio for high-resolution rendering
+        let devicePixelRatio = window.devicePixelRatio || 1;
+        
+        // Axis position tracking
+        let axisPositions = {}; // Stores the x-position offset for each secondary axis
+
+        // Store active floating panels for z-index management
+        let activePanels = new Set();
+        let panelZIndex = 1000;
+
+        // Line dash patterns
+        const linePatterns = {
+            'solid': [],
+            'dotted': [1, 3],
+            'dashed': [5, 5],
+            'dash-dot': [5, 3, 1, 3],
+            'dash-dot-dot': [5, 3, 1, 3, 1, 3],
+            'long-dash': [10, 3],
+            'short-dash': [3, 3]
+        };
+
+        // Bar patterns
+        const barPatterns = {
+            'solid': null,
+            'striped': 'striped',
+            'cross-hatched': 'cross-hatched',
+            'diagonal': 'diagonal',
+            'dots': 'dots'
+        };
+
+        // NEW: Color palettes for different uses
+        const colorPalettes = {
+            // Basic colors palette
+            basic: [
+                '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', 
+                '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080',
+                '#008000', '#800000', '#008080', '#000080', '#808000'
+            ],
+            
+            // Plot line colors (distinct colors for multiple lines)
+            plotLines: [
+                '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+                '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5'
+            ],
+            
+            // Marker colors
+            markers: [
+                '#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231',
+                '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe',
+                '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000'
+            ],
+            
+            // Background colors
+            backgrounds: [
+                '#FFFFFF', '#F8F8F8', '#F0F0F0', '#E8E8E8', '#E0E0E0',
+                '#F5F5DC', '#F0FFF0', '#F0F8FF', '#FFF0F5', '#F8F0FF',
+                '#2C3E50', '#34495E', '#2C2C2C', '#1A1A1A', '#000000'
+            ],
+            
+            // Grid/axis colors
+            gridAxis: [
+                '#DDDDDD', '#CCCCCC', '#BBBBBB', '#AAAAAA', '#999999',
+                '#888888', '#777777', '#666666', '#555555', '#444444',
+                '#333333', '#222222', '#111111', '#000000', '#FFFFFF'
+            ]
+        };
+
+        // NEW: Color picker functions with palette support
+        function openColorPicker(colorInputId) {
+            const input = document.getElementById(colorInputId);
+            if (input) {
+                input.click();
+            }
+        }
+
+        function updateColorBox(colorInputId) {
+            const input = document.getElementById(colorInputId);
+            const colorBox = input.previousElementSibling;
+            if (colorBox && colorBox.classList.contains('color-box')) {
+                colorBox.style.backgroundColor = input.value;
+            }
+            
+            // Also update the selected state in the palette
+            updatePaletteSelection(colorInputId);
+        }
+
+        // NEW: Create color palette for a specific input
+        function createColorPalette(containerId, inputId, paletteType = 'basic') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = '<div class="color-palette-title">Quick Colors:</div>';
+            
+            const colors = colorPalettes[paletteType] || colorPalettes.basic;
+            
+            colors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                swatch.title = color;
+                swatch.dataset.color = color;
+                swatch.dataset.target = inputId;
+                
+                swatch.addEventListener('click', function() {
+                    const targetInput = document.getElementById(this.dataset.target);
+                    if (targetInput) {
+                        targetInput.value = this.dataset.color;
+                        updateColorBox(this.dataset.target);
+                        
+                        // Update the plot if the input has an onchange that calls updatePlot
+                        if (targetInput.onchange) {
+                            targetInput.onchange();
+                        } else {
+                            updatePlot();
+                        }
+                    }
+                });
+                
+                container.appendChild(swatch);
+            });
+            
+            // Initialize selection
+            updatePaletteSelection(inputId);
+        }
+
+        // NEW: Update palette selection based on current color
+        function updatePaletteSelection(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            const currentColor = input.value.toUpperCase();
+            const container = input.parentElement.nextElementSibling;
+            
+            if (container && container.classList.contains('color-palette')) {
+                const swatches = container.querySelectorAll('.color-swatch[data-target="' + inputId + '"]');
+                swatches.forEach(swatch => {
+                    if (swatch.dataset.color.toUpperCase() === currentColor) {
+                        swatch.classList.add('selected');
+                    } else {
+                        swatch.classList.remove('selected');
+                    }
+                });
+            }
+        }
+
+        // Initialize color boxes on load
+        function initializeColorBoxes() {
+            // Update all color boxes
+            const colorInputs = document.querySelectorAll('input[type="text"].color-input');
+            colorInputs.forEach(input => {
+                updateColorBox(input.id);
+            });
+            
+            // Initialize color palettes for existing elements
+            createColorPalette('xLabelColorPalette', 'xLabelColor', 'gridAxis');
+            createColorPalette('yLabelColorPalette', 'yLabelColor', 'gridAxis');
+            createColorPalette('xTickLabelColorPalette', 'xTickLabelColor', 'gridAxis');
+            createColorPalette('yTickLabelColorPalette', 'yTickLabelColor', 'gridAxis');
+            createColorPalette('plotBgColorPalette', 'plotBgColor', 'backgrounds');
+            createColorPalette('boundaryColorPalette', 'boundaryColor', 'gridAxis');
+            createColorPalette('gridLineColorPalette', 'gridLineColor', 'gridAxis');
+        }
+
+        // Initialize data grid with 20 columns by default
+        function initDataGrid(rows = 20, cols = 20) {
+            const grid = document.getElementById('dataGrid');
+            grid.innerHTML = '';
+            
+            // Header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'data-row';
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'data-cell';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = `Col ${c + 1}`;
+                input.dataset.row = 0;
+                input.dataset.col = c;
+                input.addEventListener('input', updateColumnNames);
+                cell.appendChild(input);
+                headerRow.appendChild(cell);
+            }
+            grid.appendChild(headerRow);
+
+            // Data rows
+            for (let r = 1; r <= rows; r++) {
+                const row = document.createElement('div');
+                row.className = 'data-row';
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'data-cell';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.dataset.row = r;
+                    input.dataset.col = c;
+                    input.addEventListener('paste', handlePaste);
+                    input.addEventListener('input', updateDataTable);
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                }
+                grid.appendChild(row);
+            }
+
+            updateColumnNames();
+        }
+
+        // Handle paste from clipboard
+        function handlePaste(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text');
+            const rows = pastedData.split('\n').map(row => row.split('\t'));
+            
+            const startRow = parseInt(e.target.dataset.row);
+            const startCol = parseInt(e.target.dataset.col);
+            
+            const grid = document.getElementById('dataGrid');
+            const currentRows = grid.children.length;
+            const currentCols = grid.children[0].children.length;
+            
+            // Expand grid if needed
+            const neededRows = startRow + rows.length;
+            const neededCols = Math.max(...rows.map(r => startCol + r.length));
+            
+            if (neededRows > currentRows || neededCols > currentCols) {
+                initDataGrid(Math.max(neededRows, currentRows), Math.max(neededCols, currentCols));
+            }
+            
+            // Fill in pasted data
+            rows.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    const targetRow = startRow + r;
+                    const targetCol = startCol + c;
+                    const input = document.querySelector(`input[data-row="${targetRow}"][data-col="${targetCol}"]`);
+                    if (input) {
+                        input.value = cell.trim();
+                    }
+                });
+            });
+            
+            updateDataTable();
+            updateColumnNames();
+        }
+
+        // Update column names
+        function updateColumnNames() {
+            const headerInputs = document.querySelectorAll('input[data-row="0"]');
+            columnNames = Array.from(headerInputs).map(input => input.value || `Col ${parseInt(input.dataset.col) + 1}`);
+            updateColumnSelectors();
+        }
+
+        // Update data table
+        function updateDataTable() {
+            const grid = document.getElementById('dataGrid');
+            const rows = grid.children;
+            dataTable = [];
+            
+            for (let r = 1; r < rows.length; r++) {
+                const cells = rows[r].children;
+                const rowData = [];
+                for (let c = 0; c < cells.length; c++) {
+                    const value = cells[c].querySelector('input').value;
+                    rowData.push(value ? parseFloat(value) : null);
+                }
+                if (rowData.some(v => v !== null && !isNaN(v))) {
+                    dataTable.push(rowData);
+                }
+            }
+        }
+
+        // Update column selectors
+        function updateColumnSelectors() {
+            const xColSelect = document.getElementById('newPlotXCol');
+            const yColSelect = document.getElementById('newPlotYCol');
+            
+            xColSelect.innerHTML = '';
+            yColSelect.innerHTML = '';
+            
+            columnNames.forEach((name, idx) => {
+                const optionX = document.createElement('option');
+                optionX.value = idx;
+                optionX.textContent = name;
+                xColSelect.appendChild(optionX);
+                
+                const optionY = document.createElement('option');
+                optionY.value = idx;
+                optionY.textContent = name;
+                yColSelect.appendChild(optionY);
+            });
+        }
+
+        // Add plot
+        function addPlot() {
+            const xCol = parseInt(document.getElementById('newPlotXCol').value);
+            const yCol = parseInt(document.getElementById('newPlotYCol').value);
+            const plotType = document.getElementById('newPlotType').value;
+            const legendName = document.getElementById('newPlotLegend').value || `Plot ${plots.length + 1}`;
+            
+            const plot = {
+                id: plotIdCounter++,
+                xCol,
+                yCol,
+                type: plotType,
+                legend: legendName,
+                lineWidth: 2,
+                lineColor: colorPalettes.plotLines[plots.length % colorPalettes.plotLines.length],
+                lineStyle: 'solid',
+                markerType: 'circle',
+                markerSize: 6,
+                markerColor: colorPalettes.markers[plots.length % colorPalettes.markers.length],
+                barPattern: 'solid',
+                barPatternColor: '#ffffff',
+                visible: true,
+                yAxisId: 'primary', // Default to primary Y axis
+                editorCollapsed: false // New property to track editor state
+            };
+            
+            plots.push(plot);
+            renderPlotItem(plot);
+            updatePlot();
+        }
+
+        // Render plot item in Part 2 - UPDATED with color palettes
+        function renderPlotItem(plot) {
+            const plotsList = document.getElementById('plotsList');
+            const plotItem = document.createElement('div');
+            plotItem.className = 'plot-item';
+            plotItem.id = `plot-${plot.id}`;
+            
+            plotItem.innerHTML = `
+                <div class="plot-item-header">
+                    <h4>${plot.legend}</h4>
+                    <div>
+                        <button class="edit-plot-btn" onclick="toggleEditor(${plot.id})">Edit</button>
+                        <button class="plot-collapse-btn" onclick="togglePlotEditorCollapse(${plot.id})">▼</button>
+                        <button class="delete-plot-btn" onclick="deletePlot(${plot.id})">×</button>
+                    </div>
+                </div>
+                <div class="plot-editor" id="editor-${plot.id}">
+                    <div class="setting-item">
+                        <label>Y Axis:</label>
+                        <select id="yaxis-select-${plot.id}" onchange="updatePlotProperty(${plot.id}, 'yAxisId', this.value)">
+                            <option value="primary" ${plot.yAxisId === 'primary' ? 'selected' : ''}>Primary Y (Left)</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Plot Type:</label>
+                        <select onchange="updatePlotProperty(${plot.id}, 'type', this.value)">
+                            <option value="scatter" ${plot.type === 'scatter' ? 'selected' : ''}>Scatter</option>
+                            <option value="line" ${plot.type === 'line' ? 'selected' : ''}>Line</option>
+                            <option value="line+scatter" ${plot.type === 'line+scatter' ? 'selected' : ''}>Line + Scatter</option>
+                            <option value="bar" ${plot.type === 'bar' ? 'selected' : ''}>Bar</option>
+                            <option value="area" ${plot.type === 'area' ? 'selected' : ''}>Area</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Legend Name:</label>
+                        <input type="text" value="${plot.legend}" onchange="updatePlotProperty(${plot.id}, 'legend', this.value)">
+                    </div>
+                    <div class="setting-item">
+                        <label>Line Width:</label>
+                        <input type="number" value="${plot.lineWidth}" step="0.5" onchange="updatePlotProperty(${plot.id}, 'lineWidth', parseFloat(this.value))">
+                    </div>
+                    <div class="setting-item">
+                        <label>Line Color:</label>
+                        <div class="color-picker-container">
+                            <div class="color-box" style="background-color: ${plot.lineColor};" onclick="openColorPicker('lineColor-${plot.id}')"></div>
+                            <input type="text" class="color-input" id="lineColor-${plot.id}" value="${plot.lineColor}" onchange="updateColorBox('lineColor-${plot.id}'); updatePlotProperty(${plot.id}, 'lineColor', this.value)">
+                        </div>
+                        <div class="color-palette" id="lineColorPalette-${plot.id}"></div>
+                    </div>
+                    <div class="setting-item" id="line-style-${plot.id}">
+                        <label>Line Style:</label>
+                        <select onchange="updatePlotProperty(${plot.id}, 'lineStyle', this.value)">
+                            <option value="solid" ${plot.lineStyle === 'solid' ? 'selected' : ''}>Solid</option>
+                            <option value="dotted" ${plot.lineStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+                            <option value="dashed" ${plot.lineStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+                            <option value="dash-dot" ${plot.lineStyle === 'dash-dot' ? 'selected' : ''}>Dash-Dot</option>
+                            <option value="dash-dot-dot" ${plot.lineStyle === 'dash-dot-dot' ? 'selected' : ''}>Dash-Dot-Dot</option>
+                            <option value="long-dash" ${plot.lineStyle === 'long-dash' ? 'selected' : ''}>Long Dash</option>
+                            <option value="short-dash" ${plot.lineStyle === 'short-dash' ? 'selected' : ''}>Short Dash</option>
+                        </select>
+                    </div>
+                    <div class="setting-item" id="marker-type-${plot.id}">
+                        <label>Marker Type:</label>
+                        <select onchange="updatePlotProperty(${plot.id}, 'markerType', this.value)">
+                            <option value="circle" ${plot.markerType === 'circle' ? 'selected' : ''}>Circle</option>
+                            <option value="square" ${plot.markerType === 'square' ? 'selected' : ''}>Square</option>
+                            <option value="triangle" ${plot.markerType === 'triangle' ? 'selected' : ''}>Triangle</option>
+                            <option value="triangle-down" ${plot.markerType === 'triangle-down' ? 'selected' : ''}>Triangle Down</option>
+                            <option value="diamond" ${plot.markerType === 'diamond' ? 'selected' : ''}>Diamond</option>
+                            <option value="star" ${plot.markerType === 'star' ? 'selected' : ''}>Star</option>
+                            <option value="cross" ${plot.markerType === 'cross' ? 'selected' : ''}>Cross</option>
+                            <option value="plus" ${plot.markerType === 'plus' ? 'selected' : ''}>Plus</option>
+                            <option value="male" ${plot.markerType === 'male' ? 'selected' : ''}>Male Symbol</option>
+                            <option value="female" ${plot.markerType === 'female' ? 'selected' : ''}>Female Symbol</option>
+                        </select>
+                    </div>
+                    <div class="setting-item" id="marker-size-${plot.id}">
+                        <label>Marker Size:</label>
+                        <input type="number" value="${plot.markerSize}" step="1" onchange="updatePlotProperty(${plot.id}, 'markerSize', parseFloat(this.value))">
+                    </div>
+                    <div class="setting-item" id="marker-color-${plot.id}">
+                        <label>Marker Color:</label>
+                        <div class="color-picker-container">
+                            <div class="color-box" style="background-color: ${plot.markerColor};" onclick="openColorPicker('markerColor-${plot.id}')"></div>
+                            <input type="text" class="color-input" id="markerColor-${plot.id}" value="${plot.markerColor}" onchange="updateColorBox('markerColor-${plot.id}'); updatePlotProperty(${plot.id}, 'markerColor', this.value)">
+                        </div>
+                        <div class="color-palette" id="markerColorPalette-${plot.id}"></div>
+                    </div>
+                    <div class="setting-item" id="bar-pattern-${plot.id}">
+                        <label>Bar Pattern:</label>
+                        <select onchange="updatePlotProperty(${plot.id}, 'barPattern', this.value); updatePatternPreview(${plot.id})">
+                            <option value="solid" ${plot.barPattern === 'solid' ? 'selected' : ''}>Solid</option>
+                            <option value="striped" ${plot.barPattern === 'striped' ? 'selected' : ''}>Striped</option>
+                            <option value="cross-hatched" ${plot.barPattern === 'cross-hatched' ? 'selected' : ''}>Cross-Hatched</option>
+                            <option value="diagonal" ${plot.barPattern === 'diagonal' ? 'selected' : ''}>Diagonal</option>
+                            <option value="dots" ${plot.barPattern === 'dots' ? 'selected' : ''}>Dots</option>
+                        </select>
+                        <div class="pattern-preview" id="pattern-preview-${plot.id}"></div>
+                    </div>
+                    <div class="setting-item" id="bar-pattern-color-${plot.id}">
+                        <label>Bar Pattern Color:</label>
+                        <div class="color-picker-container">
+                            <div class="color-box" style="background-color: ${plot.barPatternColor};" onclick="openColorPicker('barPatternColor-${plot.id}')"></div>
+                            <input type="text" class="color-input" id="barPatternColor-${plot.id}" value="${plot.barPatternColor}" onchange="updateColorBox('barPatternColor-${plot.id}'); updatePlotProperty(${plot.id}, 'barPatternColor', this.value); updatePatternPreview(${plot.id})">
+                        </div>
+                        <div class="color-palette" id="barPatternColorPalette-${plot.id}"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label>Visible:</label>
+                        <input type="checkbox" ${plot.visible ? 'checked' : ''} onchange="updatePlotProperty(${plot.id}, 'visible', this.checked)">
+                    </div>
+                </div>
+            `;
+            
+            plotsList.appendChild(plotItem);
+            
+            // Update Y axis selector with current axes
+            updateYAxisSelectors();
+            
+            // Create canvas for pattern preview
+            const previewDiv = document.getElementById(`pattern-preview-${plot.id}`);
+            const previewCanvas = document.createElement('canvas');
+            previewCanvas.width = previewDiv.clientWidth;
+            previewCanvas.height = previewDiv.clientHeight;
+            previewDiv.appendChild(previewCanvas);
+            
+            // Create color palettes for this plot
+            createColorPalette(`lineColorPalette-${plot.id}`, `lineColor-${plot.id}`, 'plotLines');
+            createColorPalette(`markerColorPalette-${plot.id}`, `markerColor-${plot.id}`, 'markers');
+            createColorPalette(`barPatternColorPalette-${plot.id}`, `barPatternColor-${plot.id}`, 'basic');
+            
+            // Update pattern preview
+            updatePatternPreview(plot.id);
+            
+            // Show/hide relevant controls based on plot type
+            updatePlotTypeControls(plot.id);
+            
+            // Set initial collapsed state
+            if (plot.editorCollapsed) {
+                const editor = document.getElementById(`editor-${plot.id}`);
+                editor.style.display = 'none';
+            }
+        }
+
+        // Update pattern preview
+        function updatePatternPreview(plotId) {
+            const plot = plots.find(p => p.id === plotId);
+            if (!plot) return;
+            
+            const previewCanvas = document.querySelector(`#pattern-preview-${plotId} canvas`);
+            if (!previewCanvas) return;
+            
+            const ctx = previewCanvas.getContext('2d');
+            const width = previewCanvas.width;
+            const height = previewCanvas.height;
+            
+            // Clear
+            ctx.clearRect(0, 0, width, height);
+            
+            // Background
+            ctx.fillStyle = plot.markerColor;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Apply pattern
+            switch(plot.barPattern) {
+                case 'solid':
+                    ctx.fillStyle = plot.barPatternColor;
+                    ctx.fillRect(0, 0, width, height);
+                    break;
+                case 'striped':
+                    ctx.fillStyle = plot.barPatternColor;
+                    for(let i = 0; i < width; i += 4) {
+                        ctx.fillRect(i, 0, 2, height);
+                    }
+                    break;
+                case 'cross-hatched':
+                    ctx.strokeStyle = plot.barPatternColor;
+                    ctx.lineWidth = 1;
+                    // Vertical lines
+                    for(let i = 0; i < width; i += 4) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, height);
+                        ctx.stroke();
+                    }
+                    // Horizontal lines
+                    for(let i = 0; i < height; i += 4) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(width, i);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'diagonal':
+                    ctx.strokeStyle = plot.barPatternColor;
+                    ctx.lineWidth = 2;
+                    for(let i = -height; i < width; i += 6) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, height);
+                        ctx.lineTo(i + height, 0);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'dots':
+                    ctx.fillStyle = plot.barPatternColor;
+                    for(let x = 4; x < width; x += 6) {
+                        for(let y = 4; y < height; y += 6) {
+                            ctx.beginPath();
+                            ctx.arc(x, y, 1, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // Show/hide controls based on plot type
+        function updatePlotTypeControls(plotId) {
+            const plot = plots.find(p => p.id === plotId);
+            if (!plot) return;
+            
+            // Control IDs
+            const lineControls = ['line-style'];
+            const scatterControls = ['marker-type', 'marker-size', 'marker-color'];
+            const barControls = ['bar-pattern', 'bar-pattern-color'];
+            
+            // Hide all specialized controls first
+            const allControls = [...lineControls, ...scatterControls, ...barControls];
+            allControls.forEach(control => {
+                const elem = document.getElementById(`${control}-${plotId}`);
+                if (elem) elem.style.display = 'none';
+            });
+            
+            // Show relevant controls based on plot type
+            if (plot.type === 'line' || plot.type === 'line+scatter') {
+                document.getElementById(`line-style-${plotId}`).style.display = 'block';
+            }
+            
+            if (plot.type === 'scatter' || plot.type === 'line+scatter') {
+                scatterControls.forEach(control => {
+                    document.getElementById(`${control}-${plotId}`).style.display = 'block';
+                });
+            }
+            
+            if (plot.type === 'bar' || plot.type === 'area') {
+                barControls.forEach(control => {
+                    document.getElementById(`${control}-${plotId}`).style.display = 'block';
+                });
+            }
+        }
+
+        // Update Y axis selectors in all plot editors
+        function updateYAxisSelectors() {
+            plots.forEach(plot => {
+                const select = document.getElementById(`yaxis-select-${plot.id}`);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="primary">Primary Y (Left)</option>';
+                    
+                    yAxes.forEach(axis => {
+                        const option = document.createElement('option');
+                        option.value = axis.id;
+                        option.textContent = axis.label || `Secondary Y ${axis.index}`;
+                        if (currentValue === axis.id) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Toggle plot editor
+        function toggleEditor(plotId) {
+            const plot = plots.find(p => p.id === plotId);
+            if (!plot) return;
+            
+            const editor = document.getElementById(`editor-${plotId}`);
+            const collapseBtn = document.querySelector(`#plot-${plotId} .plot-collapse-btn`);
+            
+            if (plot.editorCollapsed) {
+                // Currently collapsed, open it
+                editor.style.display = 'block';
+                collapseBtn.textContent = '▼';
+                plot.editorCollapsed = false;
+                
+                // Update controls
+                updatePatternPreview(plotId);
+                updatePlotTypeControls(plotId);
+            } else {
+                // Currently open, collapse it
+                editor.style.display = 'none';
+                collapseBtn.textContent = '▶';
+                plot.editorCollapsed = true;
+            }
+        }
+
+        // Toggle plot editor collapse without opening editor
+        function togglePlotEditorCollapse(plotId) {
+            const plot = plots.find(p => p.id === plotId);
+            if (!plot) return;
+            
+            const editor = document.getElementById(`editor-${plotId}`);
+            const collapseBtn = document.querySelector(`#plot-${plotId} .plot-collapse-btn`);
+            
+            if (editor.style.display === 'none' || plot.editorCollapsed) {
+                // Currently collapsed, open it
+                editor.style.display = 'block';
+                collapseBtn.textContent = '▼';
+                plot.editorCollapsed = false;
+                
+                // Update controls
+                updatePatternPreview(plotId);
+                updatePlotTypeControls(plotId);
+            } else {
+                // Currently open, collapse it
+                editor.style.display = 'none';
+                collapseBtn.textContent = '▶';
+                plot.editorCollapsed = true;
+            }
+        }
+
+        // Update plot property
+        function updatePlotProperty(plotId, property, value) {
+            const plot = plots.find(p => p.id === plotId);
+            if (plot) {
+                plot[property] = value;
+                // Update header if legend changed
+                if (property === 'legend') {
+                    const header = document.querySelector(`#plot-${plotId} h4`);
+                    header.textContent = value;
+                }
+                // Update controls visibility if type changed
+                if (property === 'type') {
+                    updatePlotTypeControls(plotId);
+                }
+                updatePlot();
+            }
+        }
+
+        // Delete plot
+        function deletePlot(plotId) {
+            plots = plots.filter(p => p.id !== plotId);
+            document.getElementById(`plot-${plotId}`).remove();
+            updatePlot();
+        }
+
+        // Draw marker based on type
+        function drawMarker(ctx, x, y, size, type, color) {
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            
+            switch(type) {
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'square':
+                    ctx.fillRect(x - size/2, y - size/2, size, size);
+                    break;
+                case 'triangle':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x - size/2, y + size/2);
+                    ctx.lineTo(x + size/2, y + size/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'triangle-down':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y + size/2);
+                    ctx.lineTo(x - size/2, y - size/2);
+                    ctx.lineTo(x + size/2, y - size/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'diamond':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x + size/2, y);
+                    ctx.lineTo(x, y + size/2);
+                    ctx.lineTo(x - size/2, y);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'star':
+                    ctx.beginPath();
+                    const spikes = 5;
+                    const outerRadius = size/2;
+                    const innerRadius = size/4;
+                    for(let i = 0; i < spikes * 2; i++) {
+                        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                        const angle = Math.PI * i / spikes;
+                        const px = x + Math.cos(angle) * radius;
+                        const py = y + Math.sin(angle) * radius;
+                        if(i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'cross':
+                    ctx.beginPath();
+                    ctx.moveTo(x - size/2, y);
+                    ctx.lineTo(x + size/2, y);
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x, y + size/2);
+                    ctx.stroke();
+                    break;
+                case 'plus':
+                    ctx.beginPath();
+                    ctx.moveTo(x - size/2, y);
+                    ctx.lineTo(x + size/2, y);
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x, y + size/2);
+                    ctx.stroke();
+                    break;
+                case 'male':
+                    // Male symbol (circle with arrow)
+                    ctx.beginPath();
+                    ctx.arc(x, y, size/3, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(x + size/3, y);
+                    ctx.lineTo(x + size/2, y);
+                    ctx.moveTo(x + size/3, y);
+                    ctx.lineTo(x + size/3 - size/6, y - size/6);
+                    ctx.stroke();
+                    break;
+                case 'female':
+                    // Female symbol (circle with cross)
+                    ctx.beginPath();
+                    ctx.arc(x, y, size/3, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - size/3);
+                    ctx.lineTo(x, y + size/3);
+                    ctx.moveTo(x - size/3, y);
+                    ctx.lineTo(x + size/3, y);
+                    ctx.stroke();
+                    break;
+            }
+        }
+
+        // Create pattern for bars
+        function createBarPattern(ctx, pattern, color, width, height) {
+            const patternCanvas = document.createElement('canvas');
+            patternCanvas.width = width;
+            patternCanvas.height = height;
+            const patternCtx = patternCanvas.getContext('2d');
+            
+            switch(pattern) {
+                case 'solid':
+                    patternCtx.fillStyle = color;
+                    patternCtx.fillRect(0, 0, width, height);
+                    break;
+                case 'striped':
+                    patternCtx.fillStyle = color;
+                    for(let i = 0; i < width; i += 4) {
+                        patternCtx.fillRect(i, 0, 2, height);
+                    }
+                    break;
+                case 'cross-hatched':
+                    patternCtx.strokeStyle = color;
+                    patternCtx.lineWidth = 1;
+                    // Vertical lines
+                    for(let i = 0; i < width; i += 4) {
+                        patternCtx.beginPath();
+                        patternCtx.moveTo(i, 0);
+                        patternCtx.lineTo(i, height);
+                        patternCtx.stroke();
+                    }
+                    // Horizontal lines
+                    for(let i = 0; i < height; i += 4) {
+                        patternCtx.beginPath();
+                        patternCtx.moveTo(0, i);
+                        patternCtx.lineTo(width, i);
+                        patternCtx.stroke();
+                    }
+                    break;
+                case 'diagonal':
+                    patternCtx.strokeStyle = color;
+                    patternCtx.lineWidth = 2;
+                    for(let i = -height; i < width; i += 6) {
+                        patternCtx.beginPath();
+                        patternCtx.moveTo(i, height);
+                        patternCtx.lineTo(i + height, 0);
+                        patternCtx.stroke();
+                    }
+                    break;
+                case 'dots':
+                    patternCtx.fillStyle = color;
+                    for(let x = 4; x < width; x += 6) {
+                        for(let y = 4; y < height; y += 6) {
+                            patternCtx.beginPath();
+                            patternCtx.arc(x, y, 1, 0, Math.PI * 2);
+                            patternCtx.fill();
+                        }
+                    }
+                    break;
+            }
+            
+            return ctx.createPattern(patternCanvas, 'repeat');
+        }
+
+        // NEW: Floating Panel Functions
+
+        // Open a floating panel
+        function openFloatingPanel(panelId) {
+            const panel = document.getElementById(`floating-${panelId}`);
+            if (!panel) return;
+            
+            // Bring to front
+            panelZIndex++;
+            panel.style.zIndex = panelZIndex;
+            
+            // Show panel
+            panel.style.display = 'block';
+            activePanels.add(panelId);
+            
+            // Position panel in a cascading pattern if not already positioned
+            if (!panel.dataset.positioned) {
+                const left = 50 + (activePanels.size - 1) * 30;
+                const top = 50 + (activePanels.size - 1) * 30;
+                panel.style.left = `${left}px`;
+                panel.style.top = `${top}px`;
+                panel.dataset.positioned = 'true';
+            }
+            
+            // Initialize draggable if not already done
+            if (!panel.dataset.draggableInitialized) {
+                makeDraggable(panel, panel.querySelector('.floating-panel-header'));
+                panel.dataset.draggableInitialized = 'true';
+            }
+        }
+
+        // Close a floating panel
+        function closeFloatingPanel(panelId) {
+            const panel = document.getElementById(`floating-${panelId}`);
+            if (panel) {
+                panel.style.display = 'none';
+                activePanels.delete(panelId);
+            }
+        }
+
+        // Make an element draggable
+        function makeDraggable(element, handle) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            handle.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // Get the mouse cursor position at startup
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // Call a function whenever the cursor moves
+                document.onmousemove = elementDrag;
+                
+                // Bring to front
+                panelZIndex++;
+                element.style.zIndex = panelZIndex;
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // Calculate the new cursor position
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // Set the element's new position
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                // Stop moving when mouse button is released
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        // Update plot with actual plotting logic - UPDATED with separate X and Y tick label colors
+        function updatePlot() {
+            // Get plot dimensions from input fields (logical pixels)
+            const logicalWidth = parseInt(document.getElementById('plotWidth').value) || 800;
+            const logicalHeight = parseInt(document.getElementById('plotHeight').value) || 500;
+            
+            const canvas = document.getElementById('plotCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Get device pixel ratio for high-resolution rendering
+            const dpr = window.devicePixelRatio || 1;
+            devicePixelRatio = dpr;
+            
+            // Store logical dimensions for other functions
+            canvasWidth = logicalWidth;
+            canvasHeight = logicalHeight;
+            
+            // Calculate total space needed for all axes based on their positions
+            const secondaryAxisSpacing = 60; // Space for each secondary axis
+            let maxAxisSpacing = 0;
+            yAxes.forEach((axis, index) => {
+                const axisOffset = axisPositions[axis.id] || 0;
+                const axisPosition = (index * secondaryAxisSpacing) + axisOffset;
+                maxAxisSpacing = Math.max(maxAxisSpacing, axisPosition + secondaryAxisSpacing);
+            });
+            
+            const totalSecondarySpace = maxAxisSpacing;
+            
+            // Calculate effective margins that account for label offsets (WITHOUT extra fixed padding)
+            const effectiveMargin = {
+                left: Math.max(margin.left, margin.left + Math.max(0, -yLabelOffset.x)),
+                right: Math.max(margin.right, margin.right + Math.max(0, yLabelOffset.x)) + totalSecondarySpace,
+                top: Math.max(margin.top, margin.top + Math.max(0, -xLabelOffset.y)),
+                bottom: Math.max(margin.bottom, margin.bottom + Math.max(0, xLabelOffset.y))
+            };
+            
+            // Calculate required canvas size (without unnecessary extra padding)
+            const requiredWidth = effectiveMargin.left + logicalWidth + effectiveMargin.right;
+            const requiredHeight = effectiveMargin.top + logicalHeight + effectiveMargin.bottom;
+            
+            // Set canvas internal size to high-resolution
+            canvas.width = requiredWidth * dpr;
+            canvas.height = requiredHeight * dpr;
+            
+            // Set canvas display size to required dimensions
+            canvas.style.width = requiredWidth + 'px';
+            canvas.style.height = requiredHeight + 'px';
+            
+            // Scale all drawing operations by DPR
+            ctx.scale(dpr, dpr);
+            
+            // Clear canvas at required size
+            const bgColor = document.getElementById('plotBgColor').value;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, requiredWidth, requiredHeight);
+            
+            // Calculate plot area within the canvas
+            const plotWidth = logicalWidth;
+            const plotHeight = logicalHeight;
+            const plotX = effectiveMargin.left;
+            const plotY = effectiveMargin.top;
+            
+            // Auto-scroll to center the plot in the viewport (first time only)
+            if (!canvas.dataset.initialized) {
+                const plotContainer = document.querySelector('.plot-container');
+                plotContainer.scrollLeft = (requiredWidth - plotContainer.clientWidth) / 2;
+                plotContainer.scrollTop = (requiredHeight - plotContainer.clientHeight) / 2;
+                canvas.dataset.initialized = 'true';
+            }
+            
+            // If no plots, show message
+            if (plots.length === 0 || dataTable.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Add data and plots to begin', requiredWidth / 2, requiredHeight / 2);
+                return;
+            }
+            
+            // Collect data for each Y axis to determine ranges
+            const axisData = {
+                primary: { x: [], y: [] }
+            };
+            
+            yAxes.forEach(axis => {
+                axisData[axis.id] = { x: [], y: [] };
+            });
+            
+            plots.forEach(plot => {
+                if (!plot.visible) return;
+                
+                const xData = dataTable.map(row => row[plot.xCol]).filter(v => v !== null && !isNaN(v));
+                const yData = dataTable.map(row => row[plot.yCol]).filter(v => v !== null && !isNaN(v));
+                
+                const axisId = plot.yAxisId || 'primary';
+                if (axisData[axisId]) {
+                    axisData[axisId].x = axisData[axisId].x.concat(xData);
+                    axisData[axisId].y = axisData[axisId].y.concat(yData);
+                }
+            });
+            
+            // Use primary axis data for X range
+            const allX = axisData.primary.x.concat(...yAxes.map(axis => axisData[axis.id].x));
+            
+            if (allX.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No valid data to plot', requiredWidth / 2, requiredHeight / 2);
+                return;
+            }
+            
+            // Determine X axis range
+            let xMin = document.getElementById('xMin').value ? parseFloat(document.getElementById('xMin').value) : Math.min(...allX);
+            let xMax = document.getElementById('xMax').value ? parseFloat(document.getElementById('xMax').value) : Math.max(...allX);
+            if (xMax === xMin) { xMin -= 1; xMax += 1; }
+            
+            // Determine primary Y axis range
+            let yMin, yMax;
+            if (axisData.primary.y.length > 0) {
+                yMin = document.getElementById('yMin').value ? parseFloat(document.getElementById('yMin').value) : Math.min(...axisData.primary.y);
+                yMax = document.getElementById('yMax').value ? parseFloat(document.getElementById('yMax').value) : Math.max(...axisData.primary.y);
+                if (yMax === yMin) { yMin -= 1; yMax += 1; }
+            } else {
+                yMin = 0;
+                yMax = 10;
+            }
+            
+            // Determine ranges for secondary Y axes
+            const yAxisRanges = {};
+            yAxes.forEach(axis => {
+                if (axisData[axis.id].y.length > 0) {
+                    const min = axis.min !== null ? axis.min : Math.min(...axisData[axis.id].y);
+                    const max = axis.max !== null ? axis.max : Math.max(...axisData[axis.id].y);
+                    yAxisRanges[axis.id] = {
+                        min: min === max ? min - 1 : min,
+                        max: min === max ? max + 1 : max
+                    };
+                } else {
+                    yAxisRanges[axis.id] = { min: 0, max: 10 };
+                }
+            });
+            
+            // Coordinate transformation functions
+            const xScale = (x) => plotX + ((x - xMin) / (xMax - xMin)) * plotWidth;
+            const yScalePrimary = (y) => plotY + plotHeight - ((y - yMin) / (yMax - yMin)) * plotHeight;
+            
+            const yScaleSecondary = {};
+            yAxes.forEach(axis => {
+                const range = yAxisRanges[axis.id];
+                yScaleSecondary[axis.id] = (y) => plotY + plotHeight - ((y - range.min) / (range.max - range.min)) * plotHeight;
+            });
+            
+            // Draw plot background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(plotX, plotY, plotWidth, plotHeight);
+            
+            // Draw primary axes (will be drawn over by boundary)
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(plotX, plotY);
+            ctx.lineTo(plotX, plotY + plotHeight);
+            ctx.lineTo(plotX + plotWidth, plotY + plotHeight);
+            ctx.stroke();
+            
+            // Draw secondary Y axes on the right, respecting their positions
+            yAxes.forEach((axis, index) => {
+                const axisOffset = axisPositions[axis.id] || 0;
+                const axisX = plotX + plotWidth + (index * secondaryAxisSpacing) + axisOffset;
+                
+                // Store the actual X position for this axis for later use
+                axis.actualX = axisX;
+                
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(axisX, plotY);
+                ctx.lineTo(axisX, plotY + plotHeight);
+                ctx.stroke();
+            });
+            
+            // Draw grid and ticks for primary Y axis
+            const tickLabelSize = parseInt(document.getElementById('tickLabelSize').value);
+            const xTickLabelColor = document.getElementById('xTickLabelColor').value; // NEW: Separate X tick label color
+            const yTickLabelColor = document.getElementById('yTickLabelColor').value; // NEW: Separate Y tick label color
+            const tickLabelFont = document.getElementById('tickLabelFont').value;
+            
+            // Get grid line color from settings
+            const gridLineColor = document.getElementById('gridLineColor').value;
+            ctx.strokeStyle = gridLineColor;
+            ctx.lineWidth = 1;
+            
+            // Get tick settings from UI
+            const showBottomXMajorTicks = document.getElementById('showBottomXMajorTicks').checked;
+            const showBottomXMinorTicks = document.getElementById('showBottomXMinorTicks').checked;
+            const bottomXMinorTicksPerMajor = parseInt(document.getElementById('bottomXMinorTicksPerMajor').value);
+            const bottomXTickDirection = document.getElementById('bottomXTickDirection').value;
+            const bottomXMajorTickSize = parseFloat(document.getElementById('bottomXMajorTickSize').value);
+            const bottomXMinorTickSize = parseFloat(document.getElementById('bottomXMinorTickSize').value);
+            
+            const showTopXMajorTicks = document.getElementById('showTopXMajorTicks').checked;
+            const showTopXMinorTicks = document.getElementById('showTopXMinorTicks').checked;
+            const topXMinorTicksPerMajor = parseInt(document.getElementById('topXMinorTicksPerMajor').value);
+            const topXTickDirection = document.getElementById('topXTickDirection').value;
+            const topXMajorTickSize = parseFloat(document.getElementById('topXMajorTickSize').value);
+            const topXMinorTickSize = parseFloat(document.getElementById('topXMinorTickSize').value);
+            
+            const showLeftYMajorTicks = document.getElementById('showLeftYMajorTicks').checked;
+            const showLeftYMinorTicks = document.getElementById('showLeftYMinorTicks').checked;
+            const leftYMinorTicksPerMajor = parseInt(document.getElementById('leftYMinorTicksPerMajor').value);
+            const leftYTickDirection = document.getElementById('leftYTickDirection').value;
+            const leftYMajorTickSize = parseFloat(document.getElementById('leftYMajorTickSize').value);
+            const leftYMinorTickSize = parseFloat(document.getElementById('leftYMinorTickSize').value);
+            
+            const showRightYMajorTicks = document.getElementById('showRightYMajorTicks').checked;
+            const showRightYMinorTicks = document.getElementById('showRightYMinorTicks').checked;
+            const rightYMinorTicksPerMajor = parseInt(document.getElementById('rightYMinorTicksPerMajor').value);
+            const rightYTickDirection = document.getElementById('rightYTickDirection').value;
+            const rightYMajorTickSize = parseFloat(document.getElementById('rightYMajorTickSize').value);
+            const rightYMinorTickSize = parseFloat(document.getElementById('rightYMinorTickSize').value);
+            
+            // X ticks (with offset adjustment)
+            const xInterval = document.getElementById('xTickInterval').value ? parseFloat(document.getElementById('xTickInterval').value) : (xMax - xMin) / 5;
+            let xTick = Math.ceil(xMin / xInterval) * xInterval;
+            while (xTick <= xMax) {
+                const x = xScale(xTick);
+                
+                // FIX: Set stroke style explicitly before drawing each grid line
+                ctx.strokeStyle = gridLineColor;
+                ctx.lineWidth = 1;
+                
+                // Draw grid line
+                ctx.beginPath();
+                ctx.moveTo(x, plotY);
+                ctx.lineTo(x, plotY + plotHeight);
+                ctx.stroke();
+                
+                // Draw bottom X axis major ticks if enabled
+                if (showBottomXMajorTicks) {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    if (bottomXTickDirection === 'out' || bottomXTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(x, plotY + plotHeight);
+                        ctx.lineTo(x, plotY + plotHeight + bottomXMajorTickSize);
+                        ctx.stroke();
+                    }
+                    if (bottomXTickDirection === 'in' || bottomXTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(x, plotY + plotHeight);
+                        ctx.lineTo(x, plotY + plotHeight - bottomXMajorTickSize);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw top X axis major ticks if enabled
+                if (showTopXMajorTicks) {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    if (topXTickDirection === 'out' || topXTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(x, plotY);
+                        ctx.lineTo(x, plotY - topXMajorTickSize);
+                        ctx.stroke();
+                    }
+                    if (topXTickDirection === 'in' || topXTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(x, plotY);
+                        ctx.lineTo(x, plotY + topXMajorTickSize);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw bottom X axis minor ticks if enabled
+                if (showBottomXMinorTicks) {
+                    const minorInterval = xInterval / bottomXMinorTicksPerMajor;
+                    for (let i = 1; i < bottomXMinorTicksPerMajor; i++) {
+                        const minorX = x - (minorInterval * i) * (plotWidth / (xMax - xMin));
+                        if (minorX >= plotX) {
+                            ctx.strokeStyle = '#000';
+                            ctx.lineWidth = 1;
+                            if (bottomXTickDirection === 'out' || bottomXTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(minorX, plotY + plotHeight);
+                                ctx.lineTo(minorX, plotY + plotHeight + bottomXMinorTickSize);
+                                ctx.stroke();
+                            }
+                            if (bottomXTickDirection === 'in' || bottomXTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(minorX, plotY + plotHeight);
+                                ctx.lineTo(minorX, plotY + plotHeight - bottomXMinorTickSize);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                
+                // Draw top X axis minor ticks if enabled
+                if (showTopXMinorTicks) {
+                    const minorInterval = xInterval / topXMinorTicksPerMajor;
+                    for (let i = 1; i < topXMinorTicksPerMajor; i++) {
+                        const minorX = x - (minorInterval * i) * (plotWidth / (xMax - xMin));
+                        if (minorX >= plotX) {
+                            ctx.strokeStyle = '#000';
+                            ctx.lineWidth = 1;
+                            if (topXTickDirection === 'out' || topXTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(minorX, plotY);
+                                ctx.lineTo(minorX, plotY - topXMinorTickSize);
+                                ctx.stroke();
+                            }
+                            if (topXTickDirection === 'in' || topXTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(minorX, plotY);
+                                ctx.lineTo(minorX, plotY + topXMinorTickSize);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                
+                // Use separate X tick label color
+                ctx.fillStyle = xTickLabelColor;
+                ctx.font = `${tickLabelSize}px ${tickLabelFont}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                // Apply X tick offset - adjust for new coordinate system
+                ctx.fillText(xTick.toFixed(2), x + xTickOffset.x, plotY + plotHeight + 5 + xTickOffset.y);
+                
+                xTick += xInterval;
+            }
+            
+            // Primary Y ticks (with offset adjustment)
+            const yInterval = document.getElementById('yTickInterval').value ? parseFloat(document.getElementById('yTickInterval').value) : (yMax - yMin) / 5;
+            let yTick = Math.ceil(yMin / yInterval) * yInterval;
+            while (yTick <= yMax) {
+                const y = yScalePrimary(yTick);
+                
+                // FIX: Set stroke style explicitly before drawing each grid line
+                ctx.strokeStyle = gridLineColor;
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.moveTo(plotX, y);
+                ctx.lineTo(plotX + plotWidth, y);
+                ctx.stroke();
+                
+                // Draw left Y axis major ticks if enabled
+                if (showLeftYMajorTicks) {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    if (leftYTickDirection === 'out' || leftYTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(plotX, y);
+                        ctx.lineTo(plotX - leftYMajorTickSize, y);
+                        ctx.stroke();
+                    }
+                    if (leftYTickDirection === 'in' || leftYTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(plotX, y);
+                        ctx.lineTo(plotX + leftYMajorTickSize, y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw right Y axis major ticks if enabled
+                if (showRightYMajorTicks) {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    if (rightYTickDirection === 'out' || rightYTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(plotX + plotWidth, y);
+                        ctx.lineTo(plotX + plotWidth + rightYMajorTickSize, y);
+                        ctx.stroke();
+                    }
+                    if (rightYTickDirection === 'in' || rightYTickDirection === 'both') {
+                        ctx.beginPath();
+                        ctx.moveTo(plotX + plotWidth, y);
+                        ctx.lineTo(plotX + plotWidth - rightYMajorTickSize, y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw left Y axis minor ticks if enabled
+                if (showLeftYMinorTicks) {
+                    const minorInterval = yInterval / leftYMinorTicksPerMajor;
+                    for (let i = 1; i < leftYMinorTicksPerMajor; i++) {
+                        const minorY = y + (minorInterval * i) * (plotHeight / (yMax - yMin));
+                        if (minorY <= plotY + plotHeight) {
+                            ctx.strokeStyle = '#000';
+                            ctx.lineWidth = 1;
+                            if (leftYTickDirection === 'out' || leftYTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(plotX, minorY);
+                                ctx.lineTo(plotX - leftYMinorTickSize, minorY);
+                                ctx.stroke();
+                            }
+                            if (leftYTickDirection === 'in' || leftYTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(plotX, minorY);
+                                ctx.lineTo(plotX + leftYMinorTickSize, minorY);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                
+                // Draw right Y axis minor ticks if enabled
+                if (showRightYMinorTicks) {
+                    const minorInterval = yInterval / rightYMinorTicksPerMajor;
+                    for (let i = 1; i < rightYMinorTicksPerMajor; i++) {
+                        const minorY = y + (minorInterval * i) * (plotHeight / (yMax - yMin));
+                        if (minorY <= plotY + plotHeight) {
+                            ctx.strokeStyle = '#000';
+                            ctx.lineWidth = 1;
+                            if (rightYTickDirection === 'out' || rightYTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(plotX + plotWidth, minorY);
+                                ctx.lineTo(plotX + plotWidth + rightYMinorTickSize, minorY);
+                                ctx.stroke();
+                            }
+                            if (rightYTickDirection === 'in' || rightYTickDirection === 'both') {
+                                ctx.beginPath();
+                                ctx.moveTo(plotX + plotWidth, minorY);
+                                ctx.lineTo(plotX + plotWidth - rightYMinorTickSize, minorY);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                
+                // Use separate Y tick label color
+                ctx.fillStyle = yTickLabelColor;
+                ctx.font = `${tickLabelSize}px ${tickLabelFont}`;
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                // Apply Y tick offset - adjust for new coordinate system
+                ctx.fillText(yTick.toFixed(2), plotX - 10 + yTickOffset.x, y + yTickOffset.y);
+                
+                yTick += yInterval;
+            }
+            
+            // Secondary Y axes ticks with their own settings
+            yAxes.forEach((axis, index) => {
+                const axisX = axis.actualX;
+                const range = yAxisRanges[axis.id];
+                const interval = axis.tickInterval || (range.max - range.min) / 5;
+                
+                // Get secondary axis tick settings
+                const showMajorTicks = axis.showMajorTicks !== undefined ? axis.showMajorTicks : true;
+                const showMinorTicks = axis.showMinorTicks !== undefined ? axis.showMinorTicks : true;
+                const minorTicksPerMajor = axis.minorTicksPerMajor !== undefined ? axis.minorTicksPerMajor : 5;
+                const tickDirection = axis.tickDirection || 'out';
+                const majorTickSize = axis.majorTickSize !== undefined ? axis.majorTickSize : 6;
+                const minorTickSize = axis.minorTickSize !== undefined ? axis.minorTickSize : 3;
+                
+                let tick = Math.ceil(range.min / interval) * interval;
+                while (tick <= range.max) {
+                    const y = yScaleSecondary[axis.id](tick);
+                    
+                    // Draw secondary axis major ticks if enabled
+                    if (showMajorTicks) {
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 1;
+                        if (tickDirection === 'out' || tickDirection === 'both') {
+                            ctx.beginPath();
+                            ctx.moveTo(axisX, y);
+                            ctx.lineTo(axisX + majorTickSize, y);
+                            ctx.stroke();
+                        }
+                        if (tickDirection === 'in' || tickDirection === 'both') {
+                            ctx.beginPath();
+                            ctx.moveTo(axisX, y);
+                            ctx.lineTo(axisX - majorTickSize, y);
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // Draw secondary axis minor ticks if enabled
+                    if (showMinorTicks) {
+                        const minorInterval = interval / minorTicksPerMajor;
+                        for (let i = 1; i < minorTicksPerMajor; i++) {
+                            const minorY = y + (minorInterval * i) * (plotHeight / (range.max - range.min));
+                            if (minorY <= plotY + plotHeight) {
+                                ctx.strokeStyle = '#000';
+                                ctx.lineWidth = 1;
+                                if (tickDirection === 'out' || tickDirection === 'both') {
+                                    ctx.beginPath();
+                                    ctx.moveTo(axisX, minorY);
+                                    ctx.lineTo(axisX + minorTickSize, minorY);
+                                    ctx.stroke();
+                                }
+                                if (tickDirection === 'in' || tickDirection === 'both') {
+                                    ctx.beginPath();
+                                    ctx.moveTo(axisX, minorY);
+                                    ctx.lineTo(axisX - minorTickSize, minorY);
+                                    ctx.stroke();
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Draw tick labels
+                    ctx.fillStyle = axis.tickLabelColor;
+                    ctx.font = `${axis.tickLabelSize}px ${axis.tickLabelFont}`;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    // Apply secondary axis tick offset if defined
+                    const offsetX = axis.tickOffsetX || 0;
+                    const offsetY = axis.tickOffsetY || 0;
+                    ctx.fillText(tick.toFixed(2), axisX + 10 + offsetX, y + offsetY);
+                    
+                    tick += interval;
+                }
+            });
+            
+            // Draw axis labels
+            const xLabel = document.getElementById('xLabel').value;
+            const yLabel = document.getElementById('yLabel').value;
+            const xLabelFont = document.getElementById('xLabelFont').value;
+            const yLabelFont = document.getElementById('yLabelFont').value;
+            const xLabelSize = parseInt(document.getElementById('xLabelSize').value);
+            const yLabelSize = parseInt(document.getElementById('yLabelSize').value);
+            const xLabelColor = document.getElementById('xLabelColor').value;
+            const yLabelColor = document.getElementById('yLabelColor').value;
+            
+            // X label (with offset adjustment) - adjust for new coordinate system
+            ctx.fillStyle = xLabelColor;
+            ctx.font = `${xLabelSize}px ${xLabelFont}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(xLabel, plotX + plotWidth / 2 + xLabelOffset.x, plotY + plotHeight + 40 + xLabelOffset.y);
+            
+            // Primary Y label (with offset adjustment) - adjust for new coordinate system
+            ctx.fillStyle = yLabelColor;
+            ctx.font = `${yLabelSize}px ${yLabelFont}`;
+            ctx.save();
+            ctx.translate(plotX - 50 + yLabelOffset.x, plotY + plotHeight / 2 + yLabelOffset.y);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(yLabel, 0, 0);
+            ctx.restore();
+            
+            // Secondary Y axis labels (with offset adjustment)
+            yAxes.forEach((axis, index) => {
+                const axisX = axis.actualX;
+                const labelOffsetX = axis.labelOffsetX || 0;
+                const labelOffsetY = axis.labelOffsetY || 0;
+                
+                ctx.fillStyle = axis.labelColor;
+                ctx.font = `${axis.labelSize}px ${axis.labelFont}`;
+                ctx.save();
+                ctx.translate(axisX + 50 + labelOffsetX, plotY + plotHeight / 2 + labelOffsetY);
+                ctx.rotate(-Math.PI / 2);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(axis.label, 0, 0);
+                ctx.restore();
+            });
+            
+            // Draw plots
+            plots.forEach(plot => {
+                if (!plot.visible) return;
+                
+                // Get data
+                const xData = [];
+                const yData = [];
+                dataTable.forEach(row => {
+                    const x = row[plot.xCol];
+                    const y = row[plot.yCol];
+                    if (x !== null && !isNaN(x) && y !== null && !isNaN(y)) {
+                        xData.push(x);
+                        yData.push(y);
+                    }
+                });
+                
+                if (xData.length === 0) return;
+                
+                // Select appropriate Y scale function
+                const yScale = plot.yAxisId === 'primary' ? yScalePrimary : yScaleSecondary[plot.yAxisId];
+                if (!yScale) return;
+                
+                // Draw based on plot type
+                if (plot.type === 'line' || plot.type === 'line+scatter') {
+                    ctx.strokeStyle = plot.lineColor;
+                    ctx.lineWidth = plot.lineWidth;
+                    
+                    // Apply line dash pattern
+                    const pattern = linePatterns[plot.lineStyle];
+                    if (pattern && pattern.length > 0) {
+                        ctx.setLineDash(pattern);
+                    } else {
+                        ctx.setLineDash([]);
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(xScale(xData[0]), yScale(yData[0]));
+                    for (let i = 1; i < xData.length; i++) {
+                        ctx.lineTo(xScale(xData[i]), yScale(yData[i]));
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]); // Reset for other drawing
+                }
+                
+                if (plot.type === 'scatter' || plot.type === 'line+scatter') {
+                    for (let i = 0; i < xData.length; i++) {
+                        drawMarker(ctx, xScale(xData[i]), yScale(yData[i]), plot.markerSize, plot.markerType, plot.markerColor);
+                    }
+                }
+                
+                if (plot.type === 'bar') {
+                    const barWidth = plotWidth / (xData.length * 2);
+                    for (let i = 0; i < xData.length; i++) {
+                        const x = xScale(xData[i]);
+                        const y = yScale(yData[i]);
+                        const zeroY = yScale(0);
+                        const height = zeroY - y;
+                        
+                        // Create pattern for bar
+                        const pattern = createBarPattern(ctx, plot.barPattern, plot.barPatternColor, 20, 20);
+                        if (pattern) {
+                            ctx.fillStyle = pattern;
+                        } else {
+                            ctx.fillStyle = plot.markerColor;
+                        }
+                        
+                        ctx.fillRect(x - barWidth / 2, y, barWidth, height);
+                    }
+                }
+                
+                if (plot.type === 'area') {
+                    const zeroY = yScale(0);
+                    
+                    // Create pattern for area
+                    const pattern = createBarPattern(ctx, plot.barPattern, plot.barPatternColor + '80', 20, 20);
+                    if (pattern) {
+                        ctx.fillStyle = pattern;
+                    } else {
+                        ctx.fillStyle = plot.markerColor + '80'; // Add transparency
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(xScale(xData[0]), zeroY);
+                    for (let i = 0; i < xData.length; i++) {
+                        ctx.lineTo(xScale(xData[i]), yScale(yData[i]));
+                    }
+                    ctx.lineTo(xScale(xData[xData.length - 1]), zeroY);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+            
+            // Draw legend (with offset adjustment)
+            const showLegend = document.getElementById('showLegend').checked;
+            if (showLegend && plots.some(p => p.visible)) {
+                const legendFont = document.getElementById('legendFont').value;
+                const legendFontSize = parseInt(document.getElementById('legendFontSize').value);
+                const legendPosition = document.getElementById('legendPosition').value;
+                
+                ctx.font = `${legendFontSize}px ${legendFont}`;
+                
+                // Calculate legend size
+                const visiblePlots = plots.filter(p => p.visible);
+                const legendWidth = 150;
+                const legendHeight = visiblePlots.length * (legendFontSize + 10) + 20;
+                
+                // Position legend (with offset adjustment) - adjust for new coordinate system
+                let legendX, legendY;
+                if (legendPosition === 'upper right') {
+                    legendX = plotX + plotWidth - legendWidth - 10;
+                    legendY = plotY + 10;
+                } else if (legendPosition === 'upper left') {
+                    legendX = plotX + 10;
+                    legendY = plotY + 10;
+                } else if (legendPosition === 'lower right') {
+                    legendX = plotX + plotWidth - legendWidth - 10;
+                    legendY = plotY + plotHeight - legendHeight - 10;
+                } else if (legendPosition === 'lower left') {
+                    legendX = plotX + 10;
+                    legendY = plotY + plotHeight - legendHeight - 10;
+                } else { // center
+                    legendX = plotX + (plotWidth - legendWidth) / 2;
+                    legendY = plotY + (plotHeight - legendHeight) / 2;
+                }
+                
+                // Apply legend offset
+                legendX += legendOffset.x;
+                legendY += legendOffset.y;
+                
+                // Draw legend box
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.fillRect(legendX, legendY, legendWidth, legendHeight);
+                ctx.strokeRect(legendX, legendY, legendWidth, legendHeight);
+                
+                // Draw legend items
+                visiblePlots.forEach((plot, idx) => {
+                    const itemY = legendY + 15 + idx * (legendFontSize + 10);
+                    
+                    // Draw symbol based on plot type
+                    if (plot.type.includes('line')) {
+                        ctx.strokeStyle = plot.lineColor;
+                        ctx.lineWidth = plot.lineWidth;
+                        
+                        // Apply line style in legend
+                        const pattern = linePatterns[plot.lineStyle];
+                        if (pattern && pattern.length > 0) {
+                            ctx.setLineDash(pattern);
+                        } else {
+                            ctx.setLineDash([]);
+                        }
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(legendX + 10, itemY);
+                        ctx.lineTo(legendX + 30, itemY);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                    
+                    if (plot.type.includes('scatter')) {
+                        drawMarker(ctx, legendX + 20, itemY, plot.markerSize, plot.markerType, plot.markerColor);
+                    }
+                    
+                    // Draw text
+                    ctx.fillStyle = '#000';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(plot.legend, legendX + 40, itemY);
+                });
+            }
+            
+            // Draw boundary frame LAST so it's on top of everything
+            const boundaryWidth = parseFloat(document.getElementById('boundaryWidth').value);
+            const boundaryColor = document.getElementById('boundaryColor').value;
+            
+            if (boundaryWidth > 0) {
+                ctx.strokeStyle = boundaryColor;
+                ctx.lineWidth = boundaryWidth;
+                ctx.strokeRect(plotX, plotY, plotWidth, plotHeight);
+            }
+        }
+
+        // New functions for position adjustments
+
+        // Adjust plot boundary margins
+        function adjustBoundary(direction, amount) {
+            if (direction === 'top') margin.top += amount;
+            if (direction === 'bottom') margin.bottom += amount;
+            if (direction === 'left') margin.left += amount;
+            if (direction === 'right') margin.right += amount;
+            
+            // Ensure minimum margins
+            margin.top = Math.max(10, margin.top);
+            margin.bottom = Math.max(10, margin.bottom);
+            margin.left = Math.max(10, margin.left);
+            margin.right = Math.max(10, margin.right);
+            
+            updatePlot();
+        }
+
+        // Reset boundary to default
+        function resetBoundary() {
+            margin = { ...defaultMargin };
+            updatePlot();
+        }
+
+        // Adjust X label position
+        function adjustXLabelPosition(axis, amount) {
+            if (axis === 'x') xLabelOffset.x += amount;
+            if (axis === 'y') xLabelOffset.y += amount;
+            updatePlot();
+        }
+
+        // Reset X label position
+        function resetXLabelPosition() {
+            xLabelOffset = { x: 0, y: 0 };
+            updatePlot();
+        }
+
+        // Adjust Y label position
+        function adjustYLabelPosition(axis, amount) {
+            if (axis === 'x') yLabelOffset.x += amount;
+            if (axis === 'y') yLabelOffset.y += amount;
+            updatePlot();
+        }
+
+        // Reset Y label position
+        function resetYLabelPosition() {
+            yLabelOffset = { x: 0, y: 0 };
+            updatePlot();
+        }
+
+        // Adjust X tick position
+        function adjustXTickPosition(axis, amount) {
+            if (axis === 'x') xTickOffset.x += amount;
+            if (axis === 'y') xTickOffset.y += amount;
+            updatePlot();
+        }
+
+        // Reset X tick position
+        function resetXTickPosition() {
+            xTickOffset = { x: 0, y: 0 };
+            updatePlot();
+        }
+
+        // Adjust Y tick position
+        function adjustYTickPosition(axis, amount) {
+            if (axis === 'x') yTickOffset.x += amount;
+            if (axis === 'y') yTickOffset.y += amount;
+            updatePlot();
+        }
+
+        // Reset Y tick position
+        function resetYTickPosition() {
+            yTickOffset = { x: 0, y: 0 };
+            updatePlot();
+        }
+
+        // Adjust legend position
+        function adjustLegendPosition(axis, amount) {
+            if (axis === 'x') legendOffset.x += amount;
+            if (axis === 'y') legendOffset.y += amount;
+            updatePlot();
+        }
+
+        // Reset legend position
+        function resetLegendPosition() {
+            legendOffset = { x: 0, y: 0 };
+            updatePlot();
+        }
+
+        // Toggle Part 1
+        function togglePart1() {
+            const part1 = document.getElementById('part1');
+            const isExpanded = part1.classList.toggle('expanded');
+            const btn = document.querySelector('.collapse-btn');
+            
+            if (isExpanded) {
+                btn.textContent = '◀';
+                // When expanded, initialize grid with 20 columns if not already done
+                if (document.getElementById('dataGrid').children.length === 0) {
+                    initDataGrid(20, 20);
+                }
+            } else {
+                btn.textContent = '▶';
+            }
+        }
+
+        // Add Y Axis - UPDATED with color palettes
+        function addYAxis() {
+            const axisId = `yaxis-${yAxisCounter}`;
+            const yAxis = {
+                id: axisId,
+                index: yAxisCounter + 1,
+                label: `Y Axis ${yAxisCounter + 1}`,
+                min: null,
+                max: null,
+                tickInterval: null,
+                labelFont: 'Arial',
+                labelSize: 12,
+                labelColor: '#000000',
+                tickLabelFont: 'Arial',
+                tickLabelSize: 10,
+                tickLabelColor: '#000000',
+                labelOffsetX: 0,
+                labelOffsetY: 0,
+                tickOffsetX: 0,
+                tickOffsetY: 0,
+                positionOffset: 0, // New property for axis position
+                // NEW: Tick settings for secondary axes
+                showMajorTicks: true,
+                showMinorTicks: true,
+                minorTicksPerMajor: 5,
+                tickDirection: 'out',
+                majorTickSize: 6,
+                minorTickSize: 3
+            };
+            
+            yAxes.push(yAxis);
+            yAxisCounter++;
+            
+            // Initialize position for this axis
+            axisPositions[axisId] = 0;
+            
+            // Add a floating panel for this secondary axis
+            addSecondaryAxisFloatingPanel(axisId, yAxis);
+            
+            // Add a button in Part 3 to open this panel
+            addSecondaryAxisButtonToPart3(axisId, yAxis.index);
+            
+            // Add position controls for this axis to the position controls panel
+            addYAxisPositionControls(axisId, yAxis.index);
+            
+            // Update all plot editors to include this new axis
+            updateYAxisSelectors();
+            
+            // Update the plot
+            updatePlot();
+        }
+        
+        // Add a floating panel for a secondary axis - UPDATED with color palettes
+        function addSecondaryAxisFloatingPanel(axisId, axis) {
+            const panel = document.createElement('div');
+            panel.className = 'floating-panel secondary-axis';
+            panel.id = `floating-secondary-axis-${axisId}`;
+            
+            panel.innerHTML = `
+                <div class="floating-panel-header">
+                    <h3>Secondary Y Axis ${axis.index}
+                        <button class="delete-axis-btn" onclick="removeYAxis('${axisId}')">Remove</button>
+                    </h3>
+                    <button class="close-panel-btn" onclick="closeFloatingPanel('secondary-axis-${axisId}')">×</button>
+                </div>
+                <div class="floating-panel-content">
+                    <div class="setting-item">
+                        <label>Y Min:</label>
+                        <input type="number" id="${axisId}-min" step="any" onchange="updateYAxisProperty('${axisId}', 'min', this.value ? parseFloat(this.value) : null)">
+                    </div>
+                    <div class="setting-item">
+                        <label>Y Max:</label>
+                        <input type="number" id="${axisId}-max" step="any" onchange="updateYAxisProperty('${axisId}', 'max', this.value ? parseFloat(this.value) : null)">
+                    </div>
+                    <div class="setting-item">
+                        <label>Major Tick Interval:</label>
+                        <input type="number" id="${axisId}-tick" step="any" onchange="updateYAxisProperty('${axisId}', 'tickInterval', this.value ? parseFloat(this.value) : null)">
+                    </div>
+                    <div class="setting-item">
+                        <label>Y Label:</label>
+                        <input type="text" id="${axisId}-label" value="${axis.label}" onchange="updateYAxisProperty('${axisId}', 'label', this.value)">
+                    </div>
+                    <div class="setting-item">
+                        <label>Label Font Family:</label>
+                        <select id="${axisId}-labelfont" onchange="updateYAxisProperty('${axisId}', 'labelFont', this.value)">
+                            <option value="Arial" ${axis.labelFont === 'Arial' ? 'selected' : ''}>Arial</option>
+                            <option value="Calibri" ${axis.labelFont === 'Calibri' ? 'selected' : ''}>Calibri</option>
+                            <option value="Times New Roman" ${axis.labelFont === 'Times New Roman' ? 'selected' : ''}>Times New Roman</option>
+                            <option value="Georgia" ${axis.labelFont === 'Georgia' ? 'selected' : ''}>Georgia</option>
+                            <option value="Verdana" ${axis.labelFont === 'Verdana' ? 'selected' : ''}>Verdana</option>
+                            <option value="Helvetica" ${axis.labelFont === 'Helvetica' ? 'selected' : ''}>Helvetica</option>
+                            <option value="Courier New" ${axis.labelFont === 'Courier New' ? 'selected' : ''}>Courier New</option>
+                            <option value="Trebuchet MS" ${axis.labelFont === 'Trebuchet MS' ? 'selected' : ''}>Trebuchet MS</option>
+                            <option value="Comic Sans MS" ${axis.labelFont === 'Comic Sans MS' ? 'selected' : ''}>Comic Sans MS</option>
+                            <option value="Impact" ${axis.labelFont === 'Impact' ? 'selected' : ''}>Impact</option>
+                            <option value="Palatino" ${axis.labelFont === 'Palatino' ? 'selected' : ''}>Palatino</option>
+                            <option value="Garamond" ${axis.labelFont === 'Garamond' ? 'selected' : ''}>Garamond</option>
+                            <option value="Bookman" ${axis.labelFont === 'Bookman' ? 'selected' : ''}>Bookman</option>
+                            <option value="Tahoma" ${axis.labelFont === 'Tahoma' ? 'selected' : ''}>Tahoma</option>
+                            <option value="Century Gothic" ${axis.labelFont === 'Century Gothic' ? 'selected' : ''}>Century Gothic</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Label Font Size:</label>
+                        <input type="number" id="${axisId}-labelsize" value="${axis.labelSize}" onchange="updateYAxisProperty('${axisId}', 'labelSize', parseInt(this.value))">
+                    </div>
+                    <div class="setting-item">
+                        <label>Label Color:</label>
+                        <div class="color-picker-container">
+                            <div class="color-box" style="background-color: ${axis.labelColor};" onclick="openColorPicker('${axisId}-labelcolor')"></div>
+                            <input type="text" class="color-input" id="${axisId}-labelcolor" value="${axis.labelColor}" onchange="updateColorBox('${axisId}-labelcolor'); updateYAxisProperty('${axisId}', 'labelColor', this.value)">
+                        </div>
+                        <div class="color-palette" id="${axisId}-labelcolor-palette"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label>Tick Label Font Family:</label>
+                        <select id="${axisId}-ticklabelfont" onchange="updateYAxisProperty('${axisId}', 'tickLabelFont', this.value)">
+                            <option value="Arial" ${axis.tickLabelFont === 'Arial' ? 'selected' : ''}>Arial</option>
+                            <option value="Calibri" ${axis.tickLabelFont === 'Calibri' ? 'selected' : ''}>Calibri</option>
+                            <option value="Times New Roman" ${axis.tickLabelFont === 'Times New Roman' ? 'selected' : ''}>Times New Roman</option>
+                            <option value="Georgia" ${axis.tickLabelFont === 'Georgia' ? 'selected' : ''}>Georgia</option>
+                            <option value="Verdana" ${axis.tickLabelFont === 'Verdana' ? 'selected' : ''}>Verdana</option>
+                            <option value="Helvetica" ${axis.tickLabelFont === 'Helvetica' ? 'selected' : ''}>Helvetica</option>
+                            <option value="Courier New" ${axis.tickLabelFont === 'Courier New' ? 'selected' : ''}>Courier New</option>
+                            <option value="Trebuchet MS" ${axis.tickLabelFont === 'Trebuchet MS' ? 'selected' : ''}>Trebuchet MS</option>
+                            <option value="Comic Sans MS" ${axis.tickLabelFont === 'Comic Sans MS' ? 'selected' : ''}>Comic Sans MS</option>
+                            <option value="Impact" ${axis.tickLabelFont === 'Impact' ? 'selected' : ''}>Impact</option>
+                            <option value="Palatino" ${axis.tickLabelFont === 'Palatino' ? 'selected' : ''}>Palatino</option>
+                            <option value="Garamond" ${axis.tickLabelFont === 'Garamond' ? 'selected' : ''}>Garamond</option>
+                            <option value="Bookman" ${axis.tickLabelFont === 'Bookman' ? 'selected' : ''}>Bookman</option>
+                            <option value="Tahoma" ${axis.tickLabelFont === 'Tahoma' ? 'selected' : ''}>Tahoma</option>
+                            <option value="Century Gothic" ${axis.tickLabelFont === 'Century Gothic' ? 'selected' : ''}>Century Gothic</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Tick Label Size:</label>
+                        <input type="number" id="${axisId}-ticklabelsize" value="${axis.tickLabelSize}" onchange="updateYAxisProperty('${axisId}', 'tickLabelSize', parseInt(this.value))">
+                    </div>
+                    <div class="setting-item">
+                        <label>Tick Label Color:</label>
+                        <div class="color-picker-container">
+                            <div class="color-box" style="background-color: ${axis.tickLabelColor};" onclick="openColorPicker('${axisId}-ticklabelcolor')"></div>
+                            <input type="text" class="color-input" id="${axisId}-ticklabelcolor" value="${axis.tickLabelColor}" onchange="updateColorBox('${axisId}-ticklabelcolor'); updateYAxisProperty('${axisId}', 'tickLabelColor', this.value)">
+                        </div>
+                        <div class="color-palette" id="${axisId}-ticklabelcolor-palette"></div>
+                    </div>
+                    
+                    <!-- NEW: Tick settings for secondary axis -->
+                    <div class="tick-sub-section">
+                        <h4>Tick Settings</h4>
+                        <div class="setting-item">
+                            <label>Show Major Ticks:</label>
+                            <input type="checkbox" id="${axisId}-showmajorticks" ${axis.showMajorTicks ? 'checked' : ''} onchange="updateYAxisProperty('${axisId}', 'showMajorTicks', this.checked)">
+                        </div>
+                        <div class="setting-item">
+                            <label>Show Minor Ticks:</label>
+                            <input type="checkbox" id="${axisId}-showminorticks" ${axis.showMinorTicks ? 'checked' : ''} onchange="updateYAxisProperty('${axisId}', 'showMinorTicks', this.checked)">
+                        </div>
+                        <div class="setting-item">
+                            <label>Minor Ticks per Major:</label>
+                            <input type="number" id="${axisId}-minortickspermajor" value="${axis.minorTicksPerMajor}" min="1" max="20" onchange="updateYAxisProperty('${axisId}', 'minorTicksPerMajor', parseInt(this.value))">
+                        </div>
+                        <div class="setting-item">
+                            <label>Tick Direction:</label>
+                            <select id="${axisId}-tickdirection" onchange="updateYAxisProperty('${axisId}', 'tickDirection', this.value)">
+                                <option value="out" ${axis.tickDirection === 'out' ? 'selected' : ''}>Outward</option>
+                                <option value="in" ${axis.tickDirection === 'in' ? 'selected' : ''}>Inward</option>
+                                <option value="both" ${axis.tickDirection === 'both' ? 'selected' : ''}>Both</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>Major Tick Size:</label>
+                            <input type="number" id="${axisId}-majorticksize" value="${axis.majorTickSize}" min="1" max="20" step="0.5" onchange="updateYAxisProperty('${axisId}', 'majorTickSize', parseFloat(this.value))">
+                        </div>
+                        <div class="setting-item">
+                            <label>Minor Tick Size:</label>
+                            <input type="number" id="${axisId}-minorticksize" value="${axis.minorTickSize}" min="1" max="20" step="0.5" onchange="updateYAxisProperty('${axisId}', 'minorTickSize', parseFloat(this.value))">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(panel);
+            
+            // Position and make draggable
+            const left = 100 + (yAxes.length - 1) * 30;
+            const top = 100 + (yAxes.length - 1) * 30;
+            panel.style.left = `${left}px`;
+            panel.style.top = `${top}px`;
+            panel.style.display = 'block';
+            panel.dataset.positioned = 'true';
+            
+            // Initialize draggable
+            makeDraggable(panel, panel.querySelector('.floating-panel-header'));
+            panel.dataset.draggableInitialized = 'true';
+            
+            // Bring to front
+            panelZIndex++;
+            panel.style.zIndex = panelZIndex;
+            
+            // Add to active panels
+            activePanels.add(`secondary-axis-${axisId}`);
+            
+            // Create color palettes for this axis
+            setTimeout(() => {
+                createColorPalette(`${axisId}-labelcolor-palette`, `${axisId}-labelcolor`, 'gridAxis');
+                createColorPalette(`${axisId}-ticklabelcolor-palette`, `${axisId}-ticklabelcolor`, 'gridAxis');
+            }, 100);
+        }
+        
+        // Add a button in Part 3 to open the secondary axis floating panel
+        function addSecondaryAxisButtonToPart3(axisId, axisIndex) {
+            const container = document.getElementById('secondary-y-axes-buttons-container');
+            
+            const axisButton = document.createElement('div');
+            axisButton.className = 'setting-group-btn secondary-axis-btn';
+            axisButton.onclick = function() { openFloatingPanel(`secondary-axis-${axisId}`); };
+            axisButton.innerHTML = `
+                <h3>
+                    Secondary Y Axis ${axisIndex}
+                    <button class="open-btn">Open</button>
+                </h3>
+            `;
+            
+            container.appendChild(axisButton);
+        }
+        
+        // Add position controls for a new Y axis to the position controls panel
+        function addYAxisPositionControls(axisId, axisIndex) {
+            const container = document.getElementById('secondary-axis-controls-container');
+            
+            const axisControls = document.createElement('div');
+            axisControls.className = 'position-control-group';
+            axisControls.id = `axis-controls-${axisId}`;
+            axisControls.innerHTML = `
+                <h4>Y Axis ${axisIndex} Position</h4>
+                <div class="position-controls">
+                    <div style="margin-bottom: 6px;">
+                        <div class="position-label" style="font-size: 0.5em; margin-bottom: 2px;">Label Position:</div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisLabelPosition('${axisId}', 'y', -2)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisLabelPosition('${axisId}', 'x', -2)">←</button>
+                            <button class="pos-center-btn" onclick="resetYAxisLabelPosition('${axisId}')">R</button>
+                            <button class="pos-btn" onclick="adjustYAxisLabelPosition('${axisId}', 'x', 2)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisLabelPosition('${axisId}', 'y', 2)">↓</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        <div class="position-label" style="font-size: 0.5em; margin-bottom: 2px;">Tick Position:</div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisTickPosition('${axisId}', 'y', -1)">↑</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisTickPosition('${axisId}', 'x', -1)">←</button>
+                            <button class="pos-center-btn" onclick="resetYAxisTickPosition('${axisId}')">R</button>
+                            <button class="pos-btn" onclick="adjustYAxisTickPosition('${axisId}', 'x', 1)">→</button>
+                        </div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisTickPosition('${axisId}', 'y', 1)">↓</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="position-label" style="font-size: 0.5em; margin-bottom: 2px;">Axis Position:</div>
+                        <div class="position-row">
+                            <button class="pos-btn" onclick="adjustYAxisPosition('${axisId}', -5)">←</button>
+                            <button class="pos-center-btn" onclick="resetYAxisPosition('${axisId}')">R</button>
+                            <button class="pos-btn" onclick="adjustYAxisPosition('${axisId}', 5)">→</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(axisControls);
+        }
+        
+        // Update Y axis property
+        function updateYAxisProperty(axisId, property, value) {
+            const axis = yAxes.find(a => a.id === axisId);
+            if (axis) {
+                axis[property] = value;
+                updateYAxisSelectors(); // Update selector labels if label changed
+                updatePlot();
+            }
+        }
+        
+        // Remove Y axis
+        function removeYAxis(axisId) {
+            // Remove from array
+            yAxes = yAxes.filter(a => a.id !== axisId);
+            
+            // Remove from positions tracking
+            delete axisPositions[axisId];
+            
+            // Remove floating panel
+            const panelElement = document.getElementById(`floating-secondary-axis-${axisId}`);
+            if (panelElement) {
+                panelElement.remove();
+            }
+            
+            // Remove button from Part 3
+            const buttonsContainer = document.getElementById('secondary-y-axes-buttons-container');
+            const buttons = buttonsContainer.querySelectorAll('.setting-group-btn');
+            buttons.forEach(button => {
+                if (button.textContent.includes(`Secondary Y Axis`) && button.textContent.includes(axisId.substring(axisId.lastIndexOf('-') + 1))) {
+                    button.remove();
+                }
+            });
+            
+            // Remove position controls from the position controls panel
+            const controlsElement = document.getElementById(`axis-controls-${axisId}`);
+            if (controlsElement) {
+                controlsElement.remove();
+            }
+            
+            // Reset any plots using this axis to primary
+            plots.forEach(plot => {
+                if (plot.yAxisId === axisId) {
+                    plot.yAxisId = 'primary';
+                }
+            });
+            
+            // Update selectors and plot
+            updateYAxisSelectors();
+            updatePlot();
+        }
+
+        // New functions for secondary Y axis adjustments
+        function adjustYAxisLabelPosition(axisId, axis, amount) {
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                if (axis === 'x') axisObj.labelOffsetX = (axisObj.labelOffsetX || 0) + amount;
+                if (axis === 'y') axisObj.labelOffsetY = (axisObj.labelOffsetY || 0) + amount;
+                updatePlot();
+            }
+        }
+
+        function resetYAxisLabelPosition(axisId) {
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                axisObj.labelOffsetX = 0;
+                axisObj.labelOffsetY = 0;
+                updatePlot();
+            }
+        }
+
+        function adjustYAxisTickPosition(axisId, axis, amount) {
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                if (axis === 'x') axisObj.tickOffsetX = (axisObj.tickOffsetX || 0) + amount;
+                if (axis === 'y') axisObj.tickOffsetY = (axisObj.tickOffsetY || 0) + amount;
+                updatePlot();
+            }
+        }
+
+        function resetYAxisTickPosition(axisId) {
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                axisObj.tickOffsetX = 0;
+                axisObj.tickOffsetY = 0;
+                updatePlot();
+            }
+        }
+
+        function adjustYAxisPosition(axisId, amount) {
+            // Update the axis position offset
+            axisPositions[axisId] = (axisPositions[axisId] || 0) + amount;
+            
+            // Also update the axis object for consistency
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                axisObj.positionOffset = axisPositions[axisId];
+            }
+            
+            updatePlot();
+        }
+
+        function resetYAxisPosition(axisId) {
+            // Reset axis position to default
+            axisPositions[axisId] = 0;
+            
+            // Also update the axis object for consistency
+            const axisObj = yAxes.find(a => a.id === axisId);
+            if (axisObj) {
+                axisObj.positionOffset = 0;
+            }
+            
+            updatePlot();
+        }
+
+        // Image export functions - simplified to use the actual canvas
+        function copyImage() {
+            const canvas = document.getElementById('plotCanvas');
+            
+            // Use the actual canvas directly (it already has the full plot)
+            canvas.toBlob(blob => {
+                const item = new ClipboardItem({ 'image/png': blob });
+                navigator.clipboard.write([item]).then(() => {
+                    alert('High-resolution image copied to clipboard!');
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('Failed to copy image. Please try downloading instead.');
+                });
+            });
+        }
+
+        function downloadPNG() {
+            const canvas = document.getElementById('plotCanvas');
+            
+            // Create download link using the actual canvas
+            const link = document.createElement('a');
+            link.download = 'plot.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadJPG() {
+            const canvas = document.getElementById('plotCanvas');
+            
+            // Create download link using the actual canvas
+            const link = document.createElement('a');
+            link.download = 'plot.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.95); // 95% quality
+            link.click();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Initialize with collapsed data table (20 columns by default)
+            initDataGrid(20, 20);
+            // Initialize color boxes and palettes
+            initializeColorBoxes();
+            updatePlot();
+        };
+    </script>
+</body>
+</html>
